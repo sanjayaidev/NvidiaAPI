@@ -5,7 +5,7 @@
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 
-const ALLOWED_FAMILIES = ['deepseek', 'kimi', 'qwen', 'mistral', 'llama'];
+const ALLOWED_FAMILIES = ['abacusai', 'deepseek', 'kimi', 'moonshotai', 'mistral', 'llama', 'nvidia'];
 
 function isAllowedModel(modelId) {
   const id = (modelId || '').toLowerCase();
