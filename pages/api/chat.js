@@ -18,19 +18,31 @@ const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 // users. NVIDIA's catalog is huge and constantly changing — this keeps the
 // dropdown to the curated families requested, without hardcoding exact
 // version strings that go stale.
-const ALLOWED_FAMILIES = ['deepseek', 'kimi', 'qwen', 'mistral', 'llama'];
+const ALLOWED_FAMILIES = ['abacusai', 'deepseek', 'kimi', 'moonshotai', 'mistral', 'llama', 'nvidia'];
 
 // Fallback list, used only if the live /v1/models call fails entirely
 // (e.g. NVIDIA outage). Not the source of truth — see listModels() below.
 const FALLBACK_MODELS = [
+  'abacusai/dracarys-llama-3.1-70b-instruct',
+  'deepseek-ai/deepseek-v4-flash',
+  'deepseek-ai/deepseek-v4-pro',
   'meta/llama-3.1-70b-instruct',
   'meta/llama-3.1-8b-instruct',
+  'meta/llama-3.2-11b-vision-instruct',
   'meta/llama-3.2-1b-instruct',
   'meta/llama-3.2-3b-instruct',
-  'deepseek-ai/deepseek-r1',
-  'qwen/qwen-2.5-coder-32b-instruct',
-  'mistralai/mistral-large-2-instruct',
+  'meta/llama-3.2-90b-vision-instruct',
+  'meta/llama-3.3-70b-instruct',
+  'meta/llama-4-maverick-17b-128e-instruct',
+  'meta/llama-guard-4-12b',
+  'mistralai/ministral-14b-instruct-2512',
+  'mistralai/mistral-large-3-675b-instruct-2512',
+  'mistralai/mistral-medium-3.5-128b',
+  'mistralai/mistral-small-4-119b-2603',
   'mistralai/mixtral-8x7b-instruct-v0.1',
+  'moonshotai/kimi-k2.6',
+  'nvidia/llama-3.1-nemoguard-8b-content-safety',
+  'nvidia/llama-3.1-nemoguard-8b-topic-control',
 ];
 
 // Default RPM per model if NVIDIA's panel hasn't given us a specific
@@ -156,7 +168,7 @@ export default async function handler(req) {
   }
 
   if (!isAllowedModel(model)) {
-    return json({ error: `Model "${model}" is not in the allowed list (deepseek, kimi, qwen, mistral, llama only)` }, 403);
+    return json({ error: `Model "${model}" is not in the allowed list` }, 403);
   }
 
   // Per-model rate limit, enforced via Upstash before we spend any NVIDIA quota.
