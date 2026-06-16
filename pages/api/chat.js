@@ -14,15 +14,8 @@ export const config = {
 
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 
-// Only models whose id contains one of these substrings are exposed to
-// users. NVIDIA's catalog is huge and constantly changing — this keeps the
-// dropdown to the curated families requested, without hardcoding exact
-// version strings that go stale.
-const ALLOWED_FAMILIES = ['abacusai', 'deepseek', 'kimi', 'moonshotai', 'mistral', 'llama', 'nvidia'];
-
-// Fallback list, used only if the live /v1/models call fails entirely
-// (e.g. NVIDIA outage). Not the source of truth — see listModels() below.
-const FALLBACK_MODELS = [
+// Exact list of allowed models - only these will appear in the dropdown
+const ALLOWED_MODELS = [
   'abacusai/dracarys-llama-3.1-70b-instruct',
   'deepseek-ai/deepseek-v4-flash',
   'deepseek-ai/deepseek-v4-pro',
@@ -45,6 +38,10 @@ const FALLBACK_MODELS = [
   'nvidia/llama-3.1-nemoguard-8b-topic-control',
 ];
 
+function isAllowedModel(modelId) {
+  return ALLOWED_MODELS.includes(modelId);
+}
+
 // Default RPM per model if NVIDIA's panel hasn't given us a specific
 // override for that model id. NVIDIA's own docs note limits "may vary by
 // model" — override per-id here as you confirm real numbers from your panel.
@@ -56,11 +53,6 @@ const MODEL_RPM_OVERRIDES = {
 
 function rpmForModel(modelId) {
   return MODEL_RPM_OVERRIDES[modelId] || DEFAULT_RPM;
-}
-
-function isAllowedModel(modelId) {
-  const id = (modelId || '').toLowerCase();
-  return ALLOWED_FAMILIES.some((fam) => id.includes(fam));
 }
 
 // ---- Upstash Redis-backed per-model rate limiter ----
@@ -108,19 +100,19 @@ function json(data, status = 200, extraHeaders = {}) {
 }
 
 async function listModels(apiKey) {
+  // Return only our curated list of allowed models
+  // We still make the API call to verify the key works, but ignore the results
   try {
     const r = await fetch(`${NVIDIA_BASE_URL}/models`, {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
     if (!r.ok) throw new Error(`status ${r.status}`);
-    const data = await r.json();
-    const ids = (data.data || []).map((m) => m.id).filter(Boolean);
-    const filtered = ids.filter(isAllowedModel).sort();
-    if (filtered.length) return filtered;
+    // API key is valid, return our curated list
+    return ALLOWED_MODELS;
   } catch (_) {
-    // fall through to fallback list below
+    // Even if API call fails, return our curated list
+    return ALLOWED_MODELS;
   }
-  return FALLBACK_MODELS.filter(isAllowedModel);
 }
 
 export default async function handler(req) {
