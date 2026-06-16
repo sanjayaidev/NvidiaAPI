@@ -18,7 +18,7 @@ const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 // users. NVIDIA's catalog is huge and constantly changing — this keeps the
 // dropdown to the curated families requested, without hardcoding exact
 // version strings that go stale.
-const ALLOWED_FAMILIES = ['llama', 'deepseek'];
+const ALLOWED_FAMILIES = ['deepseek', 'kimi', 'qwen', 'mistral', 'llama'];
 
 // Fallback list, used only if the live /v1/models call fails entirely
 // (e.g. NVIDIA outage). Not the source of truth — see listModels() below.
@@ -28,6 +28,9 @@ const FALLBACK_MODELS = [
   'meta/llama-3.2-1b-instruct',
   'meta/llama-3.2-3b-instruct',
   'deepseek-ai/deepseek-r1',
+  'qwen/qwen-2.5-coder-32b-instruct',
+  'mistralai/mistral-large-2-instruct',
+  'mistralai/mixtral-8x7b-instruct-v0.1',
 ];
 
 // Default RPM per model if NVIDIA's panel hasn't given us a specific
@@ -153,7 +156,7 @@ export default async function handler(req) {
   }
 
   if (!isAllowedModel(model)) {
-    return json({ error: `Model "${model}" is not in the allowed list (llama / deepseek only)` }, 403);
+    return json({ error: `Model "${model}" is not in the allowed list (deepseek, kimi, qwen, mistral, llama only)` }, 403);
   }
 
   // Per-model rate limit, enforced via Upstash before we spend any NVIDIA quota.
