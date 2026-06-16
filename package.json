@@ -1,0 +1,17 @@
+{
+  "name": "nvidia-chat-system",
+  "version": "1.0.0",
+  "description": "Chat system with multimodal selection using NVIDIA NVAI API",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14",
+    "react": "^18",
+    "react-dom": "^18",
+    "openai": "^4"
+  }
+}
