@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMAgents · AI Tool Suite</title>
+  <!-- Google Font & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0c10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* main dashboard – glass + glow */
+    .dashboard {
+      max-width: 1440px;
+      width: 100%;
+      height: 92vh;
+      max-height: 860px;
+      background: rgba(18, 22, 28, 0.8);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 40px;
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04);
+      display: flex;
+      overflow: hidden;
+      transition: box-shadow 0.25s;
+      position: relative;
+    }
+
+    /* ===== LEFT SIDEBAR ===== */
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: rgba(12, 16, 22, 0.6);
+      backdrop-filter: blur(4px);
+      border-right: 1px solid rgba(255,255,255,0.04);
+      padding: 28px 18px 24px 18px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+      padding-left: 6px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: white;
+      box-shadow: 0 8px 24px -6px #7c5cfc80;
+    }
+
+    .brand-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #f0f4fe;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-text span {
+      font-size: 13px;
+      color: #8896b0;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .tool-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tool-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: 18px;
+      color: #b6c2da;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+    }
+
+    .tool-item i {
+      width: 24px;
+      font-size: 18px;
+      color: #7a88a6;
+      transition: 0.2s;
+    }
+
+    .tool-item:hover {
+      background: rgba(255,255,255,0.04);
+      color: #eaeef7;
+      border-color: rgba(255,255,255,0.04);
+    }
+
+    .tool-item:hover i {
+      color: #a78bfa;
+    }
+
+    .tool-item.active {
+      background: rgba(124, 92, 252, 0.15);
+      border-color: rgba(124, 92, 252, 0.25);
+      color: #f0f4fe;
+      box-shadow: 0 4px 16px -6px rgba(124, 92, 252, 0.2);
+    }
+
+    .tool-item.active i {
+      color: #a78bfa;
+    }
+
+    .tool-item .badge {
+      margin-left: auto;
+      background: rgba(124, 92, 252, 0.2);
+      padding: 2px 10px;
+      border-radius: 40px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #a78bfa;
+    }
+
+    .sidebar-footer {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-footer .user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 4px;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      background: #2a3140;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b6c2da;
+      font-weight: 600;
+    }
+
+    .user-info {
+      font-size: 14px;
+      color: #d0d9ec;
+    }
+
+    .user-info small {
+      display: block;
+      font-size: 12px;
+      color: #6a7a94;
+    }
+
+    /* ===== MAIN CHAT AREA ===== */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      position: relative;
+    }
+
+    /* header with model selector */
+    .chat-header {
+      padding: 18px 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .model-selector {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .model-selector label {
+      color: #9aabca;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .model-selector select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 40px;
+      padding: 8px 20px 8px 18px;
+      color: #eef2f9;
+      font-weight: 500;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      backdrop-filter: blur(4px);
+      transition: 0.2s;
+    }
+
+    .model-selector select:focus {
+      border-color: #7c5cfc;
+      box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+    }
+
+    .model-selector select option {
+      background: #1a1f29;
+      color: #eef2f9;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .exec-toggle {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #b6c2da;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .exec-toggle i {
+      font-size: 15px;
+    }
+
+    .exec-toggle:hover {
+      background: rgba(124, 92, 252, 0.15);
+      border-color: #7c5cfc;
+      color: #fff;
+    }
+
+    .exec-toggle.active {
+      background: #7c5cfc;
+      border-color: #7c5cfc;
+      color: white;
+      box-shadow: 0 8px 24px -8px #7c5cfc;
+    }
+
+    /* chat messages */
+    .chat-messages {
+      flex: 1;
+      padding: 24px 28px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #3d4452;
+      border-radius: 10px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 14px 20px;
+      border-radius: 24px;
+      font-size: 15px;
+      line-height: 1.6;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      word-break: break-word;
+    }
+
+    @keyframes slideUp {
+      0% { opacity: 0; transform: translateY(14px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(145deg, #2d3440, #1e232e);
+      border-bottom-right-radius: 6px;
+      color: #eef4fd;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .message.ai {
+      align-self: flex-start;
+      background: rgba(40, 46, 58, 0.7);
+      backdrop-filter: blur(2px);
+      border-bottom-left-radius: 6px;
+      color: #eef4fd;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .message .msg-icon {
+      margin-right: 10px;
+      color: #a78bfa;
+    }
+
+    .message .timestamp {
+      font-size: 10px;
+      opacity: 0.35;
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    /* input */
+    .chat-input-area {
+      padding: 16px 24px 24px 24px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.1);
+    }
+
+    .input-wrapper {
+      flex: 1;
+      display: flex;
+      background: rgba(255,255,255,0.04);
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 4px 4px 4px 22px;
+      transition: 0.2s;
+      backdrop-filter: blur(4px);
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #7c5cfc;
+      box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12);
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 14px 0;
+      font-size: 15px;
+      color: #f0f4fc;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .input-wrapper input::placeholder {
+      color: #5b6a84;
+    }
+
+    .input-wrapper button {
+      background: #7c5cfc;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 24px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 8px 24px -8px #7c5cfc;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .input-wrapper button:hover {
+      background: #6b4be8;
+      transform: scale(1.02);
+    }
+
+    /* ===== EXECUTOR OVERLAY ===== */
+    .executor-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 10, 14, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 32px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translateY(16px);
+      border-radius: 40px;
+    }
+
+    .executor-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    .executor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    .executor-header h3 {
+      font-weight: 600;
+      font-size: 20px;
+      color: #f0f4fe;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .executor-header h3 i {
+      color: #a78bfa;
+    }
+
+    .close-executor {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #b6c2da;
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .close-executor:hover {
+      background: rgba(255, 70, 70, 0.12);
+      border-color: #ff4757;
+      color: #ff6b81;
+    }
+
+    .executor-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    .code-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .code-section label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #a8b3cc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .code-section label i {
+      color: #7c5cfc;
+    }
+
+    .code-editor {
+      background: #11161e;
+      border: 1px solid #282f3a;
+      border-radius: 18px;
+      padding: 16px 18px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      color: #d4dcec;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: 0.2s;
+      line-height: 1.6;
+    }
+
+    .code-editor:focus {
+      border-color: #7c5cfc;
+      box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+    }
+
+    .executor-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .exec-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #2a313e;
+      padding: 10px 24px;
+      border-radius: 40px;
+      color: #d4dcec;
+      font-weight: 500;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .exec-btn.primary {
+      background: #7c5cfc;
+      border-color: #7c5cfc;
+      color: white;
+      box-shadow: 0 8px 24px -8px #7c5cfc;
+    }
+
+    .exec-btn.primary:hover {
+      background: #6b4be8;
+      transform: scale(1.02);
+    }
+
+    .exec-btn.danger {
+      border-color: #ff4757;
+      color: #ff6b81;
+    }
+
+    .exec-btn.danger:hover {
+      background: rgba(255, 70, 70, 0.1);
+    }
+
+    .exec-btn:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: #4a5468;
+    }
+
+    #executionFeedback {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #a8b3cc;
+      min-height: 28px;
+    }
+
+    /* responsive */
+    @media (max-width: 820px) {
+      .sidebar {
+        width: 220px;
+        min-width: 220px;
+        padding: 20px 12px;
+      }
+      .brand-text h1 { font-size: 18px; }
+      .tool-item { font-size: 14px; padding: 10px 12px; }
+    }
+
+    @media (max-width: 640px) {
+      .dashboard {
+        flex-direction: column;
+        height: 98vh;
+        border-radius: 28px;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: unset;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        max-height: 180px;
+        overflow-y: auto;
+      }
+      .sidebar-brand { margin-bottom: 12px; }
+      .tool-list { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+      .tool-item { padding: 8px 14px; font-size: 13px; }
+      .tool-item .badge { display: none; }
+      .sidebar-footer { display: none; }
+      .chat-header { padding: 12px 16px; }
+      .model-selector select { padding: 6px 14px; font-size: 13px; }
+      .message { max-width: 92%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard" id="appContainer">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="fas fa-brain"></i></div>
+      <div class="brand-text">
+        <h1>SMAgents</h1>
+        <span>AI tool suite</span>
+      </div>
+    </div>
+
+    <div class="tool-list">
+      <div class="tool-item active" data-tool="normal">
+        <i class="fas fa-comment-dots"></i> Normal Talk
+        <span class="badge">chat</span>
+      </div>
+      <div class="tool-item" data-tool="webapp">
+        <i class="fas fa-globe"></i> Web App
+        <span class="badge">build</span>
+      </div>
+      <div class="tool-item" data-tool="chrome">
+        <i class="fab fa-chrome"></i> Chrome Extensions
+        <span class="badge">dev</span>
+      </div>
+      <div class="tool-item" data-tool="desktop">
+        <i class="fas fa-desktop"></i> Desktop App
+        <span class="badge">dev</span>
+      </div>
+      <div class="tool-item" data-tool="android">
+        <i class="fab fa-android"></i> Android App
+        <span class="badge">mobile</span>
+      </div>
+      <div class="tool-item" data-tool="social">
+        <i class="fas fa-share-alt"></i> Social Media
+        <span class="badge">engage</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar"><i class="fas fa-user"></i></div>
+        <div class="user-info">
+          Alex <small>Free tier · 50 msgs left</small>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+    <!-- header -->
+    <div class="chat-header">
+      <div class="model-selector">
+        <label><i class="fas fa-microchip"></i> Model</label>
+        <select id="modelSelect">
+          <option value="">Loading models…</option>
+        </select>
+      </div>
+      <div class="header-right">
+        <button class="exec-toggle" id="execToggleBtn">
+          <i class="fas fa-code"></i> <span>JS Executor</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- messages -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="message ai">
+        <i class="fas fa-robot msg-icon"></i> Welcome to <strong>SMAgents</strong>! Pick a model above and start chatting — this is live, talking to NVIDIA's free model catalog.
+        <div class="timestamp">now</div>
+      </div>
+    </div>
+
+    <!-- input -->
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <input type="text" id="chatInput" placeholder="Ask SMAgents anything…" />
+        <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i> Send</button>
+      </div>
+    </div>
+
+    <!-- ===== EXECUTOR OVERLAY ===== -->
+    <div class="executor-overlay" id="executorOverlay">
+      <div class="executor-header">
+        <h3><i class="fas fa-terminal"></i> Live Injector</h3>
+        <button class="close-executor" id="closeExecutorBtn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="executor-body">
+        <div class="code-section">
+          <label><i class="fas fa-css3-alt"></i> CSS</label>
+          <textarea class="code-editor" id="cssEditor" rows="2">/* custom style */</textarea>
+        </div>
+        <div class="code-section">
+          <label><i class="fab fa-js"></i> JavaScript</label>
+          <textarea class="code-editor" id="jsEditor" rows="4">// inject any JS
+console.log('SMAgents live!');</textarea>
+        </div>
+        <div class="executor-actions">
+          <button class="exec-btn primary" id="executeBtn"><i class="fas fa-play"></i> Execute</button>
+          <button class="exec-btn" id="resetExecutorBtn"><i class="fas fa-undo-alt"></i> Reset</button>
+          <button class="exec-btn danger" id="clearAllBtn"><i class="fas fa-broom"></i> Clear all</button>
+        </div>
+        <div id="executionFeedback"><i class="fas fa-info-circle"></i> Ready — paste CSS/JS and Execute.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- DOM refs -----
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendMsgBtn');
+    const execToggle = document.getElementById('execToggleBtn');
+    const executorOverlay = document.getElementById('executorOverlay');
+    const closeExecutor = document.getElementById('closeExecutorBtn');
+    const cssEditor = document.getElementById('cssEditor');
+    const jsEditor = document.getElementById('jsEditor');
+    const executeBtn = document.getElementById('executeBtn');
+    const resetBtn = document.getElementById('resetExecutorBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const feedback = document.getElementById('executionFeedback');
+    const modelSelect = document.getElementById('modelSelect');
+    const toolItems = document.querySelectorAll('.tool-item');
+
+    // ----- state -----
+    let injectedStyle = null;
+    let injectedScripts = [];
+    let customElements = [];
+    let conversation = [];
+    let isStreaming = false;
+
+    // ----- chat helpers -----
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function addMessage(text, type = 'ai') {
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      if (type === 'ai') {
+        div.innerHTML = `<i class="fas fa-robot msg-icon"></i> <span class="msg-text">${escapeHtml(text)}</span>`;
+      } else {
+        div.textContent = text;
+      }
+      const ts = document.createElement('div');
+      ts.className = 'timestamp';
+      ts.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      div.appendChild(ts);
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return div;
+    }
+
+    function updateMessageText(div, text) {
+      const span = div.querySelector('.msg-text');
+      if (span) span.innerHTML = escapeHtml(text);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ----- load live model catalog -----
+    async function loadModels() {
+      try {
+        const res = await fetch('/api/chat?list=models');
+        const data = await res.json();
+        const models = (data.models || []).filter(Boolean);
+        modelSelect.innerHTML = '';
+        if (!models.length) throw new Error('empty');
+        models.forEach((id) => {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = id;
+          modelSelect.appendChild(opt);
+        });
+        // Prefer a sensible default if present
+        const preferred = models.find((m) => m.includes('nemotron-3-ultra')) || models[0];
+        modelSelect.value = preferred;
+      } catch (err) {
+        modelSelect.innerHTML = '<option value="">Failed to load models — check NVIDIA_API_KEY</option>';
+        addMessage('⚠️ Could not load the model list. Make sure NVIDIA_API_KEY is set in your Vercel project.', 'ai');
+      }
+    }
+
+    // ----- send + stream a chat completion -----
+    async function handleSend() {
+      const text = chatInput.value.trim();
+      if (!text || isStreaming) return;
+
+      addMessage(text, 'user');
+      conversation.push({ role: 'user', content: text });
+      chatInput.value = '';
+
+      const model = modelSelect.value;
+      const aiDiv = addMessage('…', 'ai');
+      isStreaming = true;
+      sendBtn.disabled = true;
+
+      let fullText = '';
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: conversation, model, stream: true }),
+        });
+
+        if (!res.ok || !res.body) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Request failed (${res.status})`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // keep any partial line for next chunk
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const payload = trimmed.slice(5).trim();
+            if (payload === '[DONE]') continue;
+            try {
+              const json = JSON.parse(payload);
+              const delta = json.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullText += delta;
+                updateMessageText(aiDiv, fullText);
+              }
+            } catch (_) {
+              // ignore malformed SSE chunk
+            }
+          }
+        }
+
+        if (!fullText) fullText = '(no response)';
+        updateMessageText(aiDiv, fullText);
+        conversation.push({ role: 'assistant', content: fullText });
+      } catch (err) {
+        updateMessageText(aiDiv, `⚠️ ${err.message}`);
+      } finally {
+        isStreaming = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
+
+    // ----- tool switching (cosmetic — sets a hint, doesn't change backend) -----
+    toolItems.forEach(item => {
+      item.addEventListener('click', function() {
+        toolItems.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const toolName = this.textContent.trim().replace(/\s+\S+$/, '').trim();
+        addMessage(`🛠 Switched context to <strong>${toolName}</strong>. Ask away.`, 'ai');
+      });
+    });
+
+    // ----- executor overlay -----
+    function openExecutor() {
+      executorOverlay.classList.add('open');
+      execToggle.classList.add('active');
+    }
+    function closeExecutorFn() {
+      executorOverlay.classList.remove('open');
+      execToggle.classList.remove('active');
+    }
+
+    execToggle.addEventListener('click', () => {
+      executorOverlay.classList.contains('open') ? closeExecutorFn() : openExecutor();
+    });
+    closeExecutor.addEventListener('click', closeExecutorFn);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && executorOverlay.classList.contains('open')) closeExecutorFn();
+    });
+
+    // ----- clear injected -----
+    function clearInjected() {
+      if (injectedStyle && injectedStyle.parentNode) { injectedStyle.remove(); injectedStyle = null; }
+      injectedScripts.forEach(s => { if (s.parentNode) s.remove(); });
+      injectedScripts = [];
+      customElements.forEach(el => { if (el && el.parentNode) el.remove(); });
+      customElements = [];
+      feedback.innerHTML = `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> Reset complete.`;
+    }
+
+    // ----- execute injection -----
+    function executeInjection() {
+      const cssCode = cssEditor.value.trim();
+      const jsCode = jsEditor.value.trim();
+      clearInjected();
+
+      if (cssCode) {
+        const style = document.createElement('style');
+        style.setAttribute('data-executor', 'true');
+        style.textContent = cssCode;
+        document.head.appendChild(style);
+        injectedStyle = style;
+      }
+
+      if (jsCode) {
+        try {
+          const wrapped = `
+            (function() {
+              if (!window.__executorElements) window.__executorElements = [];
+              const origCE = document.createElement.bind(document);
+              document.createElement = function(tag, options) {
+                const el = origCE(tag, options);
+                window.__executorElements.push(el);
+                return el;
+              };
+              try { ${jsCode} } catch(e) {
+                console.error(e);
+                document.getElementById('executionFeedback').innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ff6b81;"></i> Error: ' + e.message;
+              }
+              setTimeout(() => { document.createElement = origCE; }, 0);
+            })();
+          `;
+          const scriptEl = document.createElement('script');
+          scriptEl.textContent = wrapped;
+          document.head.appendChild(scriptEl);
+          injectedScripts.push(scriptEl);
+
+          setTimeout(() => {
+            if (window.__executorElements && window.__executorElements.length) {
+              customElements = window.__executorElements.slice();
+              feedback.innerHTML = `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> Executed — ${customElements.length} element(s) created.`;
+            } else {
+              feedback.innerHTML = `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> Executed successfully.`;
+            }
+          }, 60);
+        } catch (err) {
+          feedback.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#ff6b81;"></i> Error: ${err.message}`;
+        }
+      }
+
+      if (!cssCode && !jsCode) {
+        feedback.innerHTML = `<i class="fas fa-info-circle"></i> Nothing to inject.`;
+      } else if (cssCode && !jsCode) {
+        feedback.innerHTML = `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> CSS injected.`;
+      }
+    }
+
+    executeBtn.addEventListener('click', executeInjection);
+    resetBtn.addEventListener('click', () => { clearInjected(); feedback.innerHTML = `<i class="fas fa-undo-alt"></i> Reset.`; });
+    clearAllBtn.addEventListener('click', () => {
+      clearInjected();
+      cssEditor.value = '';
+      jsEditor.value = '';
+      feedback.innerHTML = `<i class="fas fa-broom"></i> Cleared all.`;
+    });
+
+    // initial feedback
+    feedback.innerHTML = `<i class="fas fa-info-circle"></i> Ready — paste CSS/JS and Execute.`;
+
+    // boot
+    loadModels();
+  })();
+</script>
+
+</body>
+</html>
