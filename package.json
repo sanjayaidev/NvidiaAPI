@@ -1,18 +1,21 @@
 {
-  "name": "nvidia-chat-system",
-  "version": "2.0.0",
-  "description": "Single-edge-function chat UI backed by NVIDIA's free NIM model catalog",
+  "name": "smagents",
+  "version": "3.0.0",
+  "description": "Multi-modal AI tool suite: chat, image, video, audio, agents - NVIDIA NIM + Replicate + Transloadit + Cloudflare, with per-model threaded history on Neon Postgres",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:migrate": "psql $DATABASE_URL -f schema.sql"
   },
   "dependencies": {
     "next": "^14",
     "react": "^18",
     "react-dom": "^18",
     "@upstash/redis": "^1",
-    "@upstash/ratelimit": "^2"
+    "@upstash/ratelimit": "^2",
+    "@neondatabase/serverless": "^0.10",
+    "@aws-sdk/client-s3": "^3"
   }
 }
