@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMAgents · Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0c10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* ===================== AUTH SCREEN ===================== */
+    .auth-screen {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(18, 22, 28, 0.8);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 32px;
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04);
+      padding: 40px 36px;
+    }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .brand-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white;
+      box-shadow: 0 8px 24px -6px #7c5cfc80;
+      flex-shrink: 0;
+    }
+    .auth-brand h1 { font-size: 20px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
+    .auth-brand span { font-size: 12.5px; color: #8896b0; display: block; margin-top: 2px; }
+
+    .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 4px; }
+    .auth-tab {
+      flex: 1; text-align: center; padding: 9px 0; border-radius: 11px;
+      font-size: 13.5px; font-weight: 600; color: #8896b0; cursor: pointer; transition: 0.2s;
+    }
+    .auth-tab.active { background: rgba(124, 92, 252, 0.18); color: #cdbfff; }
+
+    .field-group { margin-bottom: 16px; }
+    .field-group label { font-size: 12px; color: #8896b0; display: block; margin-bottom: 6px; font-weight: 500; }
+    .field-group input {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 12px 14px; color: #eef2f9; font-size: 14.5px;
+      font-family: 'Inter', sans-serif; outline: none; transition: 0.2s;
+    }
+    .field-group input:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
+    .field-group input::placeholder { color: #4d5872; }
+    .field-hint { font-size: 11.5px; color: #5b6a84; margin-top: 6px; }
+
+    .auth-submit {
+      width: 100%; background: #7c5cfc; border: none; border-radius: 14px; padding: 13px 0;
+      color: white; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.2s;
+      font-family: 'Inter', sans-serif; margin-top: 6px;
+      box-shadow: 0 8px 24px -8px #7c5cfc;
+    }
+    .auth-submit:hover { background: #6b4be8; }
+    .auth-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .auth-error {
+      background: rgba(255, 90, 90, 0.1); border: 1px solid rgba(255, 90, 90, 0.25);
+      color: #ff9b9b; font-size: 13px; padding: 10px 14px; border-radius: 12px; margin-bottom: 16px;
+      display: none;
+    }
+    .auth-error.visible { display: block; }
+
+    /* ===================== CHAT DASHBOARD ===================== */
+    .dashboard {
+      max-width: 900px;
+      width: 100%;
+      height: 88vh;
+      max-height: 820px;
+      background: rgba(18, 22, 28, 0.8);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 32px;
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .dashboard.visible { display: flex; }
+
+    .chat-header {
+      padding: 18px 26px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-left .brand-icon { width: 36px; height: 36px; font-size: 17px; border-radius: 12px; }
+    .header-left span.title { color: #eef2f9; font-weight: 600; font-size: 14.5px; }
+    .header-left small { color: #6a7a94; font-size: 12px; display: block; margin-top: 1px; }
+
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .model-select {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 7px 10px; color: #cdbfff; font-size: 12.5px;
+      font-family: 'Inter', sans-serif; outline: none; cursor: pointer; max-width: 200px;
+    }
+    .model-select option { background: #1a1f29; color: #eef2f9; }
+
+    .usage-pill {
+      font-size: 11.5px; color: #6a7a94; background: rgba(255,255,255,0.04);
+      padding: 5px 11px; border-radius: 20px; white-space: nowrap;
+    }
+
+    .logout-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #8896b0;
+      border-radius: 10px; padding: 7px 13px; font-size: 12.5px; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: 0.2s;
+    }
+    .logout-btn:hover { color: #eef2f9; border-color: rgba(255,255,255,0.2); }
+
+    .chat-messages {
+      flex: 1; padding: 24px 26px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
+
+    .message {
+      max-width: 78%; padding: 14px 20px; border-radius: 22px; font-size: 15px; line-height: 1.6;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      word-break: break-word; white-space: pre-wrap;
+    }
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(14px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    .message.user { align-self: flex-end; background: linear-gradient(145deg, #2d3440, #1e232e); border-bottom-right-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
+    .message.ai { align-self: flex-start; background: rgba(40, 46, 58, 0.7); border-bottom-left-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
+    .message.error { align-self: flex-start; background: rgba(255, 90, 90, 0.08); border: 1px solid rgba(255, 90, 90, 0.2); color: #ff9b9b; }
+
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #5b6a84; gap: 10px; text-align: center; padding: 0 40px; }
+    .empty-state i { font-size: 30px; color: #3a4356; }
+    .empty-state p { font-size: 13.5px; line-height: 1.6; }
+
+    .chat-input-area { padding: 16px 22px 22px 22px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0; background: rgba(0,0,0,0.1); }
+    .input-wrapper { flex: 1; display: flex; background: rgba(255,255,255,0.04); border-radius: 28px; border: 1px solid rgba(255,255,255,0.06); padding: 4px 4px 4px 20px; transition: 0.2s; }
+    .input-wrapper:focus-within { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
+    .input-wrapper input { width: 100%; background: transparent; border: none; padding: 13px 0; font-size: 14.5px; color: #f0f4fc; outline: none; font-family: 'Inter', sans-serif; }
+    .input-wrapper input::placeholder { color: #5b6a84; }
+    .input-wrapper button { background: #7c5cfc; border: none; border-radius: 28px; padding: 10px 22px; color: white; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 9px; cursor: pointer; transition: 0.2s; box-shadow: 0 8px 24px -8px #7c5cfc; font-family: 'Inter', sans-serif; }
+    .input-wrapper button:hover { background: #6b4be8; }
+    .input-wrapper button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @media (max-width: 640px) {
+      .dashboard { height: 94vh; border-radius: 24px; }
+      .header-right { gap: 8px; }
+      .usage-pill { display: none; }
+      .message { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== AUTH SCREEN ===================== -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-brand">
+      <div class="brand-icon"><i class="fas fa-brain"></i></div>
+      <div>
+        <h1>SMAgents</h1>
+        <span>AI chat, free tier</span>
+      </div>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-mode="signup">Sign up</div>
+      <div class="auth-tab" data-mode="login">Log in</div>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+
+    <form id="authForm">
+      <div class="field-group">
+        <label for="emailInput">Email</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="field-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" placeholder="At least 8 characters" required autocomplete="current-password" minlength="8" />
+        <div class="field-hint" id="passwordHint">No verification email — just pick something you'll remember.</div>
+      </div>
+      <button type="submit" class="auth-submit" id="authSubmit">Create account</button>
+    </form>
+  </div>
+
+  <!-- ===================== CHAT DASHBOARD ===================== -->
+  <div class="dashboard" id="dashboard">
+    <div class="chat-header">
+      <div class="header-left">
+        <div class="brand-icon"><i class="fas fa-brain"></i></div>
+        <div>
+          <span class="title">SMAgents</span>
+          <small id="emailLabel"></small>
+        </div>
+      </div>
+      <div class="header-right">
+        <select class="model-select" id="modelSelect"></select>
+        <span class="usage-pill" id="usagePill"></span>
+        <button class="logout-btn" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-state" id="emptyState">
+        <i class="fas fa-comment-dots"></i>
+        <p>Pick a model and start typing.<br/>You've got a daily message limit on the free tier.</p>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <input type="text" id="chatInput" placeholder="Ask anything…" />
+        <button id="sendBtn"><i class="fas fa-paper-plane"></i> Send</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  // Mirrors the chat-tool subset of lib/registry.js — kept in sync
+  // manually, same approach as the personal app.html.
+  const MODELS = [
+    'meta/llama-3.3-70b-instruct',
+    'meta/llama-3.1-70b-instruct',
+    'meta/llama-3.1-8b-instruct',
+    'meta/llama-4-maverick-17b-128e-instruct',
+    'deepseek-ai/deepseek-v4-flash',
+    'mistralai/mistral-large-3-675b-instruct-2512',
+    'moonshotai/kimi-k2.6',
+  ];
+
+  const authScreen = document.getElementById('authScreen');
+  const dashboard = document.getElementById('dashboard');
+  const authTabs = document.querySelectorAll('.auth-tab');
+  const authForm = document.getElementById('authForm');
+  const authSubmit = document.getElementById('authSubmit');
+  const authError = document.getElementById('authError');
+  const passwordHint = document.getElementById('passwordHint');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const emailLabel = document.getElementById('emailLabel');
+  const modelSelect = document.getElementById('modelSelect');
+  const usagePill = document.getElementById('usagePill');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const chatMessages = document.getElementById('chatMessages');
+  const emptyState = document.getElementById('emptyState');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+
+  let mode = 'signup';
+  let conversation = [];
+  let isBusy = false;
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  function showAuthError(msg) {
+    authError.textContent = msg;
+    authError.classList.add('visible');
+  }
+  function clearAuthError() {
+    authError.classList.remove('visible');
+  }
+
+  authTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      mode = tab.dataset.mode;
+      authTabs.forEach((t) => t.classList.toggle('active', t === tab));
+      authSubmit.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+      passwordHint.style.display = mode === 'signup' ? 'block' : 'none';
+      passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
+      clearAuthError();
+    });
+  });
+
+  authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearAuthError();
+    authSubmit.disabled = true;
+    authSubmit.textContent = mode === 'signup' ? 'Creating account…' : 'Logging in…';
+
+    try {
+      const res = await fetch(`/api/auth/${mode}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput.value.trim(), password: passwordInput.value }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+      await enterDashboard(data.email);
+    } catch (err) {
+      showAuthError(err.message);
+    } finally {
+      authSubmit.disabled = false;
+      authSubmit.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+    }
+  });
+
+  function populateModelSelect() {
+    modelSelect.innerHTML = '';
+    MODELS.forEach((id) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      modelSelect.appendChild(opt);
+    });
+  }
+
+  async function enterDashboard(email) {
+    emailLabel.textContent = email || '';
+    authScreen.style.display = 'none';
+    dashboard.classList.add('visible');
+    populateModelSelect();
+  }
+
+  function addMessage(role, content) {
+    if (content !== null) emptyState.style.display = 'none';
+    const div = document.createElement('div');
+    div.className = `message ${role === 'user' ? 'user' : role === 'error' ? 'error' : 'ai'}`;
+    div.textContent = content || '';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
+  function updateMessageText(div, text) {
+    div.textContent = text;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function setBusy(busy) {
+    isBusy = busy;
+    sendBtn.disabled = busy;
+  }
+
+  async function sendMessage(text) {
+    addMessage('user', text);
+    conversation.push({ role: 'user', content: text });
+    const aiDiv = addMessage('assistant', '…');
+    let fullText = '';
+
+    const res = await fetch('/api/me/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversation, model: modelSelect.value, stream: true }),
+    });
+
+    if (!res.ok || !res.body) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `Request failed (${res.status})`);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('data:')) continue;
+        const payload = trimmed.slice(5).trim();
+        if (payload === '[DONE]') continue;
+        try {
+          const j = JSON.parse(payload);
+          const delta = j.choices?.[0]?.delta?.content;
+          if (delta) { fullText += delta; updateMessageText(aiDiv, fullText); }
+        } catch {}
+      }
+    }
+    if (!fullText) fullText = '(no response)';
+    updateMessageText(aiDiv, fullText);
+    conversation.push({ role: 'assistant', content: fullText });
+  }
+
+  async function handleSend() {
+    const text = chatInput.value.trim();
+    if (!text || isBusy) return;
+    chatInput.value = '';
+    setBusy(true);
+    try {
+      await sendMessage(text);
+    } catch (err) {
+      addMessage('error', err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  sendBtn.addEventListener('click', handleSend);
+  chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
+
+  logoutBtn.addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.reload();
+  });
+
+  // ================= boot: check existing session =================
+  (async function init() {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      if (data.signedIn) {
+        await enterDashboard(data.email);
+      }
+    } catch {}
+  })();
+})();
+</script>
+
+</body>
+</html>
