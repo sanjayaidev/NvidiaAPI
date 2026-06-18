@@ -2,11 +2,20 @@
 // Runs on Vercel's Edge Runtime (no Node APIs, no OpenAI SDK — that SDK
 // depends on Node-only modules like `agentkeepalive`/`https.Agent`, which
 // don't exist at the edge). We talk to NVIDIA's OpenAI-compatible endpoint
-// with plain fetch, and to Upstash Redis over its REST API — both are
-// HTTP-based and edge-safe.
+// with plain fetch, to Upstash Redis over its REST API, and to Neon
+// Postgres over HTTP (@neondatabase/serverless) — all three are
+// fetch-based and edge-safe.
+//
+// PERSONAL-USE NOTE: thread/message persistence below is intentionally
+// simple — everything is saved under the single 'demo-user' identity from
+// lib/auth.js. That's fine for solo use. The public-facing fork (v3 arch:
+// lib/registry.js, real auth, per-user isolation) is a separate build.
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { getSql } from '../../lib/db';
+import { getUserId, ensureUser } from '../../lib/auth';
+import { invalidateThreadCache } from '../../lib/cache';
 
 export const config = {
   runtime: 'edge',
@@ -115,6 +124,47 @@ async function listModels(apiKey) {
   }
 }
 
+// ---- thread/message persistence (Neon) ----
+// Best-effort: if Neon isn't configured (DATABASE_URL missing) or any
+// call here throws, we swallow the error and let the chat response go
+// through anyway. Saving history should never be the reason a chat
+// request fails.
+
+async function getOrCreateThread(sql, userId, threadId, model) {
+  if (threadId) {
+    const rows = await sql`
+      select id, user_id from threads where id = ${threadId}
+    `;
+    const thread = rows[0];
+    if (thread && thread.user_id === userId) return thread.id;
+    // threadId given but not found/owned — fall through and create a new one
+  }
+  const rows = await sql`
+    insert into threads (user_id, tool, model, title)
+    values (${userId}, 'chat', ${model}, 'New conversation')
+    returning id
+  `;
+  return rows[0].id;
+}
+
+async function saveMessage(sql, threadId, role, content) {
+  await sql`
+    insert into messages (thread_id, role, content)
+    values (${threadId}, ${role}, ${content})
+  `;
+  await sql`update threads set updated_at = now() where id = ${threadId}`;
+}
+
+async function maybeAutoTitleThread(sql, threadId, firstUserMessage) {
+  // Only set a real title if the thread still has the default placeholder —
+  // cheap way to avoid overwriting a title the user (or future UI) set.
+  const title = firstUserMessage.slice(0, 60).trim() || 'New conversation';
+  await sql`
+    update threads set title = ${title}
+    where id = ${threadId} and title = 'New conversation'
+  `;
+}
+
 export default async function handler(req) {
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders() });
@@ -153,6 +203,7 @@ export default async function handler(req) {
     stream = false,
     temperature = 0.7,
     max_tokens = 2048,
+    threadId = null,
   } = body || {};
 
   if (!messages || !Array.isArray(messages)) {
@@ -182,6 +233,33 @@ export default async function handler(req) {
         }
       );
     }
+  }
+
+  // ---- persistence setup (best-effort, never blocks the chat call) ----
+  let sql = null;
+  let userId = null;
+  let resolvedThreadId = null;
+  let isFirstMessageInThread = false;
+
+  try {
+    sql = getSql();
+    userId = await getUserId(req);
+    await ensureUser(sql, userId);
+    resolvedThreadId = await getOrCreateThread(sql, userId, threadId, model);
+
+    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user');
+    if (lastUserMessage) {
+      const existing = await sql`select 1 from messages where thread_id = ${resolvedThreadId} limit 1`;
+      isFirstMessageInThread = existing.length === 0;
+      await saveMessage(sql, resolvedThreadId, 'user', lastUserMessage.content);
+      if (isFirstMessageInThread) {
+        await maybeAutoTitleThread(sql, resolvedThreadId, lastUserMessage.content);
+      }
+      await invalidateThreadCache(resolvedThreadId);
+    }
+  } catch (err) {
+    console.error('chat.js: persistence setup failed, continuing without history:', err.message);
+    sql = null; // disable further persistence attempts for this request
   }
 
   const formattedMessages = messages.map((m) => ({ role: m.role, content: m.content }));
@@ -219,24 +297,82 @@ export default async function handler(req) {
     }
     return json(
       { error: 'NVIDIA API returned an error', status: upstream.status, details },
-      upstream.status
+      upstream.status,
+      resolvedThreadId ? { 'X-Thread-Id': resolvedThreadId } : {}
     );
   }
 
-  // Streaming: pipe NVIDIA's SSE stream straight through to the client.
+  // Streaming: pipe NVIDIA's SSE stream straight through to the client,
+  // while also tee-ing it so we can accumulate the full assistant text
+  // and persist it once the stream ends — without delaying the client.
   if (upstreamPayload.stream) {
-    return new Response(upstream.body, {
+    const threadIdForSave = resolvedThreadId;
+    const sqlForSave = sql;
+
+    let accumulated = '';
+    const decoder = new TextDecoder();
+    let sseBuffer = '';
+
+    const passthrough = new TransformStream({
+      transform(chunk, controller) {
+        controller.enqueue(chunk);
+        sseBuffer += decoder.decode(chunk, { stream: true });
+        const lines = sseBuffer.split('\n');
+        sseBuffer = lines.pop();
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (payload === '[DONE]') continue;
+          try {
+            const data = JSON.parse(payload);
+            const delta = data.choices?.[0]?.delta?.content;
+            if (delta) accumulated += delta;
+          } catch (_) {
+            // ignore malformed/partial chunk, doesn't affect passthrough
+          }
+        }
+      },
+      async flush() {
+        if (!sqlForSave || !threadIdForSave || !accumulated) return;
+        try {
+          await saveMessage(sqlForSave, threadIdForSave, 'assistant', accumulated);
+          await invalidateThreadCache(threadIdForSave);
+        } catch (err) {
+          console.error('chat.js: failed to save assistant message:', err.message);
+        }
+      },
+    });
+
+    const piped = upstream.body.pipeThrough(passthrough);
+
+    return new Response(piped, {
       status: 200,
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         Connection: 'keep-alive',
+        ...(resolvedThreadId ? { 'X-Thread-Id': resolvedThreadId } : {}),
         ...corsHeaders(),
       },
     });
   }
 
-  // Non-streaming: pass the JSON straight through (already OpenAI-shaped).
+  // Non-streaming: pass the JSON straight through (already OpenAI-shaped),
+  // and persist the assistant reply if we have a thread to attach it to.
   const data = await upstream.json();
-  return json(data);
+
+  if (sql && resolvedThreadId) {
+    const replyText = data.choices?.[0]?.message?.content;
+    if (replyText) {
+      try {
+        await saveMessage(sql, resolvedThreadId, 'assistant', replyText);
+        await invalidateThreadCache(resolvedThreadId);
+      } catch (err) {
+        console.error('chat.js: failed to save assistant message:', err.message);
+      }
+    }
+  }
+
+  return json(data, 200, resolvedThreadId ? { 'X-Thread-Id': resolvedThreadId } : {});
 }
