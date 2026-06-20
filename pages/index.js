@@ -4,6 +4,6 @@ export default function Home() {
 
 export function getServerSideProps() {
   return {
-    redirect: { destination: '/app.html', permanent: false },
+    redirect: { destination: '/chat.html', permanent: false },
   };
 }
