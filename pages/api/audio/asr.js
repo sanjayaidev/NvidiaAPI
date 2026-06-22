@@ -3,7 +3,45 @@
 // Accepts multipart/form-data with an 'audio' file field
 export const config = { runtime: 'edge' };
 
+const ASR_MODELS = {
+  // Cloudflare Workers AI
+  '@cf/openai/whisper': { provider: 'cloudflare' },
+};
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+
+function json(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(), ...extraHeaders },
+  });
+}
+
 export default async function handler(req) {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders() });
+  }
+
+  const url = new URL(req.url);
+
+  if (req.method === 'GET') {
+    if (url.searchParams.get('list') === 'models') {
+      const byProvider = {};
+      for (const [id, def] of Object.entries(ASR_MODELS)) {
+        if (!byProvider[def.provider]) byProvider[def.provider] = [];
+        byProvider[def.provider].push(id);
+      }
+      return json({ models: Object.keys(ASR_MODELS), by_provider: byProvider });
+    }
+    return json({ error: 'Use GET ?list=models or POST to transcribe audio' }, 400);
+  }
+
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
   const accountId = process.env.CF_ACCOUNT_ID;
