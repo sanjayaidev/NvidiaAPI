@@ -151,11 +151,22 @@ async function handleDashscope(body, resolvedThreadId, sql) {
   const choices = raw.output?.choices || [];
   const images = [];
   for (const choice of choices) {
-    for (const part of choice.message?.content || []) {
-      if (part.image_url) images.push({ url: part.image_url });
+    const content = choice.message?.content;
+    if (!content) continue;
+    // Handle both string and array content formats
+    if (Array.isArray(content)) {
+      for (const part of content) {
+        if (part.image_url) images.push({ url: part.image_url });
+      }
+    } else if (typeof content === 'string' && content.startsWith('http')) {
+      // Some models return image URL directly as string
+      images.push({ url: content });
     }
   }
-  if (!images.length) return json({ error: 'DashScope returned no images', details: raw }, 502);
+  if (!images.length) {
+    console.error('DashScope response:', JSON.stringify(raw, null, 2));
+    return json({ error: 'DashScope returned no images', details: raw }, 502);
+  }
 
   if (sql && resolvedThreadId) {
     try {
