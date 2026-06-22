@@ -455,17 +455,9 @@
     agent: { label: 'Agent', icon: 'fa-robot' },
   };
 
-  const MODELS_BY_TOOL = {
-    chat: [
-      'meta/llama-3.3-70b-instruct',
-      'meta/llama-3.1-70b-instruct',
-      'meta/llama-3.1-8b-instruct',
-      'meta/llama-4-maverick-17b-128e-instruct',
-      'deepseek-ai/deepseek-v4-flash',
-      'deepseek-ai/deepseek-v4-pro',
-      'mistralai/mistral-large-3-675b-instruct-2512',
-      'moonshotai/kimi-k2.6',
-    ],
+ // WITH THIS — chat models loaded live from the API
+const MODELS_BY_TOOL = {
+    chat: [], // populated at boot from /api/chat?list=models
     image: [
       'black-forest-labs/flux-1.1-pro',
       'black-forest-labs/flux-schnell',
@@ -486,7 +478,6 @@
       'agent/browser-automation',
     ],
   };
-
   // tool -> mode, mirrors lib/registry.js. chat is sync/streaming;
   // everything else goes through the async job endpoints.
   const SYNC_TOOLS = new Set(['chat']);
@@ -872,7 +863,26 @@
   chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
 
   // ================= boot =================
+  // WITH THIS
   (async function init() {
+    // Load chat models from the server before populating the picker
+    try {
+      const res = await fetch('/api/chat?list=models');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.models) && data.models.length) {
+          MODELS_BY_TOOL.chat = data.models;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load model list from API, using fallback', e);
+      MODELS_BY_TOOL.chat = [
+        'meta/llama-3.3-70b-instruct',
+        'deepseek-ai/deepseek-v4-flash',
+        'moonshotai/kimi-k2.6',
+      ];
+    }
+
     populateModelSelect();
     updateHeader(null);
     const threads = await refreshThreadList();
