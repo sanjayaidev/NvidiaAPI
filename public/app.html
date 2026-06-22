@@ -36,7 +36,6 @@
       position: relative;
     }
 
-    /* ===== LEFT SIDEBAR: tools + threads ===== */
     .sidebar {
       width: 300px;
       min-width: 300px;
@@ -59,290 +58,292 @@
     }
 
     .brand-icon {
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       background: linear-gradient(135deg, #7c5cfc, #a78bfa);
       border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white;
       box-shadow: 0 8px 24px -6px #7c5cfc80;
     }
 
     .brand-text h1 { font-size: 22px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
     .brand-text span { font-size: 13px; color: #8896b0; display: block; margin-top: 2px; }
 
-    .tool-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex-shrink: 0;
-      margin-bottom: 18px;
-    }
+    .tool-list { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; margin-bottom: 18px; }
 
     .tool-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 11px 16px;
-      border-radius: 16px;
-      color: #b6c2da;
-      font-weight: 500;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      border: 1px solid transparent;
-      background: transparent;
+      display: flex; align-items: center; gap: 14px;
+      padding: 11px 16px; border-radius: 16px;
+      color: #b6c2da; font-weight: 500; font-size: 14px;
+      transition: all 0.2s ease; cursor: pointer;
+      border: 1px solid transparent; background: transparent;
     }
-
     .tool-item i { width: 22px; font-size: 16px; color: #7a88a6; transition: 0.2s; }
     .tool-item:hover { background: rgba(255,255,255,0.04); color: #eaeef7; }
     .tool-item:hover i { color: #a78bfa; }
-    .tool-item.active {
-      background: rgba(124, 92, 252, 0.15);
-      border-color: rgba(124, 92, 252, 0.25);
-      color: #f0f4fe;
-    }
+    .tool-item.active { background: rgba(124,92,252,0.15); border-color: rgba(124,92,252,0.25); color: #f0f4fe; }
     .tool-item.active i { color: #a78bfa; }
 
-    /* model picker, sits below tool list */
-    .model-picker-block {
-      flex-shrink: 0;
-      margin-bottom: 16px;
-      padding: 0 4px;
-    }
-
-    .model-picker-block label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #6a7a94;
-      display: block;
-      margin-bottom: 6px;
-    }
-
+    .model-picker-block { flex-shrink: 0; margin-bottom: 16px; padding: 0 4px; }
+    .model-picker-block label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7a94; display: block; margin-bottom: 6px; }
     .model-picker-block select {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 9px 12px;
-      color: #eef2f9;
-      font-size: 13px;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      cursor: pointer;
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+      padding: 9px 12px; color: #eef2f9; font-size: 13px;
+      font-family: 'Inter', sans-serif; outline: none; cursor: pointer;
     }
     .model-picker-block select option { background: #1a1f29; color: #eef2f9; }
 
     .new-thread-btn {
-      width: 100%;
-      background: rgba(124, 92, 252, 0.12);
-      border: 1px solid rgba(124, 92, 252, 0.3);
-      color: #cdbfff;
-      border-radius: 12px;
-      padding: 9px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      margin-top: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: 0.2s;
+      width: 100%; background: rgba(124,92,252,0.12);
+      border: 1px solid rgba(124,92,252,0.3); color: #cdbfff;
+      border-radius: 12px; padding: 9px 12px; font-size: 13px;
+      font-weight: 500; font-family: 'Inter', sans-serif;
+      cursor: pointer; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: 0.2s;
     }
-    .new-thread-btn:hover { background: rgba(124, 92, 252, 0.22); }
+    .new-thread-btn:hover { background: rgba(124,92,252,0.22); }
 
-    /* thread history panel */
     .thread-panel-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #6a7a94;
-      padding: 0 4px;
-      margin-bottom: 8px;
-      flex-shrink: 0;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+      color: #6a7a94; padding: 0 4px; margin-bottom: 8px; flex-shrink: 0;
     }
 
-    .thread-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding-right: 2px;
-    }
-
+    .thread-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 2px; }
     .thread-list::-webkit-scrollbar { width: 4px; }
     .thread-list::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
 
     .thread-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: #9aabca;
-      font-size: 13px;
-      transition: 0.15s;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 12px; cursor: pointer;
+      color: #9aabca; font-size: 13px; transition: 0.15s;
       border: 1px solid transparent;
     }
     .thread-row:hover { background: rgba(255,255,255,0.03); color: #d0d9ec; }
-    .thread-row.active {
-      background: rgba(124, 92, 252, 0.13);
-      border-color: rgba(124, 92, 252, 0.22);
-      color: #f0f4fe;
-    }
-    .thread-row .thread-title {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .thread-row.active { background: rgba(124,92,252,0.13); border-color: rgba(124,92,252,0.22); color: #f0f4fe; }
+    .thread-row .thread-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .thread-row .thread-time { font-size: 11px; color: #5b6a84; flex-shrink: 0; }
-    .thread-empty {
-      color: #5b6a84;
-      font-size: 12.5px;
-      padding: 10px 12px;
-      line-height: 1.5;
-    }
+    .thread-empty { color: #5b6a84; font-size: 12.5px; padding: 10px 12px; line-height: 1.5; }
 
-    .sidebar-footer {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255,255,255,0.04);
-      flex-shrink: 0;
-    }
+    .sidebar-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; }
     .sidebar-footer .user-card { display: flex; align-items: center; gap: 12px; padding: 4px; }
-    .user-avatar {
-      width: 36px; height: 36px; background: #2a3140; border-radius: 40px;
-      display: flex; align-items: center; justify-content: center; color: #b6c2da; font-weight: 600;
-    }
+    .user-avatar { width: 36px; height: 36px; background: #2a3140; border-radius: 40px; display: flex; align-items: center; justify-content: center; color: #b6c2da; font-weight: 600; }
     .user-info { font-size: 13.5px; color: #d0d9ec; }
     .user-info small { display: block; font-size: 11.5px; color: #6a7a94; }
 
-    /* ===== MAIN AREA ===== */
     .main-area { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; }
 
     .chat-header {
-      padding: 18px 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      gap: 12px;
+      padding: 18px 28px; border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; gap: 12px;
     }
-
     .header-title { display: flex; align-items: center; gap: 12px; }
     .header-title i { color: #a78bfa; font-size: 18px; }
     .header-title span { color: #eef2f9; font-weight: 600; font-size: 15px; }
     .header-title small { color: #6a7a94; font-size: 12.5px; margin-left: 6px; }
 
     .job-status-pill {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 40px;
-      background: rgba(124, 92, 252, 0.12);
-      border: 1px solid rgba(124, 92, 252, 0.25);
-      color: #cdbfff;
-      font-size: 12.5px;
-      font-weight: 500;
+      display: none; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 40px;
+      background: rgba(124,92,252,0.12); border: 1px solid rgba(124,92,252,0.25);
+      color: #cdbfff; font-size: 12.5px; font-weight: 500;
     }
     .job-status-pill.visible { display: flex; }
     .job-status-pill .spinner {
       width: 12px; height: 12px;
       border: 2px solid rgba(205,191,255,0.3);
-      border-top-color: #cdbfff;
-      border-radius: 50%;
+      border-top-color: #cdbfff; border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .chat-messages {
-      flex: 1;
-      padding: 24px 28px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
+      flex: 1; padding: 24px 28px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
     }
     .chat-messages::-webkit-scrollbar { width: 4px; }
     .chat-messages::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
 
     .message {
-      max-width: 80%;
-      padding: 14px 20px;
-      border-radius: 24px;
-      font-size: 15px;
-      line-height: 1.6;
-      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      word-break: break-word;
+      max-width: 80%; padding: 14px 20px; border-radius: 24px;
+      font-size: 15px; line-height: 1.6;
+      animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25); word-break: break-word;
     }
-    @keyframes slideUp { 0% { opacity: 0; transform: translateY(14px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-
-    .message.user {
-      align-self: flex-end;
-      background: linear-gradient(145deg, #2d3440, #1e232e);
-      border-bottom-right-radius: 6px;
-      color: #eef4fd;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-    .message.ai {
-      align-self: flex-start;
-      background: rgba(40, 46, 58, 0.7);
-      border-bottom-left-radius: 6px;
-      color: #eef4fd;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
+    @keyframes slideUp { 0% { opacity:0; transform:translateY(14px) scale(0.96); } 100% { opacity:1; transform:translateY(0) scale(1); } }
+    .message.user { align-self: flex-end; background: linear-gradient(145deg,#2d3440,#1e232e); border-bottom-right-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
+    .message.ai { align-self: flex-start; background: rgba(40,46,58,0.7); border-bottom-left-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
     .message .msg-icon { margin-right: 10px; color: #a78bfa; }
     .message .timestamp { font-size: 10px; opacity: 0.35; margin-top: 6px; text-align: right; }
     .message .attachment-media { display: block; max-width: 100%; border-radius: 14px; margin-top: 8px; }
-    .message .attachment-media.audio { width: 280px; }
+    .message .attachment-media.audio-player { width: 100%; margin-top: 8px; }
+    .message img.attachment-media { cursor: pointer; }
+
+    /* ── Audio tool UI ── */
+    .audio-tool-area {
+      flex: 1; display: none; flex-direction: column;
+      gap: 20px; padding: 28px; overflow-y: auto;
+    }
+    .audio-tool-area.visible { display: flex; }
+
+    .audio-mode-tabs {
+      display: flex; gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 14px; padding: 4px; flex-shrink: 0;
+    }
+    .audio-tab {
+      flex: 1; text-align: center; padding: 9px 0; border-radius: 11px;
+      font-size: 13px; font-weight: 600; color: #8896b0; cursor: pointer; transition: 0.2s;
+    }
+    .audio-tab.active { background: rgba(124,92,252,0.18); color: #cdbfff; }
+
+    .audio-panel { display: none; flex-direction: column; gap: 16px; }
+    .audio-panel.visible { display: flex; }
+
+    .audio-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7a94; }
+
+    .audio-textarea {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 14px;
+      padding: 14px 18px; color: #eef2f9; font-size: 14px;
+      font-family: 'Inter', sans-serif; outline: none; resize: vertical;
+      min-height: 120px; line-height: 1.6; transition: 0.2s;
+    }
+    .audio-textarea:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124,92,252,0.12); }
+
+    .audio-voice-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .voice-chip {
+      padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04);
+      color: #9aabca; cursor: pointer; transition: 0.2s;
+    }
+    .voice-chip.active { background: rgba(124,92,252,0.18); border-color: rgba(124,92,252,0.4); color: #cdbfff; }
+
+    .audio-upload-area {
+      border: 2px dashed rgba(255,255,255,0.1); border-radius: 16px;
+      padding: 32px; text-align: center; cursor: pointer; transition: 0.2s;
+      color: #5b6a84; font-size: 14px; line-height: 1.8;
+    }
+    .audio-upload-area:hover, .audio-upload-area.drag-over {
+      border-color: rgba(124,92,252,0.4); color: #a78bfa; background: rgba(124,92,252,0.05);
+    }
+    .audio-upload-area i { font-size: 28px; display: block; margin-bottom: 10px; color: #3a4356; }
+
+    .audio-action-btn {
+      background: #7c5cfc; border: none; border-radius: 14px;
+      padding: 13px 28px; color: white; font-weight: 600; font-size: 14px;
+      font-family: 'Inter', sans-serif; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 10px; justify-content: center;
+      box-shadow: 0 8px 24px -8px #7c5cfc;
+    }
+    .audio-action-btn:hover:not(:disabled) { background: #6b4be8; }
+    .audio-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .audio-result-box {
+      background: rgba(40,46,58,0.7); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px; padding: 20px; display: none; flex-direction: column; gap: 12px;
+    }
+    .audio-result-box.visible { display: flex; }
+    .audio-result-box audio { width: 100%; border-radius: 8px; }
+    .audio-result-text {
+      color: #eef2f9; font-size: 14px; line-height: 1.7;
+      background: rgba(255,255,255,0.03); border-radius: 10px; padding: 14px;
+    }
+    .audio-result-actions { display: flex; gap: 10px; }
+    .audio-dl-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.12);
+      color: #9aabca; border-radius: 10px; padding: 8px 16px;
+      font-size: 12.5px; font-family: 'Inter', sans-serif; cursor: pointer; transition: 0.2s;
+    }
+    .audio-dl-btn:hover { border-color: #a78bfa; color: #a78bfa; }
+
+    /* ── Image tool UI ── */
+    .image-tool-area {
+      flex: 1; display: none; flex-direction: column;
+      gap: 20px; padding: 28px; overflow-y: auto;
+    }
+    .image-tool-area.visible { display: flex; }
+
+    .image-prompt-row { display: flex; flex-direction: column; gap: 8px; }
+    .image-controls-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .image-field { display: flex; flex-direction: column; gap: 6px; }
+    .image-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #6a7a94; }
+    .image-field select, .image-field input {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 9px 12px; color: #eef2f9;
+      font-size: 13px; font-family: 'Inter', sans-serif; outline: none; cursor: pointer;
+    }
+
+    .image-generate-btn {
+      background: #7c5cfc; border: none; border-radius: 14px;
+      padding: 12px 28px; color: white; font-weight: 600; font-size: 14px;
+      font-family: 'Inter', sans-serif; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 24px -8px #7c5cfc; flex-shrink: 0;
+    }
+    .image-generate-btn:hover:not(:disabled) { background: #6b4be8; }
+    .image-generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .image-result-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px; margin-top: 4px;
+    }
+    .image-result-card {
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06); position: relative; background: rgba(40,46,58,0.5);
+    }
+    .image-result-card img { width: 100%; display: block; border-radius: 14px; }
+    .image-result-card .img-actions {
+      position: absolute; bottom: 10px; right: 10px;
+      display: flex; gap: 6px; opacity: 0; transition: 0.2s;
+    }
+    .image-result-card:hover .img-actions { opacity: 1; }
+    .img-action-btn {
+      background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.15);
+      color: white; border-radius: 8px; padding: 6px 12px;
+      font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: 0.2s;
+    }
+    .img-action-btn:hover { background: rgba(124,92,252,0.8); border-color: #7c5cfc; }
+
+    .image-status { font-size: 13px; color: #6a7a94; display: flex; align-items: center; gap: 8px; min-height: 20px; }
+    .image-status .spinner { width: 12px; height: 12px; border: 2px solid rgba(167,139,250,0.3); border-top-color: #a78bfa; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+    .image-status.busy .spinner { display: block; }
+    .image-status.busy { color: #a78bfa; }
+
+    /* ── Video / Agent placeholders ── */
+    .coming-soon {
+      flex: 1; display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #5b6a84; gap: 12px; text-align: center; padding: 40px;
+    }
+    .coming-soon.visible { display: flex; }
+    .coming-soon i { font-size: 36px; color: #2a3140; }
+    .coming-soon h3 { font-size: 16px; color: #8896b0; }
+    .coming-soon p { font-size: 13.5px; line-height: 1.7; max-width: 320px; }
 
     .empty-state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #5b6a84;
-      gap: 10px;
-      text-align: center;
-      padding: 0 40px;
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: #5b6a84; gap: 10px; text-align: center; padding: 0 40px;
     }
     .empty-state i { font-size: 32px; color: #3a4356; }
     .empty-state p { font-size: 14px; line-height: 1.6; }
 
+    .chat-messages-wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
     .chat-input-area {
-      padding: 16px 24px 24px 24px;
-      border-top: 1px solid rgba(255,255,255,0.04);
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-      flex-shrink: 0;
+      padding: 16px 24px 24px 24px; border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0;
       background: rgba(0,0,0,0.1);
     }
-
     .input-wrapper {
-      flex: 1;
-      display: flex;
-      background: rgba(255,255,255,0.04);
-      border-radius: 30px;
-      border: 1px solid rgba(255,255,255,0.06);
-      padding: 4px 4px 4px 22px;
-      transition: 0.2s;
+      flex: 1; display: flex; background: rgba(255,255,255,0.04);
+      border-radius: 30px; border: 1px solid rgba(255,255,255,0.06);
+      padding: 4px 4px 4px 22px; transition: 0.2s;
     }
-    .input-wrapper:focus-within { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
+    .input-wrapper:focus-within { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124,92,252,0.12); }
     .input-wrapper input {
       width: 100%; background: transparent; border: none; padding: 14px 0;
       font-size: 15px; color: #f0f4fc; outline: none; font-family: 'Inter', sans-serif;
@@ -363,31 +364,27 @@
     }
     @media (max-width: 640px) {
       .dashboard { flex-direction: column; height: 98vh; border-radius: 28px; }
-      .sidebar { width: 100%; min-width: unset; max-height: 280px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.04); }
+      .sidebar { width: 100%; min-width: unset; max-height: 260px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.04); }
       .chat-header { padding: 12px 16px; }
       .message { max-width: 92%; }
     }
   </style>
 </head>
 <body>
-
 <div class="dashboard" id="appContainer">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand-icon"><i class="fas fa-brain"></i></div>
-      <div class="brand-text">
-        <h1>SMAgents</h1>
-        <span>AI tool suite</span>
-      </div>
+      <div class="brand-text"><h1>SMAgents</h1><span>AI tool suite</span></div>
     </div>
 
     <div class="tool-list" id="toolList">
       <div class="tool-item active" data-tool="chat"><i class="fas fa-comment-dots"></i> Chat</div>
       <div class="tool-item" data-tool="image"><i class="fas fa-image"></i> Image</div>
-      <div class="tool-item" data-tool="video"><i class="fas fa-video"></i> Video</div>
       <div class="tool-item" data-tool="audio"><i class="fas fa-waveform-lines"></i> Audio</div>
+      <div class="tool-item" data-tool="video"><i class="fas fa-video"></i> Video</div>
       <div class="tool-item" data-tool="agent"><i class="fas fa-robot"></i> Agent</div>
     </div>
 
@@ -399,7 +396,7 @@
 
     <div class="thread-panel-label">History</div>
     <div class="thread-list" id="threadList">
-      <div class="thread-empty">No conversations yet for this model.</div>
+      <div class="thread-empty">No conversations yet.</div>
     </div>
 
     <div class="sidebar-footer">
@@ -424,112 +421,238 @@
       </div>
     </div>
 
-    <div class="chat-messages" id="chatMessages">
-      <div class="empty-state" id="emptyState">
-        <i class="fas fa-comment-dots"></i>
-        <p>Pick a model and start typing — this conversation will be<br/>saved and you can find it again in History.</p>
+    <!-- CHAT -->
+    <div class="chat-messages-wrap" id="chatWrap" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-state" id="emptyState">
+          <i class="fas fa-comment-dots"></i>
+          <p>Pick a model and start typing — conversations are saved in History.</p>
+        </div>
+      </div>
+      <div class="chat-input-area" id="chatInputArea">
+        <div class="input-wrapper">
+          <input type="text" id="chatInput" placeholder="Ask SMAgents anything…" />
+          <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
       </div>
     </div>
 
-    <div class="chat-input-area">
-      <div class="input-wrapper">
-        <input type="text" id="chatInput" placeholder="Ask SMAgents anything…" />
-        <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i> Send</button>
+    <!-- IMAGE -->
+    <div class="image-tool-area" id="imageArea">
+      <div class="image-prompt-row">
+        <label class="audio-label">Prompt</label>
+        <textarea class="audio-textarea" id="imagePrompt" rows="3" placeholder="Describe the image you want to generate…"></textarea>
       </div>
+      <div class="image-controls-row">
+        <div class="image-field">
+          <label>Aspect ratio / Size</label>
+          <select id="imageSizeSelect">
+            <option value="1024*1024">1:1 — 1024×1024</option>
+            <option value="1280*720">16:9 — 1280×720</option>
+            <option value="720*1280">9:16 — 720×1280</option>
+            <option value="1024*768">4:3 — 1024×768</option>
+            <option value="3:4">3:4 (Transloadit)</option>
+            <option value="1:1">1:1 (Transloadit)</option>
+            <option value="16:9">16:9 (Transloadit)</option>
+          </select>
+        </div>
+        <div class="image-field">
+          <label>Negative prompt (optional)</label>
+          <input type="text" id="imageNegPrompt" placeholder="blurry, distorted, low quality…" style="width:260px;" />
+        </div>
+        <button class="image-generate-btn" id="imageGenBtn"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>
+      </div>
+      <div class="image-status" id="imageStatus"><div class="spinner"></div><span id="imageStatusText">Ready</span></div>
+      <div class="image-result-grid" id="imageResultGrid"></div>
+    </div>
+
+    <!-- AUDIO -->
+    <div class="audio-tool-area" id="audioArea">
+      <div class="audio-mode-tabs">
+        <div class="audio-tab active" data-mode="tts">Text → Speech</div>
+        <div class="audio-tab" data-mode="asr">Speech → Text</div>
+      </div>
+
+      <!-- TTS panel -->
+      <div class="audio-panel visible" id="ttsPanelEl">
+        <div class="audio-label">Text to speak</div>
+        <textarea class="audio-textarea" id="ttsText" placeholder="Type the text you want to convert to speech…"></textarea>
+        <div>
+          <div class="audio-label" style="margin-bottom:8px;">Voice</div>
+          <div class="audio-voice-row" id="voiceChips">
+            <div class="voice-chip active" data-voice="male-1">Male 1</div>
+            <div class="voice-chip" data-voice="female-1">Female 1</div>
+            <div class="voice-chip" data-voice="male-2">Male 2</div>
+            <div class="voice-chip" data-voice="female-2">Female 2</div>
+          </div>
+        </div>
+        <button class="audio-action-btn" id="ttsBtn"><i class="fas fa-play"></i> Generate speech</button>
+        <div class="audio-result-box" id="ttsResult">
+          <div class="audio-label">Generated audio</div>
+          <audio class="audio-player" id="ttsAudio" controls></audio>
+          <div class="audio-result-actions">
+            <button class="audio-dl-btn" id="ttsDlBtn"><i class="fas fa-download"></i> Download</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASR panel -->
+      <div class="audio-panel" id="asrPanelEl">
+        <div class="audio-label">Upload audio file</div>
+        <div class="audio-upload-area" id="audioDropzone">
+          <i class="fas fa-cloud-arrow-up"></i>
+          Drop audio file here or click to browse<br/>
+          <small style="font-size:12px;color:#3a4356;">MP3, WAV, M4A, OGG — max 25MB</small>
+        </div>
+        <input type="file" id="audioFileInput" accept="audio/*" style="display:none;" />
+        <div id="audioFileLabel" style="font-size:13px;color:#6a7a94;display:none;"></div>
+        <button class="audio-action-btn" id="asrBtn" disabled><i class="fas fa-file-waveform"></i> Transcribe</button>
+        <div class="audio-result-box" id="asrResult">
+          <div class="audio-label">Transcript</div>
+          <div class="audio-result-text" id="asrText"></div>
+          <div class="audio-result-actions">
+            <button class="audio-dl-btn" id="asrCopyBtn"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO placeholder -->
+    <div class="coming-soon" id="videoArea">
+      <i class="fas fa-video"></i>
+      <h3>Video generation</h3>
+      <p>Video generation via NIM (cosmos3-nano) is coming soon. Switch to Image or Chat in the meantime.</p>
+    </div>
+
+    <!-- AGENT placeholder -->
+    <div class="coming-soon" id="agentArea">
+      <i class="fas fa-robot"></i>
+      <h3>Agent mode</h3>
+      <p>Agentic tool-use workflows are coming soon. Use Chat with a capable model like nemotron-ultra for now.</p>
     </div>
   </div>
 </div>
 
 <script>
 (function () {
-  // ================= tool/model registry (mirrors lib/registry.js) =================
-  // Kept in sync manually with the server-side registry. The server is
-  // still the source of truth for which models are actually allowed —
-  // this client copy is only used to populate the picker without an
-  // extra round trip, and to know each tool's icon/label.
+  // ── Model registry ────────────────────────────────────────────────────────
   const TOOL_META = {
     chat:  { label: 'Chat',  icon: 'fa-comment-dots' },
     image: { label: 'Image', icon: 'fa-image' },
-    video: { label: 'Video', icon: 'fa-video' },
     audio: { label: 'Audio', icon: 'fa-waveform-lines' },
+    video: { label: 'Video', icon: 'fa-video' },
     agent: { label: 'Agent', icon: 'fa-robot' },
   };
 
- // WITH THIS — chat models loaded live from the API
-const MODELS_BY_TOOL = {
-    chat: [], // populated at boot from /api/chat?list=models
+  const MODELS_BY_TOOL = {
+    // chat: populated at boot from /api/chat?list=models
+    chat: [],
     image: [
-      'black-forest-labs/flux-1.1-pro',
-      'black-forest-labs/flux-schnell',
-      'stability-ai/stable-diffusion-3.5-large',
-    ],
-    video: [
-      'nvidia/cosmos-transfer1-7b',
-      'nvidia/cosmos3-nano',
-      'wan-video/wan-2.1',
+      // Alibaba DashScope
+      'qwen-image-2.0-pro',
+      'qwen-image-2.0',
+      'wanx2.1-t2i-turbo',
+      'wanx2.1-t2i-plus',
+      // Cloudflare Workers AI
+      '@cf/black-forest-labs/flux-1-schnell',
+      '@cf/stabilityai/stable-diffusion-xl-base-1.0',
+      '@cf/lykon/dreamshaper-8-lcm',
+      // Transloadit
+      'flux-1.1-pro-ultra',
+      'flux-1.1-pro',
+      'stable-diffusion-3.5-large',
     ],
     audio: [
-      'nvidia/magpie-tts-zeroshot',
-      'elevenlabs/tts-multilingual',
-      'openai/whisper-large-v3',
+      // TTS — NIM free endpoints
+      'nvidia/parakeet-ctc-0.6b-asr',   // ASR
+      'nvidia/canary-1b-flash',          // ASR + translation
+      // Cloudflare Workers AI TTS (free)
+      '@cf/myshell-ai/melo-tts',
+      '@cf/microsoft/phi-2',             // placeholder, swap for real CF TTS model
     ],
+    video: ['nvidia/cosmos3-nano'],
     agent: [
-      'agent/code-exec-js',
-      'agent/browser-automation',
+      'nvidia/nemotron-3-ultra-550b-a55b',
+      'moonshotai/kimi-k2.6',
     ],
   };
-  // tool -> mode, mirrors lib/registry.js. chat is sync/streaming;
-  // everything else goes through the async job endpoints.
+
+  // Audio model capabilities
+  const AUDIO_MODEL_CAPS = {
+    'nvidia/parakeet-ctc-0.6b-asr': { tts: false, asr: true },
+    'nvidia/canary-1b-flash':        { tts: false, asr: true },
+    '@cf/myshell-ai/melo-tts':       { tts: true,  asr: false },
+  };
+
   const SYNC_TOOLS = new Set(['chat']);
 
-  // ================= DOM refs =================
-  const toolList = document.getElementById('toolList');
-  const modelSelect = document.getElementById('modelSelect');
-  const newThreadBtn = document.getElementById('newThreadBtn');
-  const threadList = document.getElementById('threadList');
-  const chatMessages = document.getElementById('chatMessages');
-  const emptyState = document.getElementById('emptyState');
-  const chatInput = document.getElementById('chatInput');
-  const sendBtn = document.getElementById('sendMsgBtn');
-  const headerIcon = document.getElementById('headerIcon');
-  const headerTitle = document.getElementById('headerTitle');
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const toolList       = document.getElementById('toolList');
+  const modelSelect    = document.getElementById('modelSelect');
+  const newThreadBtn   = document.getElementById('newThreadBtn');
+  const threadList     = document.getElementById('threadList');
+  const chatMessages   = document.getElementById('chatMessages');
+  const emptyState     = document.getElementById('emptyState');
+  const chatInput      = document.getElementById('chatInput');
+  const sendBtn        = document.getElementById('sendMsgBtn');
+  const headerIcon     = document.getElementById('headerIcon');
+  const headerTitle    = document.getElementById('headerTitle');
   const headerModelLabel = document.getElementById('headerModelLabel');
-  const jobStatusPill = document.getElementById('jobStatusPill');
-  const jobStatusText = document.getElementById('jobStatusText');
+  const jobStatusPill  = document.getElementById('jobStatusPill');
+  const jobStatusText  = document.getElementById('jobStatusText');
 
-  // ================= state =================
-  let activeTool = 'chat';
-  let activeModel = MODELS_BY_TOOL.chat[0];
-  let activeThreadId = null;
-  let conversation = []; // {role, content} pairs sent to /api/chat for streaming context
-  let isBusy = false;
+  const chatWrap    = document.getElementById('chatWrap');
+  const imageArea   = document.getElementById('imageArea');
+  const audioArea   = document.getElementById('audioArea');
+  const videoArea   = document.getElementById('videoArea');
+  const agentArea   = document.getElementById('agentArea');
 
-  // ================= helpers =================
+  // Image refs
+  const imagePrompt     = document.getElementById('imagePrompt');
+  const imageSizeSelect = document.getElementById('imageSizeSelect');
+  const imageNegPrompt  = document.getElementById('imageNegPrompt');
+  const imageGenBtn     = document.getElementById('imageGenBtn');
+  const imageStatus     = document.getElementById('imageStatus');
+  const imageStatusText = document.getElementById('imageStatusText');
+  const imageResultGrid = document.getElementById('imageResultGrid');
+
+  // Audio refs
+  const audioTabs    = document.querySelectorAll('.audio-tab');
+  const ttsPanelEl   = document.getElementById('ttsPanelEl');
+  const asrPanelEl   = document.getElementById('asrPanelEl');
+  const ttsText      = document.getElementById('ttsText');
+  const voiceChips   = document.getElementById('voiceChips');
+  const ttsBtn       = document.getElementById('ttsBtn');
+  const ttsResult    = document.getElementById('ttsResult');
+  const ttsAudio     = document.getElementById('ttsAudio');
+  const ttsDlBtn     = document.getElementById('ttsDlBtn');
+  const audioDropzone   = document.getElementById('audioDropzone');
+  const audioFileInput  = document.getElementById('audioFileInput');
+  const audioFileLabel  = document.getElementById('audioFileLabel');
+  const asrBtn       = document.getElementById('asrBtn');
+  const asrResult    = document.getElementById('asrResult');
+  const asrText      = document.getElementById('asrText');
+  const asrCopyBtn   = document.getElementById('asrCopyBtn');
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  let activeTool      = 'chat';
+  let activeModel     = '';
+  let activeThreadId  = null;
+  let conversation    = [];
+  let isBusy          = false;
+  let audioMode       = 'tts';   // 'tts' | 'asr'
+  let selectedVoice   = 'male-1';
+  let selectedAudioFile = null;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
   }
 
-  function showEmptyState(show) {
-    emptyState.style.display = show ? 'flex' : 'none';
-  }
-
-  function clearMessages() {
-    chatMessages.innerHTML = '';
-    chatMessages.appendChild(emptyState);
-  }
-
-  function attachmentMarkup(attachments) {
-    if (!attachments || !attachments.length) return '';
-    return attachments.map((a) => {
-      const url = escapeHtml(a.url);
-      if (a.type === 'image') return `<img class="attachment-media" src="${url}" alt="generated image" />`;
-      if (a.type === 'video') return `<video class="attachment-media" src="${url}" controls></video>`;
-      if (a.type === 'audio') return `<audio class="attachment-media audio" src="${url}" controls></audio>`;
-      return `<a class="attachment-media" href="${url}" target="_blank" rel="noopener">View result</a>`;
-    }).join('');
-  }
+  function showEmptyState(show) { emptyState.style.display = show ? 'flex' : 'none'; }
+  function clearMessages() { chatMessages.innerHTML = ''; chatMessages.appendChild(emptyState); }
 
   function addMessage(role, content, attachments, timestampIso) {
     showEmptyState(false);
@@ -538,7 +661,14 @@ const MODELS_BY_TOOL = {
     div.className = `message ${type}`;
     const textPart = content ? `<span class="msg-text">${escapeHtml(content)}</span>` : '';
     const iconPart = type === 'ai' ? '<i class="fas fa-robot msg-icon"></i> ' : '';
-    div.innerHTML = `${iconPart}${textPart}${attachmentMarkup(attachments)}`;
+    let attHtml = '';
+    if (attachments && attachments.length) {
+      attachments.forEach((a) => {
+        if (a.type === 'image') attHtml += `<img class="attachment-media" src="${escapeHtml(a.url)}" onclick="window.open(this.src)" />`;
+        if (a.type === 'audio') attHtml += `<audio class="attachment-media audio-player" src="${escapeHtml(a.url)}" controls></audio>`;
+      });
+    }
+    div.innerHTML = `${iconPart}${textPart}${attHtml}`;
     const ts = document.createElement('div');
     ts.className = 'timestamp';
     const d = timestampIso ? new Date(timestampIso) : new Date();
@@ -555,29 +685,40 @@ const MODELS_BY_TOOL = {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  function setBusy(busy) {
-    isBusy = busy;
-    sendBtn.disabled = busy;
-  }
-
+  function setBusy(busy) { isBusy = busy; sendBtn.disabled = busy; }
   function setJobStatus(visible, text) {
     jobStatusPill.classList.toggle('visible', visible);
     if (text) jobStatusText.textContent = text;
   }
 
   function formatThreadTime(iso) {
-    const d = new Date(iso);
-    const now = new Date();
-    const sameDay = d.toDateString() === now.toDateString();
-    return sameDay
+    const d = new Date(iso), now = new Date();
+    return d.toDateString() === now.toDateString()
       ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
 
-  // ================= model picker =================
+  // ── Tool area visibility ──────────────────────────────────────────────────
+  function showToolArea(tool) {
+    chatWrap.style.display  = tool === 'chat'  ? 'flex' : 'none';
+    imageArea.style.display = tool === 'image' ? 'flex' : 'none';
+    audioArea.classList.toggle('visible', tool === 'audio');
+    videoArea.classList.toggle('visible', tool === 'video');
+    agentArea.classList.toggle('visible', tool === 'agent');
+    // hide chat input for non-chat tools
+    document.getElementById('chatInputArea').style.display = tool === 'chat' ? 'flex' : 'none';
+  }
+
+  // ── Model picker ──────────────────────────────────────────────────────────
   function populateModelSelect() {
     const models = MODELS_BY_TOOL[activeTool] || [];
     modelSelect.innerHTML = '';
+    if (!models.length) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No models available';
+      modelSelect.appendChild(opt);
+      return;
+    }
     models.forEach((id) => {
       const opt = document.createElement('option');
       opt.value = id;
@@ -588,25 +729,22 @@ const MODELS_BY_TOOL = {
     modelSelect.value = activeModel || '';
   }
 
-  // ================= header =================
+  // ── Header ────────────────────────────────────────────────────────────────
   function updateHeader(thread) {
     const meta = TOOL_META[activeTool];
     headerIcon.className = `fas ${meta.icon}`;
-    headerTitle.textContent = thread ? thread.title : `New ${meta.label.toLowerCase()} conversation`;
+    headerTitle.textContent = thread ? thread.title : `New ${meta.label.toLowerCase()}`;
     headerModelLabel.textContent = activeModel ? `· ${activeModel}` : '';
   }
 
-  // ================= threads: list / load / create =================
+  // ── Threads ───────────────────────────────────────────────────────────────
   async function fetchThreads() {
     if (!activeModel) return [];
     try {
       const res = await fetch(`/api/threads?tool=${encodeURIComponent(activeTool)}&model=${encodeURIComponent(activeModel)}`);
       if (!res.ok) return [];
-      const data = await res.json();
-      return data.threads || [];
-    } catch {
-      return [];
-    }
+      return (await res.json()).threads || [];
+    } catch { return []; }
   }
 
   function renderThreadList(threads) {
@@ -621,8 +759,7 @@ const MODELS_BY_TOOL = {
       row.innerHTML = `
         <i class="fas fa-message" style="font-size:12px;color:#5b6a84;"></i>
         <span class="thread-title">${escapeHtml(t.title)}</span>
-        <span class="thread-time">${formatThreadTime(t.updated_at)}</span>
-      `;
+        <span class="thread-time">${formatThreadTime(t.updated_at)}</span>`;
       row.addEventListener('click', () => selectThread(t.id));
       threadList.appendChild(row);
     });
@@ -641,14 +778,13 @@ const MODELS_BY_TOOL = {
       body: JSON.stringify({ tool: activeTool, model: activeModel }),
     });
     if (!res.ok) throw new Error('Failed to create conversation');
-    const data = await res.json();
-    return data.thread;
+    return (await res.json()).thread;
   }
 
   async function loadThreadMessages(threadId) {
     const res = await fetch(`/api/threads/${threadId}`);
     if (!res.ok) throw new Error('Failed to load conversation');
-    return res.json(); // { thread, messages }
+    return res.json();
   }
 
   async function selectThread(threadId) {
@@ -656,13 +792,14 @@ const MODELS_BY_TOOL = {
     conversation = [];
     clearMessages();
     showEmptyState(false);
-
     try {
       const { thread, messages } = await loadThreadMessages(threadId);
       updateHeader(thread);
       messages.forEach((m) => {
-        addMessage(m.role, m.content, m.attachments, m.created_at);
-        if (m.role === 'user' || m.role === 'assistant') {
+        let attachments = null;
+        try { const p = JSON.parse(m.content); if (Array.isArray(p) && p[0]?.type) attachments = p; } catch {}
+        addMessage(m.role, attachments ? null : m.content, attachments, m.created_at);
+        if (!attachments && (m.role === 'user' || m.role === 'assistant')) {
           conversation.push({ role: m.role, content: m.content || '' });
         }
       });
@@ -670,23 +807,16 @@ const MODELS_BY_TOOL = {
     } catch (err) {
       addMessage('assistant', `⚠️ ${err.message}`);
     }
-
-    const threads = await fetchThreads();
-    renderThreadList(threads);
+    renderThreadList(await fetchThreads());
   }
 
   async function startNewThread() {
-    activeThreadId = null;
-    conversation = [];
-    clearMessages();
-    showEmptyState(true);
+    activeThreadId = null; conversation = [];
+    clearMessages(); showEmptyState(true);
     updateHeader(null);
     renderThreadList(await fetchThreads());
   }
 
-  // Ensures there's an active thread before sending the first message
-  // in a "New conversation" state — created lazily so empty threads
-  // don't pile up just from switching tools/models.
   async function ensureThread() {
     if (activeThreadId) return activeThreadId;
     const thread = await createThread();
@@ -695,26 +825,23 @@ const MODELS_BY_TOOL = {
     return activeThreadId;
   }
 
-  // ================= switching tools / models =================
+  // ── Tool / model switching ────────────────────────────────────────────────
   async function switchTool(tool) {
     activeTool = tool;
-    document.querySelectorAll('.tool-item').forEach((el) => {
-      el.classList.toggle('active', el.dataset.tool === tool);
-    });
+    document.querySelectorAll('.tool-item').forEach((el) =>
+      el.classList.toggle('active', el.dataset.tool === tool));
+    showToolArea(tool);
     populateModelSelect();
-    await switchModel(activeModel, /*skipPickerSync*/ true);
+    await switchModel(activeModel, true);
   }
 
   async function switchModel(model, skipPickerSync) {
     activeModel = model;
     if (!skipPickerSync) modelSelect.value = model;
-    activeThreadId = null;
-    conversation = [];
-    clearMessages();
-    setJobStatus(false);
-
+    activeThreadId = null; conversation = [];
+    clearMessages(); setJobStatus(false);
     const threads = await refreshThreadList();
-    if (threads.length) {
+    if (threads.length && activeTool === 'chat') {
       await selectThread(threads[0].id);
     } else {
       showEmptyState(true);
@@ -722,12 +849,11 @@ const MODELS_BY_TOOL = {
     }
   }
 
-  // ================= sending: chat (sync/stream) =================
+  // ── Chat send ─────────────────────────────────────────────────────────────
   async function sendChatMessage(text) {
     const threadId = await ensureThread();
     addMessage('user', text);
     conversation.push({ role: 'user', content: text });
-
     const aiDiv = addMessage('assistant', '…');
     let fullText = '';
 
@@ -745,112 +871,238 @@ const MODELS_BY_TOOL = {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
+      const lines = buffer.split('\n'); buffer = lines.pop();
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed.startsWith('data:')) continue;
         const payload = trimmed.slice(5).trim();
         if (payload === '[DONE]') continue;
         try {
-          const json = JSON.parse(payload);
-          const delta = json.choices?.[0]?.delta?.content;
-          if (delta) {
-            fullText += delta;
-            updateMessageText(aiDiv, fullText);
-          }
-        } catch { /* ignore malformed chunk */ }
+          const j = JSON.parse(payload);
+          const delta = j.choices?.[0]?.delta?.content;
+          if (delta) { fullText += delta; updateMessageText(aiDiv, fullText); }
+        } catch {}
       }
     }
-
     if (!fullText) fullText = '(no response)';
     updateMessageText(aiDiv, fullText);
     conversation.push({ role: 'assistant', content: fullText });
-    refreshThreadList(); // updated_at changed server-side
-  }
-
-  // ================= sending: image/video/audio/agent (async job) =================
-  async function sendJobMessage(text) {
-    const threadId = await ensureThread();
-    addMessage('user', text);
-
-    setJobStatus(true, 'Starting…');
-
-    const createRes = await fetch('/api/jobs/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: activeModel, input: { prompt: text }, threadId }),
-    });
-    if (!createRes.ok) {
-      const errData = await createRes.json().catch(() => ({}));
-      setJobStatus(false);
-      throw new Error(errData.error || `Failed to start job (${createRes.status})`);
-    }
-    const { jobId } = await createRes.json();
-
-    const statusLabels = { queued: 'Queued…', running: 'Generating…' };
-    let finalJob = null;
-
-    // Poll every 2s. Each poll opportunistically advances the job
-    // server-side (see pages/api/jobs/[id].js) so this loop alone
-    // drives progress without a separate cron in v1.
-    for (let attempt = 0; attempt < 150; attempt++) { // ~5 min ceiling
-      await new Promise((r) => setTimeout(r, 2000));
-      const pollRes = await fetch(`/api/jobs/${jobId}`);
-      if (!pollRes.ok) continue;
-      const { job } = await pollRes.json();
-      if (!job) continue;
-      setJobStatus(true, statusLabels[job.status] || 'Working…');
-      if (job.status === 'done' || job.status === 'failed') {
-        finalJob = job;
-        break;
-      }
-    }
-
-    setJobStatus(false);
-
-    if (!finalJob) {
-      addMessage('assistant', '⚠️ Timed out waiting for the result. Check History — it may still finish in the background.');
-      return;
-    }
-    if (finalJob.status === 'failed') {
-      addMessage('assistant', `⚠️ Generation failed: ${finalJob.error || 'unknown error'}`);
-      return;
-    }
-
-    const attachment = finalJob.output?.result_url
-      ? [{ type: activeTool, url: finalJob.output.result_url }]
-      : [];
-    addMessage('assistant', attachment.length ? null : 'Done.', attachment);
     refreshThreadList();
   }
 
-  // ================= unified send handler =================
   async function handleSend() {
     const text = chatInput.value.trim();
     if (!text || isBusy) return;
     chatInput.value = '';
     setBusy(true);
-    try {
-      if (SYNC_TOOLS.has(activeTool)) {
-        await sendChatMessage(text);
-      } else {
-        await sendJobMessage(text);
-      }
-    } catch (err) {
-      addMessage('assistant', `⚠️ ${err.message}`);
-      setJobStatus(false);
-    } finally {
-      setBusy(false);
-    }
+    try { await sendChatMessage(text); }
+    catch (err) { addMessage('assistant', `⚠️ ${err.message}`); }
+    finally { setBusy(false); }
   }
 
-  // ================= wiring =================
+  // ── Image generation ──────────────────────────────────────────────────────
+  function setImageStatus(busy, text) {
+    imageStatus.classList.toggle('busy', busy);
+    imageStatusText.textContent = text;
+    imageGenBtn.disabled = busy;
+  }
+
+  function addImageToGrid(url, prompt) {
+    const card = document.createElement('div');
+    card.className = 'image-result-card';
+    card.innerHTML = `
+      <img src="${escapeHtml(url)}" alt="${escapeHtml(prompt)}" loading="lazy" />
+      <div class="img-actions">
+        <button class="img-action-btn" onclick="window.open('${escapeHtml(url)}','_blank')">Open</button>
+        <button class="img-action-btn" onclick="downloadImage('${escapeHtml(url)}')">Download</button>
+      </div>`;
+    imageResultGrid.prepend(card);
+  }
+
+  window.downloadImage = function(url) {
+    const a = document.createElement('a');
+    a.href = url; a.download = `smagents-${Date.now()}.png`; a.click();
+  };
+
+  imageGenBtn.addEventListener('click', async () => {
+    const prompt = imagePrompt.value.trim();
+    if (!prompt) { setImageStatus(false, 'Please enter a prompt'); return; }
+
+    const sizeVal  = imageSizeSelect.value;
+    const negPrompt = imageNegPrompt.value.trim();
+
+    // Detect if size is a ratio (Transloadit) or pixel size (DashScope/CF)
+    const isRatio = sizeVal.includes(':');
+
+    const body = {
+      model: activeModel,
+      prompt,
+      ...(negPrompt ? { negative_prompt: negPrompt } : {}),
+      ...(isRatio ? { aspect_ratio: sizeVal } : { size: sizeVal }),
+    };
+
+    setImageStatus(true, 'Generating…');
+    try {
+      const res = await fetch('/api/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok && res.status !== 202) {
+        throw new Error(data.error || `API error ${res.status}`);
+      }
+
+      // Async (wanx or long Transloadit) — poll
+      if (res.status === 202) {
+        const pollKey = data.task_id ? `task_id=${data.task_id}` : `assembly_id=${data.assembly_id}`;
+        setImageStatus(true, 'Waiting for result…');
+        for (let i = 0; i < 60; i++) {
+          await new Promise((r) => setTimeout(r, 3000));
+          const pollRes = await fetch(`/api/image?${pollKey}`);
+          const pollData = await pollRes.json();
+          if (pollData.status === 'done') {
+            (pollData.images || []).forEach((img) => addImageToGrid(img.url, prompt));
+            setImageStatus(false, `Done — ${pollData.images?.length || 1} image(s) generated`);
+            return;
+          }
+          if (pollData.status === 'failed') throw new Error(pollData.error || 'Generation failed');
+        }
+        throw new Error('Timed out waiting for image');
+      }
+
+      // Sync response
+      (data.images || []).forEach((img) => addImageToGrid(img.url || `data:image/jpeg;base64,${img.b64_json}`, prompt));
+      setImageStatus(false, `Done — ${data.images?.length || 1} image(s) via ${data.provider}`);
+    } catch (err) {
+      setImageStatus(false, `Error: ${err.message}`);
+    }
+  });
+
+  // ── Audio: TTS ────────────────────────────────────────────────────────────
+  // Voice chips
+  voiceChips.querySelectorAll('.voice-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      voiceChips.querySelectorAll('.voice-chip').forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedVoice = chip.dataset.voice;
+    });
+  });
+
+  // NIM TTS endpoint — /v1/audio/speech (OpenAI-compatible)
+  // Uses @cf/myshell-ai/melo-tts via Cloudflare Workers AI for free TTS
+  ttsBtn.addEventListener('click', async () => {
+    const text = ttsText.value.trim();
+    if (!text) return;
+    ttsBtn.disabled = true;
+    ttsBtn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;"></div> Generating…';
+    ttsResult.classList.remove('visible');
+
+    try {
+      // Route to /api/audio which we'll call — falls back gracefully
+      const res = await fetch('/api/audio/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice: selectedVoice, model: activeModel }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `TTS failed (${res.status})`);
+      }
+
+      // Response is audio binary
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      ttsAudio.src = url;
+      ttsResult.classList.add('visible');
+
+      ttsDlBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = url; a.download = `speech-${Date.now()}.mp3`; a.click();
+      };
+    } catch (err) {
+      alert(`TTS error: ${err.message}`);
+    } finally {
+      ttsBtn.disabled = false;
+      ttsBtn.innerHTML = '<i class="fas fa-play"></i> Generate speech';
+    }
+  });
+
+  // ── Audio: ASR ────────────────────────────────────────────────────────────
+  audioDropzone.addEventListener('click', () => audioFileInput.click());
+  audioDropzone.addEventListener('dragover', (e) => { e.preventDefault(); audioDropzone.classList.add('drag-over'); });
+  audioDropzone.addEventListener('dragleave', () => audioDropzone.classList.remove('drag-over'));
+  audioDropzone.addEventListener('drop', (e) => {
+    e.preventDefault(); audioDropzone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) setAudioFile(file);
+  });
+  audioFileInput.addEventListener('change', () => {
+    if (audioFileInput.files[0]) setAudioFile(audioFileInput.files[0]);
+  });
+
+  function setAudioFile(file) {
+    selectedAudioFile = file;
+    audioFileLabel.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+    audioFileLabel.style.display = 'block';
+    asrBtn.disabled = false;
+  }
+
+  asrBtn.addEventListener('click', async () => {
+    if (!selectedAudioFile) return;
+    asrBtn.disabled = true;
+    asrBtn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;"></div> Transcribing…';
+    asrResult.classList.remove('visible');
+
+    try {
+      const formData = new FormData();
+      formData.append('audio', selectedAudioFile);
+      formData.append('model', activeModel);
+
+      const res = await fetch('/api/audio/asr', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `ASR failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      asrText.textContent = data.transcript || '(no transcript returned)';
+      asrResult.classList.add('visible');
+    } catch (err) {
+      alert(`ASR error: ${err.message}`);
+    } finally {
+      asrBtn.disabled = false;
+      asrBtn.innerHTML = '<i class="fas fa-file-waveform"></i> Transcribe';
+    }
+  });
+
+  asrCopyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(asrText.textContent || '');
+    asrCopyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { asrCopyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
+  });
+
+  // ── Audio mode tabs ───────────────────────────────────────────────────────
+  audioTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      audioMode = tab.dataset.mode;
+      audioTabs.forEach((t) => t.classList.toggle('active', t === tab));
+      ttsPanelEl.classList.toggle('visible', audioMode === 'tts');
+      asrPanelEl.classList.toggle('visible', audioMode === 'asr');
+    });
+  });
+
+  // ── Wiring ────────────────────────────────────────────────────────────────
   toolList.addEventListener('click', (e) => {
     const item = e.target.closest('.tool-item');
     if (!item) return;
@@ -862,10 +1114,8 @@ const MODELS_BY_TOOL = {
   sendBtn.addEventListener('click', handleSend);
   chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
 
-  // ================= boot =================
-  // WITH THIS
+  // ── Boot ──────────────────────────────────────────────────────────────────
   (async function init() {
-    // Load chat models from the server before populating the picker
     try {
       const res = await fetch('/api/chat?list=models');
       if (res.ok) {
@@ -875,25 +1125,18 @@ const MODELS_BY_TOOL = {
         }
       }
     } catch (e) {
-      console.warn('Could not load model list from API, using fallback', e);
-      MODELS_BY_TOOL.chat = [
-        'meta/llama-3.3-70b-instruct',
-        'deepseek-ai/deepseek-v4-flash',
-        'moonshotai/kimi-k2.6',
-      ];
+      console.warn('Could not load model list:', e);
+      MODELS_BY_TOOL.chat = ['meta/llama-3.3-70b-instruct', 'deepseek-ai/deepseek-v4-flash', 'moonshotai/kimi-k2.6'];
     }
 
+    showToolArea('chat');
     populateModelSelect();
     updateHeader(null);
     const threads = await refreshThreadList();
-    if (threads.length) {
-      await selectThread(threads[0].id);
-    } else {
-      showEmptyState(true);
-    }
+    if (threads.length) await selectThread(threads[0].id);
+    else showEmptyState(true);
   })();
 })();
 </script>
-
 </body>
 </html>
