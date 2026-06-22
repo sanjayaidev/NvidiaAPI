@@ -45,8 +45,8 @@ const ALLOWED_MODELS = [
   'moonshotai/kimi-k2.6',
   'nvidia/llama-3.1-nemoguard-8b-content-safety',
   'nvidia/llama-3.1-nemoguard-8b-topic-control',
+  'qwen/qwen3.5-122b-a10b',  // ← added
 ];
-
 function isAllowedModel(modelId) {
   return ALLOWED_MODELS.includes(modelId);
 }
