@@ -445,6 +445,18 @@
       </div>
       <div class="image-controls-row">
         <div class="image-field">
+          <label>Provider</label>
+          <select id="imageProviderSelect">
+            <option value="">Select provider…</option>
+          </select>
+        </div>
+        <div class="image-field">
+          <label>Model</label>
+          <select id="imageModelSelect">
+            <option value="">Select model…</option>
+          </select>
+        </div>
+        <div class="image-field">
           <label>Aspect ratio / Size</label>
           <select id="imageSizeSelect">
             <option value="1024*1024">1:1 — 1024×1024</option>
@@ -548,6 +560,7 @@
     // chat: populated at boot from /api/chat?list=models
     chat: [],
     image: [],  // populated from /api/image?list=models
+    imageByProvider: {}, // { cloudflare: [...], dashscope: [...], transloadit: [...] }
     audio: [],  // populated from /api/audio/tts?list=models and /api/audio/asr?list=models
     video: ['nvidia/cosmos3-nano'],
     agent: [
@@ -583,13 +596,15 @@
   const agentArea   = document.getElementById('agentArea');
 
   // Image refs
-  const imagePrompt     = document.getElementById('imagePrompt');
-  const imageSizeSelect = document.getElementById('imageSizeSelect');
-  const imageNegPrompt  = document.getElementById('imageNegPrompt');
-  const imageGenBtn     = document.getElementById('imageGenBtn');
-  const imageStatus     = document.getElementById('imageStatus');
-  const imageStatusText = document.getElementById('imageStatusText');
-  const imageResultGrid = document.getElementById('imageResultGrid');
+  const imageProviderSelect = document.getElementById('imageProviderSelect');
+  const imageModelSelect    = document.getElementById('imageModelSelect');
+  const imagePrompt         = document.getElementById('imagePrompt');
+  const imageSizeSelect     = document.getElementById('imageSizeSelect');
+  const imageNegPrompt      = document.getElementById('imageNegPrompt');
+  const imageGenBtn         = document.getElementById('imageGenBtn');
+  const imageStatus         = document.getElementById('imageStatus');
+  const imageStatusText     = document.getElementById('imageStatusText');
+  const imageResultGrid     = document.getElementById('imageResultGrid');
 
   // Audio refs
   const audioTabs    = document.querySelectorAll('.audio-tab');
@@ -703,6 +718,44 @@
     activeModel = models.includes(activeModel) ? activeModel : models[0];
     modelSelect.value = activeModel || '';
   }
+
+  // ── Image provider/model pickers ──────────────────────────────────────────
+  function populateImageProviderSelect() {
+    const byProvider = MODELS_BY_TOOL.imageByProvider || {};
+    imageProviderSelect.innerHTML = '<option value="">Select provider…</option>';
+    Object.keys(byProvider).forEach((provider) => {
+      const opt = document.createElement('option');
+      opt.value = provider;
+      opt.textContent = provider.charAt(0).toUpperCase() + provider.slice(1);
+      imageProviderSelect.appendChild(opt);
+    });
+    // Select first provider by default
+    const providers = Object.keys(byProvider);
+    if (providers.length) {
+      imageProviderSelect.value = providers[0];
+      populateImageModelSelect(providers[0]);
+    }
+  }
+
+  function populateImageModelSelect(provider) {
+    const byProvider = MODELS_BY_TOOL.imageByProvider || {};
+    const models = byProvider[provider] || [];
+    imageModelSelect.innerHTML = '<option value="">Select model…</option>';
+    if (!models.length) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No models for this provider';
+      imageModelSelect.appendChild(opt);
+      return;
+    }
+    models.forEach((id) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      imageModelSelect.appendChild(opt);
+    });
+    // Select first model by default
+    imageModelSelect.value = models[0] || '';
+  }
   // ── Fetch models from API endpoints ───────────────────────────────────────
   async function fetchImageModels() {
     try {
@@ -710,10 +763,16 @@
       if (res.ok) {
         const data = await res.json();
         MODELS_BY_TOOL.image = data.models || [];
+        MODELS_BY_TOOL.imageByProvider = data.by_provider || {};
       }
     } catch (e) {
       console.warn('Could not load image models:', e);
       MODELS_BY_TOOL.image = ['qwen-image-2.0-pro', '@cf/black-forest-labs/flux-1-schnell', 'flux-1.1-pro-ultra'];
+      MODELS_BY_TOOL.imageByProvider = {
+        dashscope: ['qwen-image-2.0-pro'],
+        cloudflare: ['@cf/black-forest-labs/flux-1-schnell'],
+        transloadit: ['flux-1.1-pro-ultra'],
+      };
     }
   }
 
@@ -843,8 +902,12 @@
     document.querySelectorAll('.tool-item').forEach((el) =>
       el.classList.toggle('active', el.dataset.tool === tool));
     showToolArea(tool);
-    populateModelSelect();
-    await switchModel(activeModel, true);
+    if (tool === 'image') {
+      populateImageProviderSelect();
+    } else {
+      populateModelSelect();
+      await switchModel(activeModel, true);
+    }
   }
 
   async function switchModel(model, skipPickerSync) {
@@ -944,6 +1007,9 @@
     const prompt = imagePrompt.value.trim();
     if (!prompt) { setImageStatus(false, 'Please enter a prompt'); return; }
 
+    const selectedModel = imageModelSelect.value;
+    if (!selectedModel) { setImageStatus(false, 'Please select a model'); return; }
+
     const sizeVal  = imageSizeSelect.value;
     const negPrompt = imageNegPrompt.value.trim();
 
@@ -951,7 +1017,7 @@
     const isRatio = sizeVal.includes(':');
 
     const body = {
-      model: activeModel,
+      model: selectedModel,
       prompt,
       ...(negPrompt ? { negative_prompt: negPrompt } : {}),
       ...(isRatio ? { aspect_ratio: sizeVal } : { size: sizeVal }),
@@ -994,6 +1060,12 @@
     } catch (err) {
       setImageStatus(false, `Error: ${err.message}`);
     }
+  });
+
+  // Image provider/model selector wiring
+  imageProviderSelect.addEventListener('change', () => {
+    const provider = imageProviderSelect.value;
+    if (provider) populateImageModelSelect(provider);
   });
 
   // ── Audio: TTS ────────────────────────────────────────────────────────────
