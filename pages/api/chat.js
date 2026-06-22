@@ -109,7 +109,7 @@ function json(data, status = 200, extraHeaders = {}) {
 }
 
 async function listModels(apiKey) {
-  // Return only our curated list of allowed models
+  // Return only our curated list of allowed models, grouped by provider
   // We still make the API call to verify the key works, but ignore the results
   try {
     const r = await fetch(`${NVIDIA_BASE_URL}/models`, {
@@ -117,11 +117,20 @@ async function listModels(apiKey) {
     });
     if (!r.ok) throw new Error(`status ${r.status}`);
     // API key is valid, return our curated list
-    return ALLOWED_MODELS;
   } catch (_) {
     // Even if API call fails, return our curated list
-    return ALLOWED_MODELS;
   }
+
+  // Group models by provider (extracted from model id prefix)
+  const byProvider = {};
+  ALLOWED_MODELS.forEach((modelId) => {
+    const parts = modelId.split('/');
+    const provider = parts.length > 1 ? parts[0] : 'nvidia';
+    if (!byProvider[provider]) byProvider[provider] = [];
+    byProvider[provider].push(modelId);
+  });
+
+  return { models: ALLOWED_MODELS, by_provider: byProvider };
 }
 
 // ---- thread/message persistence (Neon) ----
@@ -180,8 +189,8 @@ export default async function handler(req) {
   // GET /api/chat?list=models  -> live, family-filtered model catalog
   if (req.method === 'GET') {
     if (url.searchParams.get('list') === 'models') {
-      const models = await listModels(apiKey);
-      return json({ models });
+      const result = await listModels(apiKey);
+      return json(result);
     }
     return json({ error: 'Use GET ?list=models or POST a chat request' }, 400);
   }
