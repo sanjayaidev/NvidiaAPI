@@ -26,8 +26,10 @@ const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 // Exact list of allowed models - only these will appear in the dropdown
 const ALLOWED_MODELS = [
   'abacusai/dracarys-llama-3.1-70b-instruct',
+  'bytedance/seed-oss-36b-instruct',
   'deepseek-ai/deepseek-v4-flash',
   'deepseek-ai/deepseek-v4-pro',
+  'google/gemma-4-31b-it',
   'meta/llama-3.1-70b-instruct',
   'meta/llama-3.1-8b-instruct',
   'meta/llama-3.2-11b-vision-instruct',
@@ -37,6 +39,8 @@ const ALLOWED_MODELS = [
   'meta/llama-3.3-70b-instruct',
   'meta/llama-4-maverick-17b-128e-instruct',
   'meta/llama-guard-4-12b',
+  'minimaxai/minimax-m2.7',
+  'minimaxai/minimax-m3',
   'mistralai/ministral-14b-instruct-2512',
   'mistralai/mistral-large-3-675b-instruct-2512',
   'mistralai/mistral-medium-3.5-128b',
@@ -45,8 +49,19 @@ const ALLOWED_MODELS = [
   'moonshotai/kimi-k2.6',
   'nvidia/llama-3.1-nemoguard-8b-content-safety',
   'nvidia/llama-3.1-nemoguard-8b-topic-control',
-  'qwen/qwen3.5-122b-a10b',  // ← added
+  'nvidia/llama-3.3-nemotron-super-49b-v1.5',
+  'nvidia/nemotron-3-nano-30b-a3b',
+  'nvidia/nemotron-3-super-120b-a12b',
+  'nvidia/nemotron-3-ultra-550b-a55b',
+  'openai/gpt-oss-20b',
+  'openai/gpt-oss-120b',
+  'qwen/qwen3.5-122b-a10b',
+  'sarvamai/sarvam-m',
+  'stepfun-ai/step-3.5-flash',
+  'stepfun-ai/step-3.7-flash',
+  'z-ai/glm-5.1',
 ];
+
 function isAllowedModel(modelId) {
   return ALLOWED_MODELS.includes(modelId);
 }
