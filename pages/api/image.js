@@ -242,7 +242,7 @@ async function handleCloudflare(body, resolvedThreadId, sql) {
 
 function expiryString() {
   const d = new Date(Date.now() + 1000 * 60 * 60);
-  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, '+00:00');
+  return d.toISOString().replace(/\.\d{3}Z$/, '+00:00');
 }
 
 async function signTransloaditParams(params) {
