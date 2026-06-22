@@ -445,6 +445,18 @@
       </div>
       <div class="image-controls-row">
         <div class="image-field">
+          <label>Provider</label>
+          <select id="imageProviderSelect">
+            <option value="">Loading…</option>
+          </select>
+        </div>
+        <div class="image-field">
+          <label>Model</label>
+          <select id="imageModelSelect">
+            <option value="">Select provider first</option>
+          </select>
+        </div>
+        <div class="image-field">
           <label>Aspect ratio / Size</label>
           <select id="imageSizeSelect">
             <option value="1024*1024">1:1 — 1024×1024</option>
@@ -592,13 +604,15 @@
   const agentArea   = document.getElementById('agentArea');
 
   // Image refs
-  const imagePrompt     = document.getElementById('imagePrompt');
-  const imageSizeSelect = document.getElementById('imageSizeSelect');
-  const imageNegPrompt  = document.getElementById('imageNegPrompt');
-  const imageGenBtn     = document.getElementById('imageGenBtn');
-  const imageStatus     = document.getElementById('imageStatus');
-  const imageStatusText = document.getElementById('imageStatusText');
-  const imageResultGrid = document.getElementById('imageResultGrid');
+  const imagePrompt       = document.getElementById('imagePrompt');
+  const imageProviderSelect = document.getElementById('imageProviderSelect');
+  const imageModelSelect  = document.getElementById('imageModelSelect');
+  const imageSizeSelect   = document.getElementById('imageSizeSelect');
+  const imageNegPrompt    = document.getElementById('imageNegPrompt');
+  const imageGenBtn       = document.getElementById('imageGenBtn');
+  const imageStatus       = document.getElementById('imageStatus');
+  const imageStatusText   = document.getElementById('imageStatusText');
+  const imageResultGrid   = document.getElementById('imageResultGrid');
 
   // Audio refs
   const audioTabs    = document.querySelectorAll('.audio-tab');
