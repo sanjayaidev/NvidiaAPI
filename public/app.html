@@ -547,29 +547,8 @@
   const MODELS_BY_TOOL = {
     // chat: populated at boot from /api/chat?list=models
     chat: [],
-    image: [
-      // Alibaba DashScope
-      'qwen-image-2.0-pro',
-      'qwen-image-2.0',
-      'wanx2.1-t2i-turbo',
-      'wanx2.1-t2i-plus',
-      // Cloudflare Workers AI
-      '@cf/black-forest-labs/flux-1-schnell',
-      '@cf/stabilityai/stable-diffusion-xl-base-1.0',
-      '@cf/lykon/dreamshaper-8-lcm',
-      // Transloadit
-      'flux-1.1-pro-ultra',
-      'flux-1.1-pro',
-      'stable-diffusion-3.5-large',
-    ],
-    audio: [
-      // TTS — NIM free endpoints
-      'nvidia/parakeet-ctc-0.6b-asr',   // ASR
-      'nvidia/canary-1b-flash',          // ASR + translation
-      // Cloudflare Workers AI TTS (free)
-      '@cf/myshell-ai/melo-tts',
-      '@cf/microsoft/phi-2',             // placeholder, swap for real CF TTS model
-    ],
+    image: [],  // populated from /api/image?list=models
+    audio: [],  // populated from /api/audio/tts?list=models and /api/audio/asr?list=models
     video: ['nvidia/cosmos3-nano'],
     agent: [
       'nvidia/nemotron-3-ultra-550b-a55b',
@@ -577,12 +556,8 @@
     ],
   };
 
-  // Audio model capabilities
-  const AUDIO_MODEL_CAPS = {
-    'nvidia/parakeet-ctc-0.6b-asr': { tts: false, asr: true },
-    'nvidia/canary-1b-flash':        { tts: false, asr: true },
-    '@cf/myshell-ai/melo-tts':       { tts: true,  asr: false },
-  };
+  // Audio model capabilities (populated dynamically)
+  const AUDIO_MODEL_CAPS = {};
 
   const SYNC_TOOLS = new Set(['chat']);
 
@@ -727,6 +702,43 @@
     });
     activeModel = models.includes(activeModel) ? activeModel : models[0];
     modelSelect.value = activeModel || '';
+  }
+  // ── Fetch models from API endpoints ───────────────────────────────────────
+  async function fetchImageModels() {
+    try {
+      const res = await fetch('/api/image?list=models');
+      if (res.ok) {
+        const data = await res.json();
+        MODELS_BY_TOOL.image = data.models || [];
+      }
+    } catch (e) {
+      console.warn('Could not load image models:', e);
+      MODELS_BY_TOOL.image = ['qwen-image-2.0-pro', '@cf/black-forest-labs/flux-1-schnell', 'flux-1.1-pro-ultra'];
+    }
+  }
+
+  async function fetchAudioModels() {
+    try {
+      const [ttsRes, asrRes] = await Promise.all([
+        fetch('/api/audio/tts?list=models'),
+        fetch('/api/audio/asr?list=models'),
+      ]);
+      const ttsData = ttsRes.ok ? await ttsRes.json() : { models: [], by_provider: {} };
+      const asrData = asrRes.ok ? await asrRes.json() : { models: [], by_provider: {} };
+
+      // Merge TTS and ASR models, avoiding duplicates
+      const allModels = new Set([...(ttsData.models || []), ...(asrData.models || [])]);
+      MODELS_BY_TOOL.audio = Array.from(allModels);
+
+      // Build capabilities map
+      AUDIO_MODEL_CAPS['@cf/myshell-ai/melo-tts'] = { tts: true, asr: false };
+      AUDIO_MODEL_CAPS['@cf/openai/whisper'] = { tts: false, asr: true };
+    } catch (e) {
+      console.warn('Could not load audio models:', e);
+      MODELS_BY_TOOL.audio = ['@cf/myshell-ai/melo-tts', '@cf/openai/whisper'];
+      AUDIO_MODEL_CAPS['@cf/myshell-ai/melo-tts'] = { tts: true, asr: false };
+      AUDIO_MODEL_CAPS['@cf/openai/whisper'] = { tts: false, asr: true };
+    }
   }
 
   // ── Header ────────────────────────────────────────────────────────────────
@@ -1128,6 +1140,9 @@
       console.warn('Could not load model list:', e);
       MODELS_BY_TOOL.chat = ['meta/llama-3.3-70b-instruct', 'deepseek-ai/deepseek-v4-flash', 'moonshotai/kimi-k2.6'];
     }
+
+    // Fetch image and audio models from their respective endpoints
+    await Promise.all([fetchImageModels(), fetchAudioModels()]);
 
     showToolArea('chat');
     populateModelSelect();

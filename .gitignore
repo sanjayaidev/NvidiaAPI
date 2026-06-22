@@ -1,1 +1,42 @@
-Nothing needs to be added to .gitignore since only a JavaScript source file (`lib/registry.js`) was added, and no build artifacts, dependencies, or temporary files were included in the changes.
+```gitignore
+# Dependencies
+node_modules/
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-selfcheck.json
+*.so
+.DS_Store
+Thumbs.db
+```
+
+Wait, let me reconsider the input. The changes are only JavaScript files and an HTML file, which are source files. There are no build artifacts, dependency directories, or temporary files in the change list.
+
+(empty)
