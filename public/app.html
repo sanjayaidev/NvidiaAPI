@@ -341,7 +341,7 @@
     .input-wrapper {
       flex: 1; display: flex; background: rgba(255,255,255,0.04);
       border-radius: 30px; border: 1px solid rgba(255,255,255,0.06);
-      padding: 4px 4px 4px 22px; transition: 0.2s;
+      padding: 4px 4px 4px 22px; transition: 0.2s; position: relative;
     }
     .input-wrapper:focus-within { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124,92,252,0.12); }
     .input-wrapper input {
@@ -357,6 +357,32 @@
     }
     .input-wrapper button:hover { background: #6b4be8; transform: scale(1.02); }
     .input-wrapper button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    
+    /* Attachment button */
+    .attach-btn {
+      background: transparent !important; border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 30px !important; padding: 10px 14px !important; color: #8896b0 !important;
+      font-weight: 500 !important; font-size: 14px !important; display: flex !important;
+      align-items: center !important; gap: 8px !important; cursor: pointer !important;
+      transition: 0.2s !important; box-shadow: none !important; margin-right: 8px !important;
+    }
+    .attach-btn:hover { border-color: #7c5cfc !important; color: #cdbfff !important; }
+    .attach-btn.disabled { opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
+    
+    /* Attachment preview */
+    .attachment-preview {
+      display: none; align-items: center; gap: 10px; padding: 8px 16px;
+      background: rgba(124, 92, 252, 0.08); border-radius: 14px;
+      margin-bottom: 8px; max-width: 400px; margin-left: 24px;
+    }
+    .attachment-preview.visible { display: flex; }
+    .attachment-preview .file-icon { font-size: 18px; color: #a78bfa; }
+    .attachment-preview .file-name { flex: 1; font-size: 13px; color: #eef2f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .attachment-preview .remove-attach {
+      background: transparent; border: none; color: #6a7a94; cursor: pointer;
+      font-size: 16px; padding: 4px; display: flex; align-items: center; justify-content: center;
+    }
+    .attachment-preview .remove-attach:hover { color: #ff6b6b; }
 
     @media (max-width: 820px) {
       .sidebar { width: 240px; min-width: 240px; padding: 20px 12px; }
@@ -431,11 +457,19 @@
       </div>
       <div class="chat-input-area" id="chatInputArea">
         <div class="input-wrapper">
+          <button id="attachBtn" class="attach-btn" style="display:none;" title="Attach image"><i class="fas fa-paperclip"></i></button>
           <input type="text" id="chatInput" placeholder="Ask SMAgents anything…" />
           <button id="sendMsgBtn"><i class="fas fa-paper-plane"></i> Send</button>
         </div>
       </div>
+      <div class="attachment-preview" id="attachmentPreview">
+        <i class="fas fa-image file-icon"></i>
+        <span class="file-name" id="attachmentFileName"></span>
+        <button class="remove-attach" id="removeAttachBtn" title="Remove attachment"><i class="fas fa-times"></i></button>
+      </div>
     </div>
+    
+    <input type="file" id="fileInput" accept="image/*" style="display:none;" />
 
     <!-- IMAGE -->
     <div class="image-tool-area" id="imageArea">
@@ -568,6 +602,15 @@
       'moonshotai/kimi-k2.6',
     ],
   };
+  
+  // Models that support attachments (vision models)
+  const MODELS_WITH_ATTACHMENTS = new Set([
+    'meta/llama-3.2-11b-vision-instruct',
+    'meta/llama-3.2-90b-vision-instruct',
+  ]);
+  
+  // Whitelisted file extensions for attachments
+  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
   // Provider grouping for dropdown (populated dynamically)
   const BY_PROVIDER = {
@@ -592,6 +635,11 @@
   const emptyState     = document.getElementById('emptyState');
   const chatInput      = document.getElementById('chatInput');
   const sendBtn        = document.getElementById('sendMsgBtn');
+  const attachBtn      = document.getElementById('attachBtn');
+  const fileInput      = document.getElementById('fileInput');
+  const attachmentPreview = document.getElementById('attachmentPreview');
+  const attachmentFileName = document.getElementById('attachmentFileName');
+  const removeAttachBtn = document.getElementById('removeAttachBtn');
   const headerIcon     = document.getElementById('headerIcon');
   const headerTitle    = document.getElementById('headerTitle');
   const headerModelLabel = document.getElementById('headerModelLabel');
