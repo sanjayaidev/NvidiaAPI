@@ -7,6 +7,7 @@
 //
 // Deliberately minimal: no email verification. The only abuse guard
 // is the per-IP rate limit in lib/signupRateLimit.js.
+// TRIAL RULE: Free tier accounts expire after 7 days from signup.
 
 import { getSql } from '../../../lib/db';
 import { hashPassword } from '../../../lib/password';
@@ -27,6 +28,9 @@ function json(data, status = 200, extraHeaders = {}) {
 // script's default (200) since self-serve users are unvetted — keep
 // this conservative and raise per-account manually if someone needs more.
 const SELF_SERVE_DAILY_CAP = 50;
+
+// Trial period in days
+const TRIAL_DAYS = 7;
 
 export default async function handler(req) {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
@@ -60,6 +64,12 @@ export default async function handler(req) {
 
   const sql = getSql();
 
+  // Check if another account already exists from this IP address
+  const existingByIp = await sql`select id from users where ip_at_signup = ${ip}`;
+  if (existingByIp.length > 0) {
+    return json({ error: 'An account already exists from this IP address. Only one account per IP is allowed.' }, 409);
+  }
+
   const existing = await sql`select id from users where email = ${email}`;
   if (existing.length > 0) {
     return json({ error: 'An account with this email already exists' }, 409);
@@ -67,10 +77,13 @@ export default async function handler(req) {
 
   const userId = crypto.randomUUID();
   const passwordHash = await hashPassword(password);
+  
+  // Calculate trial expiration date (7 days from now)
+  const trialExpiresAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
   await sql`
-    insert into users (id, email, password_hash, plan, ip_at_signup)
-    values (${userId}, ${email}, ${passwordHash}, 'free', ${ip})
+    insert into users (id, email, password_hash, plan, ip_at_signup, trial_expires_at)
+    values (${userId}, ${email}, ${passwordHash}, 'free', ${ip}, ${trialExpiresAt.toISOString()})
   `;
 
   // Silently provision a managed-tier key for this user. Raw key is

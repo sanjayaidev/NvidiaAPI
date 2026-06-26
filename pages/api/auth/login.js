@@ -36,13 +36,18 @@ export default async function handler(req) {
   }
 
   const sql = getSql();
-  const rows = await sql`select id, password_hash from users where email = ${email}`;
+  const rows = await sql`select id, password_hash, trial_expires_at from users where email = ${email}`;
   const user = rows[0];
 
   // Same error for "no such user" and "wrong password" — don't leak
   // which case it was, that just helps someone enumerate valid emails.
   if (!user || !(await verifyPassword(password, user.password_hash))) {
     return json({ error: 'Invalid email or password' }, 401);
+  }
+
+  // Check if trial has expired
+  if (user.trial_expires_at && new Date(user.trial_expires_at) < new Date()) {
+    return json({ error: 'Your trial has expired' }, 403);
   }
 
   const ip = getClientIp(req);

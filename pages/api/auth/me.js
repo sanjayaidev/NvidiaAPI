@@ -3,6 +3,7 @@
 // GET -> { signedIn: true, email } if a valid session cookie is present,
 // otherwise { signedIn: false }. The public UI calls this on load to
 // decide whether to show the login/signup form or the chat interface.
+// Also checks if the user's trial has expired.
 
 import { getSql } from '../../../lib/db';
 import { readSessionCookie, getSessionUser } from '../../../lib/session';
@@ -19,6 +20,15 @@ export default async function handler(req) {
   const session = await getSessionUser(sql, token);
   if (!session) return json({ signedIn: false });
 
-  const rows = await sql`select email from users where id = ${session.userId}`;
-  return json({ signedIn: true, email: rows[0]?.email || null });
+  const rows = await sql`select email, trial_expires_at from users where id = ${session.userId}`;
+  const user = rows[0];
+  
+  // Check if trial has expired
+  if (user.trial_expires_at && new Date(user.trial_expires_at) < new Date()) {
+    // Trial expired - delete the session to prevent further logins
+    await sql`delete from sessions where id = ${token}`;
+    return json({ signedIn: false, error: 'Your trial has expired' }, 403);
+  }
+  
+  return json({ signedIn: true, email: user?.email || null });
 }
