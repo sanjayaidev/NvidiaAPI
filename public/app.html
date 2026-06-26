@@ -611,6 +611,66 @@
   
   // Whitelisted file extensions for attachments
   const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+  
+  let currentAttachment = null;
+  
+  function modelSupportsAttachments(modelId) {
+    return MODELS_WITH_ATTACHMENTS.has(modelId);
+  }
+  
+  function updateAttachmentButtonVisibility() {
+    if (activeTool !== 'chat') {
+      attachBtn.style.display = 'none';
+      return;
+    }
+    const supportsAttachments = modelSupportsAttachments(activeModel);
+    attachBtn.style.display = supportsAttachments ? 'flex' : 'none';
+    if (!supportsAttachments) {
+      clearAttachment();
+    }
+  }
+  
+  function validateFileExtension(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    return ALLOWED_EXTENSIONS.includes(ext);
+  }
+  
+  function handleFileSelect(file) {
+    if (!file) return;
+    
+    if (!validateFileExtension(file.name)) {
+      alert('Invalid file type. Allowed extensions: ' + ALLOWED_EXTENSIONS.join(', '));
+      return;
+    }
+    
+    currentAttachment = {
+      file: file,
+      name: file.name,
+      type: file.type,
+      url: URL.createObjectURL(file)
+    };
+    
+    attachmentFileName.textContent = file.name;
+    attachmentPreview.classList.add('visible');
+  }
+  
+  function clearAttachment() {
+    if (currentAttachment && currentAttachment.url) {
+      URL.revokeObjectURL(currentAttachment.url);
+    }
+    currentAttachment = null;
+    attachmentPreview.classList.remove('visible');
+    fileInput.value = '';
+  }
+  
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   // Provider grouping for dropdown (populated dynamically)
   const BY_PROVIDER = {
@@ -1073,6 +1133,8 @@
       populateModelSelect();
       await switchModel(activeModel, true);
     }
+    // Update attachment button visibility when switching tools
+    updateAttachmentButtonVisibility();
   }
 
   async function switchModel(model, skipPickerSync) {
@@ -1093,6 +1155,9 @@
     if (imagePrompt) {
       imagePrompt.value = '';
     }
+    
+    // Update attachment button visibility based on model support
+    updateAttachmentButtonVisibility();
   }
 
   // ── Chat send ─────────────────────────────────────────────────────────────
@@ -1142,10 +1207,13 @@
 
   async function handleSend() {
     const text = chatInput.value.trim();
-    if (!text || isBusy) return;
+    if ((!text && !currentAttachment) || isBusy) return;
+    
+    const attachmentToSend = currentAttachment;
     chatInput.value = '';
+    clearAttachment();
     setBusy(true);
-    try { await sendChatMessage(text); }
+    try { await sendChatMessage(text, attachmentToSend); }
     catch (err) { addMessage('assistant', `⚠️ ${err.message}`); }
     finally { setBusy(false); }
   }
@@ -1375,6 +1443,11 @@
   newThreadBtn.addEventListener('click', startNewThread);
   sendBtn.addEventListener('click', handleSend);
   chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
+  
+  // Attachment event listeners
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+  removeAttachBtn.addEventListener('click', clearAttachment);
 
   // ── Boot ──────────────────────────────────────────────────────────────────
   (async function init() {

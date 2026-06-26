@@ -15,6 +15,8 @@ create table if not exists users (
   id            text primary key,        -- external auth id (Clerk user id, etc) or 'demo-user' for now
   email         text,
   plan          text not null default 'free', -- free | pro | business — drives rate limits & quotas
+  ip_at_signup  text,                    -- IP address at signup time for fraud prevention
+  trial_expires_at timestamptz,          -- when the free trial expires (NULL for non-trial accounts)
   created_at    timestamptz not null default now()
 );
 
