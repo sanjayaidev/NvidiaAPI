@@ -198,6 +198,7 @@
         <label for="passwordInput">Password</label>
         <input type="password" id="passwordInput" placeholder="At least 8 characters" required autocomplete="current-password" minlength="8" />
         <div class="field-hint" id="passwordHint">No verification email — just pick something you'll remember.</div>
+        <div class="field-hint" style="color:#a78bfa;margin-top:8px;">⚠️ Free trial expires in 7 days. One account per IP address.</div>
       </div>
       <button type="submit" class="auth-submit" id="authSubmit">Create account</button>
     </form>
@@ -270,6 +271,7 @@
   let mode = 'signup';
   let conversation = [];
   let isBusy = false;
+  let currentThreadId = null;
 
   function escapeHtml(str) {
     const div = document.createElement('div');
@@ -309,7 +311,12 @@
         body: JSON.stringify({ email: emailInput.value.trim(), password: passwordInput.value }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+      if (!res.ok) {
+        if (data.error && data.error.includes('trial has expired')) {
+          throw new Error('Your trial has expired. Please contact support for access.');
+        }
+        throw new Error(data.error || 'Something went wrong');
+      }
       await enterDashboard(data.email);
     } catch (err) {
       showAuthError(err.message);
@@ -334,6 +341,46 @@
     authScreen.style.display = 'none';
     dashboard.classList.add('visible');
     populateModelSelect();
+    // Load or create a thread for this model
+    await loadOrCreateThread();
+  }
+
+  async function loadOrCreateThread() {
+    try {
+      const res = await fetch('/api/threads?tool=chat&model=' + encodeURIComponent(modelSelect.value));
+      if (res.ok) {
+        const data = await res.json();
+        const threads = data.threads || [];
+        if (threads.length > 0) {
+          currentThreadId = threads[0].id;
+          await loadThreadMessages(currentThreadId);
+          return;
+        }
+      }
+    } catch {}
+    // No existing thread, start fresh
+    conversation = [];
+    chatMessages.innerHTML = '';
+    chatMessages.appendChild(emptyState);
+    emptyState.style.display = 'flex';
+  }
+
+  async function loadThreadMessages(threadId) {
+    const res = await fetch(`/api/threads/${threadId}`);
+    if (!res.ok) throw new Error('Failed to load conversation');
+    const { messages } = await res.json();
+    conversation = [];
+    chatMessages.innerHTML = '';
+    chatMessages.appendChild(emptyState);
+    if (messages.length === 0) {
+      emptyState.style.display = 'flex';
+      return;
+    }
+    emptyState.style.display = 'none';
+    messages.forEach((m) => {
+      addMessage(m.role, m.content);
+      conversation.push({ role: m.role, content: m.content || '' });
+    });
   }
 
   function addMessage(role, content) {
@@ -429,6 +476,9 @@
       const data = await res.json();
       if (data.signedIn) {
         await enterDashboard(data.email);
+      } else if (data.error) {
+        // Session expired due to trial expiration
+        showAuthError(data.error);
       }
     } catch {}
   })();
