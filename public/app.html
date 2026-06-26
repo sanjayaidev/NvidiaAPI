@@ -569,6 +569,15 @@
     ],
   };
 
+  // Provider grouping for dropdown (populated dynamically)
+  const BY_PROVIDER = {
+    chat: {},
+    image: {},
+    audio: {},
+    video: {},
+    agent: {},
+  };
+
   // Audio model capabilities (populated dynamically)
   const AUDIO_MODEL_CAPS = {};
 
@@ -702,6 +711,7 @@
   // ── Model picker ──────────────────────────────────────────────────────────
   function populateModelSelect() {
     const models = MODELS_BY_TOOL[activeTool] || [];
+    const byProvider = BY_PROVIDER[activeTool] || {};
     modelSelect.innerHTML = '';
     if (!models.length) {
       const opt = document.createElement('option');
@@ -709,13 +719,30 @@
       modelSelect.appendChild(opt);
       return;
     }
-    models.forEach((id) => {
-      const opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = id;
-      modelSelect.appendChild(opt);
-    });
-    activeModel = models.includes(activeModel) ? activeModel : models[0];
+    // If we have provider info, group by provider using optgroups
+    if (Object.keys(byProvider).length > 0) {
+      Object.entries(byProvider).forEach(([provider, providerModels]) => {
+        const group = document.createElement('optgroup');
+        group.label = provider.charAt(0).toUpperCase() + provider.slice(1);
+        providerModels.forEach((m) => {
+          const opt = document.createElement('option');
+          const modelId = typeof m === 'string' ? m : m.id;
+          opt.value = modelId;
+          opt.textContent = modelId;
+          group.appendChild(opt);
+        });
+        modelSelect.appendChild(group);
+      });
+    } else {
+      // Fallback: flat list
+      models.forEach((id) => {
+        const opt = document.createElement('option');
+        opt.value = typeof id === 'string' ? id : id.id;
+        opt.textContent = typeof id === 'string' ? id : id.id;
+        modelSelect.appendChild(opt);
+      });
+    }
+    activeModel = models.includes(activeModel) ? activeModel : (models[0]?.id || models[0]);
     modelSelect.value = activeModel || '';
   }
 
@@ -774,6 +801,72 @@
         transloadit: ['flux-1.1-pro-ultra'],
       };
     }
+    // Populate provider dropdown
+    populateImageProviderSelect();
+  }
+
+  function populateImageProviderSelect() {
+    const byProvider = BY_PROVIDER.image || {};
+    imageProviderSelect.innerHTML = '';
+    
+    const providers = Object.keys(byProvider);
+    if (providers.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No providers available';
+      imageProviderSelect.appendChild(opt);
+      return;
+    }
+
+    // Add "All" option to show all models
+    const allOpt = document.createElement('option');
+    allOpt.value = 'all';
+    allOpt.textContent = 'All Providers';
+    imageProviderSelect.appendChild(allOpt);
+
+    providers.forEach((provider) => {
+      const opt = document.createElement('option');
+      opt.value = provider;
+      opt.textContent = provider.charAt(0).toUpperCase() + provider.slice(1);
+      imageProviderSelect.appendChild(opt);
+    });
+
+    // Select first provider by default
+    imageProviderSelect.value = providers[0];
+    // Trigger model select update
+    populateImageModelSelect();
+  }
+
+  function populateImageModelSelect() {
+    const selectedProvider = imageProviderSelect.value;
+    const byProvider = BY_PROVIDER.image || {};
+    imageModelSelect.innerHTML = '';
+
+    let modelsToShow = [];
+    if (selectedProvider === 'all') {
+      // Show all models
+      modelsToShow = MODELS_BY_TOOL.image || [];
+    } else if (byProvider[selectedProvider]) {
+      modelsToShow = byProvider[selectedProvider];
+    }
+
+    if (modelsToShow.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No models available';
+      imageModelSelect.appendChild(opt);
+      return;
+    }
+
+    modelsToShow.forEach((m) => {
+      const opt = document.createElement('option');
+      const modelId = typeof m === 'string' ? m : m.id;
+      opt.value = modelId;
+      opt.textContent = modelId;
+      imageModelSelect.appendChild(opt);
+    });
+
+    // Update activeModel
+    const firstModel = modelsToShow[0];
+    activeModel = typeof firstModel === 'string' ? firstModel : firstModel.id;
   }
 
   async function fetchAudioModels() {
@@ -789,12 +882,26 @@
       const allModels = new Set([...(ttsData.models || []), ...(asrData.models || [])]);
       MODELS_BY_TOOL.audio = Array.from(allModels);
 
+      // Build provider grouping
+      BY_PROVIDER.audio = {};
+      if (ttsData.by_provider) {
+        Object.entries(ttsData.by_provider).forEach(([provider, models]) => {
+          BY_PROVIDER.audio[provider] = (BY_PROVIDER.audio[provider] || []).concat(models.map(m => typeof m === 'string' ? m : m.id));
+        });
+      }
+      if (asrData.by_provider) {
+        Object.entries(asrData.by_provider).forEach(([provider, models]) => {
+          BY_PROVIDER.audio[provider] = (BY_PROVIDER.audio[provider] || []).concat(models);
+        });
+      }
+
       // Build capabilities map
       AUDIO_MODEL_CAPS['@cf/myshell-ai/melo-tts'] = { tts: true, asr: false };
       AUDIO_MODEL_CAPS['@cf/openai/whisper'] = { tts: false, asr: true };
     } catch (e) {
       console.warn('Could not load audio models:', e);
       MODELS_BY_TOOL.audio = ['@cf/myshell-ai/melo-tts', '@cf/openai/whisper'];
+      BY_PROVIDER.audio = { cloudflare: ['@cf/myshell-ai/melo-tts', '@cf/openai/whisper'] };
       AUDIO_MODEL_CAPS['@cf/myshell-ai/melo-tts'] = { tts: true, asr: false };
       AUDIO_MODEL_CAPS['@cf/openai/whisper'] = { tts: false, asr: true };
     }
@@ -870,8 +977,13 @@
         let attachments = null;
         try { const p = JSON.parse(m.content); if (Array.isArray(p) && p[0]?.type) attachments = p; } catch {}
         addMessage(m.role, attachments ? null : m.content, attachments, m.created_at);
+        // Only push to conversation array if it's a text message (not an attachment)
         if (!attachments && (m.role === 'user' || m.role === 'assistant')) {
           conversation.push({ role: m.role, content: m.content || '' });
+        } else if (attachments && attachments.length) {
+          // For image/audio attachments, add a placeholder to maintain conversation context
+          const attDesc = attachments.map(a => `[${a.type}: ${a.url}]`).join(' ');
+          conversation.push({ role: m.role, content: attDesc });
         }
       });
       if (!messages.length) showEmptyState(true);
@@ -879,6 +991,11 @@
       addMessage('assistant', `⚠️ ${err.message}`);
     }
     renderThreadList(await fetchThreads());
+    
+    // Clear image prompt when selecting a thread to prevent random DB text
+    if (imagePrompt && activeTool !== 'chat') {
+      imagePrompt.value = '';
+    }
   }
 
   async function startNewThread() {
@@ -916,11 +1033,17 @@
     activeThreadId = null; conversation = [];
     clearMessages(); setJobStatus(false);
     const threads = await refreshThreadList();
+    // Only auto-select thread for chat tool - other tools should show empty state
     if (threads.length && activeTool === 'chat') {
       await selectThread(threads[0].id);
     } else {
       showEmptyState(true);
       updateHeader(null);
+    }
+    
+    // Clear image prompt when switching models/tools to prevent random DB text
+    if (imagePrompt) {
+      imagePrompt.value = '';
     }
   }
 
@@ -1003,6 +1126,11 @@
     a.href = url; a.download = `smagents-${Date.now()}.png`; a.click();
   };
 
+  // Provider dropdown change handler
+  imageProviderSelect.addEventListener('change', () => {
+    populateImageModelSelect();
+  });
+
   imageGenBtn.addEventListener('click', async () => {
     const prompt = imagePrompt.value.trim();
     if (!prompt) { setImageStatus(false, 'Please enter a prompt'); return; }
@@ -1021,6 +1149,7 @@
       prompt,
       ...(negPrompt ? { negative_prompt: negPrompt } : {}),
       ...(isRatio ? { aspect_ratio: sizeVal } : { size: sizeVal }),
+      threadId: activeThreadId,
     };
 
     setImageStatus(true, 'Generating…');
@@ -1046,7 +1175,7 @@
           const pollData = await pollRes.json();
           if (pollData.status === 'done') {
             (pollData.images || []).forEach((img) => addImageToGrid(img.url, prompt));
-            setImageStatus(false, `Done — ${pollData.images?.length || 1} image(s) generated`);
+            setImageStatus(false, `Done — ${pollData.images?.length || 1} image(s) generated via ${pollData.provider || 'API'}`);
             return;
           }
           if (pollData.status === 'failed') throw new Error(pollData.error || 'Generation failed');
@@ -1056,7 +1185,7 @@
 
       // Sync response
       (data.images || []).forEach((img) => addImageToGrid(img.url || `data:image/jpeg;base64,${img.b64_json}`, prompt));
-      setImageStatus(false, `Done — ${data.images?.length || 1} image(s) via ${data.provider}`);
+      setImageStatus(false, `Done — ${data.images?.length || 1} image(s) via ${data.provider || 'API'}`);
     } catch (err) {
       setImageStatus(false, `Error: ${err.message}`);
     }
@@ -1088,7 +1217,7 @@
     ttsResult.classList.remove('visible');
 
     try {
-      // Route to /api/audio which we'll call — falls back gracefully
+      // Route to /api/audio/tts which handles Cloudflare Workers AI TTS
       const res = await fetch('/api/audio/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1149,6 +1278,7 @@
       formData.append('audio', selectedAudioFile);
       formData.append('model', activeModel);
 
+      // Route to /api/audio/asr which handles Cloudflare Workers AI ASR (Whisper)
       const res = await fetch('/api/audio/asr', {
         method: 'POST',
         body: formData,
@@ -1206,6 +1336,7 @@
         const data = await res.json();
         if (Array.isArray(data.models) && data.models.length) {
           MODELS_BY_TOOL.chat = data.models;
+          BY_PROVIDER.chat = data.by_provider || {};
         }
       }
     } catch (e) {
