@@ -272,7 +272,7 @@
     </div>
   </div>
   
-  <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+  <input type="file" id="fileInput" accept=".txt,.md,.markdown,.json,.csv,.js,.ts,.jsx,.tsx,.py,.html,.css,.xml,.yaml,.yml,.sql,.sh,.bash,.log" style="display:none;" />
 
 <script>
 (function () {
@@ -294,8 +294,8 @@
     'meta/llama-3.2-90b-vision-instruct',
   ]);
   
-  // Whitelisted file extensions for attachments
-  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+  // Whitelisted file extensions for text-based attachments
+  const ALLOWED_EXTENSIONS = ['txt', 'md', 'markdown', 'json', 'csv', 'js', 'ts', 'jsx', 'tsx', 'py', 'html', 'css', 'xml', 'yaml', 'yml', 'sql', 'sh', 'bash', 'log'];
 
   const authScreen = document.getElementById('authScreen');
   const dashboard = document.getElementById('dashboard');
@@ -412,19 +412,28 @@
     if (!file) return;
     
     if (!validateFileExtension(file.name)) {
-      alert('Invalid file type. Allowed extensions: ' + ALLOWED_EXTENSIONS.join(', '));
+      alert('Invalid file type. Only text-based files are allowed. Allowed extensions: ' + ALLOWED_EXTENSIONS.join(', '));
       return;
     }
     
-    currentAttachment = {
-      file: file,
-      name: file.name,
-      type: file.type,
-      url: URL.createObjectURL(file)
+    // Read the file content as text
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentAttachment = {
+        file: file,
+        name: file.name,
+        type: file.type,
+        url: URL.createObjectURL(file),
+        content: e.target.result  // Store the text content
+      };
+      
+      attachmentFileName.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+      attachmentPreview.classList.add('visible');
     };
-    
-    attachmentFileName.textContent = file.name;
-    attachmentPreview.classList.add('visible');
+    reader.onerror = function() {
+      alert('Error reading file');
+    };
+    reader.readAsText(file);
   }
   
   function clearAttachment() {
@@ -516,14 +525,17 @@
   }
 
   async function sendMessage(text, attachment) {
+    // Build the message content - include file content if attachment exists
+    let messageContent = text;
+    if (attachment && attachment.content) {
+      // Prepend file content to the prompt
+      const fileContext = `\n\n[File: ${attachment.name}]\n${attachment.content}\n\n`;
+      messageContent = fileContext + (text || '');
+    }
+    
     addMessage('user', text, attachment?.url);
     
-    const userMsg = { role: 'user', content: text };
-    if (attachment) {
-      // For vision models, send image as base64 data URL
-      const base64Data = await fileToBase64(attachment.file);
-      userMsg.image = base64Data;
-    }
+    const userMsg = { role: 'user', content: messageContent };
     conversation.push(userMsg);
     
     const aiDiv = addMessage('assistant', '…');

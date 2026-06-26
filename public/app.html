@@ -469,7 +469,7 @@
       </div>
     </div>
     
-    <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+    <input type="file" id="fileInput" accept=".txt,.md,.markdown,.json,.csv,.js,.ts,.jsx,.tsx,.py,.html,.css,.xml,.yaml,.yml,.sql,.sh,.bash,.log" style="display:none;" />
 
     <!-- IMAGE -->
     <div class="image-tool-area" id="imageArea">
@@ -609,8 +609,8 @@
     'meta/llama-3.2-90b-vision-instruct',
   ]);
   
-  // Whitelisted file extensions for attachments
-  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+  // Whitelisted file extensions for text-based attachments
+  const ALLOWED_EXTENSIONS = ['txt', 'md', 'markdown', 'json', 'csv', 'js', 'ts', 'jsx', 'tsx', 'py', 'html', 'css', 'xml', 'yaml', 'yml', 'sql', 'sh', 'bash', 'log'];
   
   let currentAttachment = null;
   
@@ -639,19 +639,28 @@
     if (!file) return;
     
     if (!validateFileExtension(file.name)) {
-      alert('Invalid file type. Allowed extensions: ' + ALLOWED_EXTENSIONS.join(', '));
+      alert('Invalid file type. Only text-based files are allowed. Allowed extensions: ' + ALLOWED_EXTENSIONS.join(', '));
       return;
     }
     
-    currentAttachment = {
-      file: file,
-      name: file.name,
-      type: file.type,
-      url: URL.createObjectURL(file)
+    // Read the file content as text
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentAttachment = {
+        file: file,
+        name: file.name,
+        type: file.type,
+        url: URL.createObjectURL(file),
+        content: e.target.result  // Store the text content
+      };
+      
+      attachmentFileName.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+      attachmentPreview.classList.add('visible');
     };
-    
-    attachmentFileName.textContent = file.name;
-    attachmentPreview.classList.add('visible');
+    reader.onerror = function() {
+      alert('Error reading file');
+    };
+    reader.readAsText(file);
   }
   
   function clearAttachment() {
@@ -1161,10 +1170,19 @@
   }
 
   // ── Chat send ─────────────────────────────────────────────────────────────
-  async function sendChatMessage(text) {
+  async function sendChatMessage(text, attachment) {
     const threadId = await ensureThread();
+    
+    // Build the message content - include file content if attachment exists
+    let messageContent = text;
+    if (attachment && attachment.content) {
+      // Prepend file content to the prompt
+      const fileContext = `\n\n[File: ${attachment.name}]\n${attachment.content}\n\n`;
+      messageContent = fileContext + (text || '');
+    }
+    
     addMessage('user', text);
-    conversation.push({ role: 'user', content: text });
+    conversation.push({ role: 'user', content: messageContent });
     const aiDiv = addMessage('assistant', '…');
     let fullText = '';
 
