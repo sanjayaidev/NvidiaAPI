@@ -154,13 +154,43 @@
     .empty-state p { font-size: 13.5px; line-height: 1.6; }
 
     .chat-input-area { padding: 16px 22px 22px 22px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0; background: rgba(0,0,0,0.1); }
-    .input-wrapper { flex: 1; display: flex; background: rgba(255,255,255,0.04); border-radius: 28px; border: 1px solid rgba(255,255,255,0.06); padding: 4px 4px 4px 20px; transition: 0.2s; }
+    .input-wrapper { flex: 1; display: flex; background: rgba(255,255,255,0.04); border-radius: 28px; border: 1px solid rgba(255,255,255,0.06); padding: 4px 4px 4px 20px; transition: 0.2s; position: relative; }
     .input-wrapper:focus-within { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
     .input-wrapper input { width: 100%; background: transparent; border: none; padding: 13px 0; font-size: 14.5px; color: #f0f4fc; outline: none; font-family: 'Inter', sans-serif; }
     .input-wrapper input::placeholder { color: #5b6a84; }
     .input-wrapper button { background: #7c5cfc; border: none; border-radius: 28px; padding: 10px 22px; color: white; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 9px; cursor: pointer; transition: 0.2s; box-shadow: 0 8px 24px -8px #7c5cfc; font-family: 'Inter', sans-serif; }
     .input-wrapper button:hover { background: #6b4be8; }
     .input-wrapper button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Attachment button */
+    .attach-btn {
+      background: transparent !important; border: 1px solid rgba(255,255,255,0.1) !important;
+      border-radius: 28px !important; padding: 10px 14px !important; color: #8896b0 !important;
+      font-weight: 500 !important; font-size: 13.5px !important; display: flex !important;
+      align-items: center !important; gap: 8px !important; cursor: pointer !important;
+      transition: 0.2s !important; box-shadow: none !important; margin-right: 8px !important;
+    }
+    .attach-btn:hover { border-color: #7c5cfc !important; color: #cdbfff !important; }
+    .attach-btn.disabled { opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
+    
+    /* Attachment preview */
+    .attachment-preview {
+      display: none; align-items: center; gap: 10px; padding: 8px 16px;
+      background: rgba(124, 92, 252, 0.08); border-radius: 14px;
+      margin-bottom: 8px; max-width: 400px;
+    }
+    .attachment-preview.visible { display: flex; }
+    .attachment-preview .file-icon { font-size: 18px; color: #a78bfa; }
+    .attachment-preview .file-name { flex: 1; font-size: 13px; color: #eef2f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .attachment-preview .remove-attach {
+      background: transparent; border: none; color: #6a7a94; cursor: pointer;
+      font-size: 16px; padding: 4px; display: flex; align-items: center; justify-content: center;
+    }
+    .attachment-preview .remove-attach:hover { color: #ff6b6b; }
+    
+    /* Message attachments */
+    .message .attachment-media { display: block; max-width: 100%; border-radius: 14px; margin-top: 8px; }
+    .message img.attachment-media { cursor: pointer; max-height: 400px; object-fit: cover; }
 
     @media (max-width: 640px) {
       .dashboard { height: 94vh; border-radius: 24px; }
@@ -230,11 +260,19 @@
 
     <div class="chat-input-area">
       <div class="input-wrapper">
+        <button id="attachBtn" class="attach-btn" style="display:none;" title="Attach image"><i class="fas fa-paperclip"></i></button>
         <input type="text" id="chatInput" placeholder="Ask anything…" />
         <button id="sendBtn"><i class="fas fa-paper-plane"></i> Send</button>
       </div>
     </div>
+    <div class="attachment-preview" id="attachmentPreview">
+      <i class="fas fa-image file-icon"></i>
+      <span class="file-name" id="attachmentFileName"></span>
+      <button class="remove-attach" id="removeAttachBtn" title="Remove attachment"><i class="fas fa-times"></i></button>
+    </div>
   </div>
+  
+  <input type="file" id="fileInput" accept="image/*" style="display:none;" />
 
 <script>
 (function () {
@@ -249,6 +287,15 @@
     'mistralai/mistral-large-3-675b-instruct-2512',
     'moonshotai/kimi-k2.6',
   ];
+  
+  // Models that support attachments (vision models)
+  const MODELS_WITH_ATTACHMENTS = new Set([
+    'meta/llama-3.2-11b-vision-instruct',
+    'meta/llama-3.2-90b-vision-instruct',
+  ]);
+  
+  // Whitelisted file extensions for attachments
+  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
   const authScreen = document.getElementById('authScreen');
   const dashboard = document.getElementById('dashboard');
@@ -267,6 +314,11 @@
   const emptyState = document.getElementById('emptyState');
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
+  const attachBtn = document.getElementById('attachBtn');
+  const fileInput = document.getElementById('fileInput');
+  const attachmentPreview = document.getElementById('attachmentPreview');
+  const attachmentFileName = document.getElementById('attachmentFileName');
+  const removeAttachBtn = document.getElementById('removeAttachBtn');
 
   let mode = 'signup';
   let conversation = [];
@@ -334,7 +386,60 @@
       opt.textContent = id;
       modelSelect.appendChild(opt);
     });
+    updateAttachmentButtonVisibility();
   }
+  
+  function modelSupportsAttachments(modelId) {
+    return MODELS_WITH_ATTACHMENTS.has(modelId);
+  }
+  
+  function updateAttachmentButtonVisibility() {
+    const supportsAttachments = modelSupportsAttachments(modelSelect.value);
+    attachBtn.style.display = supportsAttachments ? 'flex' : 'none';
+    if (!supportsAttachments) {
+      clearAttachment();
+    }
+  }
+  
+  let currentAttachment = null;
+  
+  function validateFileExtension(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    return ALLOWED_EXTENSIONS.includes(ext);
+  }
+  
+  function handleFileSelect(file) {
+    if (!file) return;
+    
+    if (!validateFileExtension(file.name)) {
+      alert('Invalid file type. Allowed extensions: ' + ALLOWED_EXTENSIONS.join(', '));
+      return;
+    }
+    
+    currentAttachment = {
+      file: file,
+      name: file.name,
+      type: file.type,
+      url: URL.createObjectURL(file)
+    };
+    
+    attachmentFileName.textContent = file.name;
+    attachmentPreview.classList.add('visible');
+  }
+  
+  function clearAttachment() {
+    if (currentAttachment && currentAttachment.url) {
+      URL.revokeObjectURL(currentAttachment.url);
+    }
+    currentAttachment = null;
+    attachmentPreview.classList.remove('visible');
+    fileInput.value = '';
+  }
+
+  modelSelect.addEventListener('change', updateAttachmentButtonVisibility);
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+  removeAttachBtn.addEventListener('click', clearAttachment);
 
   async function enterDashboard(email) {
     emailLabel.textContent = email || '';
@@ -383,11 +488,18 @@
     });
   }
 
-  function addMessage(role, content) {
-    if (content !== null) emptyState.style.display = 'none';
+  function addMessage(role, content, attachmentUrl) {
+    if (content !== null || attachmentUrl) emptyState.style.display = 'none';
     const div = document.createElement('div');
     div.className = `message ${role === 'user' ? 'user' : role === 'error' ? 'error' : 'ai'}`;
-    div.textContent = content || '';
+    
+    let html = '';
+    if (content) html += escapeHtml(content);
+    if (attachmentUrl) {
+      html += `<img class="attachment-media" src="${escapeHtml(attachmentUrl)}" onclick="window.open(this.src)" />`;
+    }
+    div.innerHTML = html;
+    
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return div;
@@ -403,9 +515,17 @@
     sendBtn.disabled = busy;
   }
 
-  async function sendMessage(text) {
-    addMessage('user', text);
-    conversation.push({ role: 'user', content: text });
+  async function sendMessage(text, attachment) {
+    addMessage('user', text, attachment?.url);
+    
+    const userMsg = { role: 'user', content: text };
+    if (attachment) {
+      // For vision models, send image as base64 data URL
+      const base64Data = await fileToBase64(attachment.file);
+      userMsg.image = base64Data;
+    }
+    conversation.push(userMsg);
+    
     const aiDiv = addMessage('assistant', '…');
     let fullText = '';
 
@@ -446,14 +566,26 @@
     updateMessageText(aiDiv, fullText);
     conversation.push({ role: 'assistant', content: fullText });
   }
+  
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   async function handleSend() {
     const text = chatInput.value.trim();
-    if (!text || isBusy) return;
+    if ((!text && !currentAttachment) || isBusy) return;
+    
+    const attachmentToSend = currentAttachment;
     chatInput.value = '';
+    clearAttachment();
     setBusy(true);
     try {
-      await sendMessage(text);
+      await sendMessage(text, attachmentToSend);
     } catch (err) {
       addMessage('error', err.message);
     } finally {
