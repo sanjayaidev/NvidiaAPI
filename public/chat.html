@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -142,8 +143,17 @@
     .message {
       max-width: 78%; padding: 14px 20px; border-radius: 22px; font-size: 15px; line-height: 1.6;
       animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      word-break: break-word; white-space: pre-wrap;
+      word-break: break-word;
     }
+    .message .msg-text { white-space: pre-wrap; }
+    .message .msg-text :first-child { margin-top: 0; }
+    .message .msg-text :last-child { margin-bottom: 0; }
+    .message .msg-text p { margin: 0.5em 0; }
+    .message .msg-text pre { background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
+    .message .msg-text code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+    .message .msg-text pre code { background: transparent; padding: 0; }
+    .message .msg-text ul, .message .msg-text ol { margin: 0.5em 0; padding-left: 1.5em; }
+    .message .msg-text blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.5em 0; color: #a78bfa; }
     @keyframes slideUp { 0% { opacity: 0; transform: translateY(14px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
     .message.user { align-self: flex-end; background: linear-gradient(145deg, #2d3440, #1e232e); border-bottom-right-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
     .message.ai { align-self: flex-start; background: rgba(40, 46, 58, 0.7); border-bottom-left-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
@@ -500,10 +510,18 @@
   function addMessage(role, content, attachmentUrl) {
     if (content !== null || attachmentUrl) emptyState.style.display = 'none';
     const div = document.createElement('div');
-    div.className = `message ${role === 'user' ? 'user' : role === 'error' ? 'error' : 'ai'}`;
+    const msgClass = role === 'user' ? 'user' : role === 'error' ? 'error' : 'ai';
+    div.className = `message ${msgClass}`;
     
     let html = '';
-    if (content) html += escapeHtml(content);
+    if (content) {
+      // Use marked for markdown rendering on AI messages, escapeHtml for user/error messages
+      if (role === 'assistant') {
+        html += `<span class="msg-text">${marked.parse(content)}</span>`;
+      } else {
+        html += `<span class="msg-text">${escapeHtml(content)}</span>`;
+      }
+    }
     if (attachmentUrl) {
       html += `<img class="attachment-media" src="${escapeHtml(attachmentUrl)}" onclick="window.open(this.src)" />`;
     }
@@ -515,7 +533,8 @@
   }
 
   function updateMessageText(div, text) {
-    div.textContent = text;
+    const span = div.querySelector('.msg-text');
+    if (span) span.innerHTML = marked.parse(text);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
