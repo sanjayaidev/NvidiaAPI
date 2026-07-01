@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Drive Video Player with Video.js</title>
+  
+  <!-- Video.js CSS -->
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .upload-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px dashed #dee2e6;
+    }
+
+    .upload-section h2 {
+      color: #495057;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+    }
+
+    .video-section {
+      margin-top: 30px;
+    }
+
+    .video-section h2 {
+      color: #495057;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .video-js-container {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .video-js {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+
+    .info-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .info-item {
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .info-item label {
+      font-weight: 600;
+      color: #495057;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .info-item a {
+      color: #667eea;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .info-item a:hover {
+      text-decoration: underline;
+    }
+
+    .status {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .status.loading {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      display: block;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffc107;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Google Drive Video Player</h1>
+    <p class="subtitle">Upload videos to Google Drive and play them with Video.js</p>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <h2>Upload Video</h2>
+      <div class="file-input-wrapper">
+        <button class="btn">📁 Choose Video File</button>
+        <input type="file" id="videoFile" accept="video/*" />
+      </div>
+      <button class="btn" id="uploadBtn" disabled>🚀 Upload to Google Drive</button>
+      
+      <div id="uploadStatus" class="status"></div>
+    </div>
+
+    <!-- Video Player Section -->
+    <div class="video-section hidden" id="videoSection">
+      <h2>Video Player</h2>
+      <div class="video-js-container">
+        <video
+          id="my-video"
+          class="video-js vjs-default-skin vjs-big-play-centered"
+          controls
+          preload="auto"
+          poster=""
+          data-setup='{}'
+        >
+          <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a
+            web browser that supports HTML5 video
+          </p>
+        </video>
+      </div>
+
+      <div class="info-section">
+        <div class="info-item">
+          <label>File Name:</label>
+          <span id="fileName">-</span>
+        </div>
+        <div class="info-item">
+          <label>Direct Link:</label>
+          <a id="directLink" href="#" target="_blank">-</a>
+        </div>
+        <div class="info-item">
+          <label>Share Link:</label>
+          <a id="shareLink" href="#" target="_blank">-</a>
+        </div>
+        <div class="info-item">
+          <label>Embed Link:</label>
+          <a id="embedLink" href="#" target="_blank">-</a>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <button class="btn btn-secondary" id="loadFromFileIdBtn">🔗 Load from File ID</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video.js -->
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  
+  <script>
+    // State
+    let selectedFile = null;
+    let player = null;
+
+    // DOM Elements
+    const videoFileInput = document.getElementById('videoFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const videoSection = document.getElementById('videoSection');
+    const fileNameEl = document.getElementById('fileName');
+    const directLinkEl = document.getElementById('directLink');
+    const shareLinkEl = document.getElementById('shareLink');
+    const embedLinkEl = document.getElementById('embedLink');
+    const loadFromFileIdBtn = document.getElementById('loadFromFileIdBtn');
+
+    // Initialize Video.js player
+    function initPlayer() {
+      if (player) {
+        player.dispose();
+      }
+      
+      player = videojs('my-video', {
+        autoplay: false,
+        controls: true,
+        responsive: true,
+        fluid: true,
+        playbackRates: [0.5, 1, 1.5, 2],
+        html5: {
+          hls: {
+            overrideNative: true
+          },
+          nativeAudioTracks: false,
+          nativeVideoTracks: false
+        }
+      });
+    }
+
+    // File selection handler
+    videoFileInput.addEventListener('change', (e) => {
+      selectedFile = e.target.files[0];
+      if (selectedFile) {
+        uploadBtn.disabled = false;
+        showStatus(`Selected: ${selectedFile.name}`, 'loading');
+      } else {
+        uploadBtn.disabled = true;
+      }
+    });
+
+    // Upload handler
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      uploadBtn.disabled = true;
+      showStatus('<span class="spinner"></span>Uploading to Google Drive...', 'loading');
+
+      try {
+        // Read file as base64
+        const base64Data = await readFileAsBase64(selectedFile);
+        
+        // Remove data URL prefix if present
+        const base64DataClean = base64Data.split(',')[1] || base64Data;
+
+        // Upload to Google Drive via API
+        const response = await fetch('/api/drive/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            file: base64DataClean,
+            filename: selectedFile.name,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Upload failed');
+        }
+
+        // Success!
+        showStatus('✅ Upload successful! Video is ready to play.', 'success');
+        
+        // Update UI with video info
+        fileNameEl.textContent = result.data.name;
+        directLinkEl.href = result.data.directLink;
+        directLinkEl.textContent = result.data.directLink;
+        shareLinkEl.href = result.data.webViewLink;
+        shareLinkEl.textContent = result.data.webViewLink;
+        embedLinkEl.href = result.data.embedLink;
+        embedLinkEl.textContent = result.data.embedLink;
+
+        // Show video section
+        videoSection.classList.remove('hidden');
+
+        // Initialize player and load video
+        initPlayer();
+        player.src({
+          src: result.data.directLink,
+          type: 'video/mp4',
+        });
+
+        // Scroll to video player
+        videoSection.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (error) {
+        console.error('Upload error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    // Load from File ID
+    loadFromFileIdBtn.addEventListener('click', async () => {
+      const fileId = prompt('Enter Google Drive File ID:');
+      if (!fileId) return;
+
+      showStatus('<span class="spinner"></span>Loading video from Google Drive...', 'loading');
+
+      try {
+        const response = await fetch(`/api/drive/share?fileId=${encodeURIComponent(fileId)}`, {
+          method: 'GET',
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to load video');
+        }
+
+        // Success!
+        showStatus('✅ Video loaded successfully!', 'success');
+        
+        // Update UI with video info
+        fileNameEl.textContent = result.data.name;
+        directLinkEl.href = result.data.directLink;
+        directLinkEl.textContent = result.data.directLink;
+        shareLinkEl.href = result.data.webViewLink;
+        shareLinkEl.textContent = result.data.webViewLink;
+        embedLinkEl.href = result.data.embedLink;
+        embedLinkEl.textContent = result.data.embedLink;
+
+        // Show video section
+        videoSection.classList.remove('hidden');
+
+        // Initialize player and load video
+        initPlayer();
+        player.src({
+          src: result.data.directLink,
+          type: result.data.mimeType || 'video/mp4',
+        });
+
+        // Scroll to video player
+        videoSection.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (error) {
+        console.error('Load error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+      }
+    });
+
+    // Helper: Read file as base64
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Helper: Show status message
+    function showStatus(message, type) {
+      uploadStatus.innerHTML = message;
+      uploadStatus.className = `status ${type}`;
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (player) {
+        player.dispose();
+      }
+    });
+  </script>
+</body>
+</html>
