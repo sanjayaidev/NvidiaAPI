@@ -348,6 +348,8 @@
       </div>
 
       <button class="canva-primary-btn" id="canvaConnectBtn">Connect Canva</button>
+      <button class="canva-close-btn" id="canvaMetaToggleBtn" style="width:100%;margin-top:4px;">View client metadata</button>
+      <pre class="canva-result" id="canvaMetaBox" style="margin-top:10px;"></pre>
 
       <div id="canvaConnectedControls" style="display:none;">
         <div class="canva-field">
@@ -428,6 +430,8 @@
   const canvaStatusDot = document.getElementById('canvaStatusDot');
   const canvaStatusText = document.getElementById('canvaStatusText');
   const canvaConnectBtn = document.getElementById('canvaConnectBtn');
+  const canvaMetaToggleBtn = document.getElementById('canvaMetaToggleBtn');
+  const canvaMetaBox = document.getElementById('canvaMetaBox');
   const canvaConnectedControls = document.getElementById('canvaConnectedControls');
   const canvaDisconnectedFooter = document.getElementById('canvaDisconnectedFooter');
   const canvaDesignTitle = document.getElementById('canvaDesignTitle');
@@ -474,6 +478,32 @@
   canvaConnectBtn.addEventListener('click', () => {
     // Full navigation, not fetch — this has to hit Canva's consent screen.
     window.location.href = '/api/canva/authorize';
+  });
+
+  // Same-origin call — unlike the standalone test page hitting the Supabase
+  // function cross-origin, this is served from the same Vercel deployment
+  // as chat.html itself, so no CORS headers are needed here.
+  let metaLoaded = false;
+  canvaMetaToggleBtn.addEventListener('click', async () => {
+    const showing = canvaMetaBox.classList.contains('visible');
+    if (showing) {
+      canvaMetaBox.classList.remove('visible');
+      canvaMetaToggleBtn.textContent = 'View client metadata';
+      return;
+    }
+    canvaMetaToggleBtn.textContent = 'Loading…';
+    try {
+      const res = await fetch('/api/canva/client-metadata.json');
+      const data = await res.json();
+      canvaMetaBox.textContent = JSON.stringify(data, null, 2);
+      canvaMetaBox.classList.add('visible');
+      canvaMetaToggleBtn.textContent = 'Hide client metadata';
+      metaLoaded = true;
+    } catch (err) {
+      canvaMetaBox.textContent = 'Could not load client metadata: ' + err.message;
+      canvaMetaBox.classList.add('visible');
+      canvaMetaToggleBtn.textContent = 'View client metadata';
+    }
   });
 
   canvaDesignTitle.addEventListener('input', () => {
