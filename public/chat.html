@@ -208,6 +208,57 @@
       .usage-pill { display: none; }
       .message { max-width: 90%; }
     }
+
+    /* ===================== CANVA PANEL ===================== */
+    .canva-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #8896b0;
+      border-radius: 10px; padding: 7px 13px; font-size: 12.5px; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .canva-btn:hover { color: #eef2f9; border-color: rgba(255,255,255,0.2); }
+    .canva-btn.connected { color: #7cf2c1; border-color: rgba(124, 242, 193, 0.25); }
+    .canva-btn .dot { width: 6px; height: 6px; border-radius: 50%; background: #5b6a84; }
+    .canva-btn.connected .dot { background: #34d38e; }
+
+    .canva-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      align-items: center; justify-content: center; z-index: 50; padding: 16px;
+    }
+    .canva-overlay.visible { display: flex; }
+    .canva-panel {
+      width: 100%; max-width: 460px; background: #12161c; border-radius: 24px;
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06);
+      padding: 26px 28px; color: #eef2f9;
+    }
+    .canva-panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .canva-panel p.sub { font-size: 12.5px; color: #8896b0; margin-bottom: 20px; line-height: 1.5; }
+    .canva-status-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #cdbfff; margin-bottom: 18px; }
+    .canva-status-row .dot { width: 8px; height: 8px; border-radius: 50%; background: #5b6a84; }
+    .canva-status-row .dot.connected { background: #34d38e; }
+    .canva-field { margin-bottom: 14px; }
+    .canva-field label { font-size: 12px; color: #8896b0; display: block; margin-bottom: 6px; font-weight: 500; }
+    .canva-field input, .canva-field textarea {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 10px 13px; color: #eef2f9; font-size: 13.5px;
+      font-family: 'Inter', sans-serif; outline: none; resize: vertical;
+    }
+    .canva-field input:focus, .canva-field textarea:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
+    .canva-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .canva-primary-btn {
+      flex: 1; background: #7c5cfc; border: none; border-radius: 12px; padding: 11px 0;
+      color: white; font-weight: 600; font-size: 13.5px; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .canva-primary-btn:hover { background: #6b4be8; }
+    .canva-primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .canva-close-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #8896b0;
+      border-radius: 12px; padding: 11px 16px; font-size: 13.5px; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .canva-result { margin-top: 16px; font-size: 12.5px; color: #a9b4c6; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 12px 14px; max-height: 160px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; display: none; }
+    .canva-result.visible { display: block; }
+    .canva-result a { color: #cdbfff; }
+    .canva-error-text { color: #ff9b9b; font-size: 12.5px; margin-top: 10px; display: none; }
+    .canva-error-text.visible { display: block; }
   </style>
 </head>
 <body>
@@ -257,6 +308,7 @@
       <div class="header-right">
         <select class="model-select" id="modelSelect"></select>
         <span class="usage-pill" id="usagePill"></span>
+        <button class="canva-btn" id="canvaBtn"><span class="dot"></span> Canva</button>
         <button class="logout-btn" id="logoutBtn">Log out</button>
       </div>
     </div>
@@ -283,6 +335,46 @@
   </div>
   
   <input type="file" id="fileInput" accept=".txt,.md,.markdown,.json,.csv,.js,.ts,.jsx,.tsx,.py,.html,.css,.xml,.yaml,.yml,.sql,.sh,.bash,.log" style="display:none;" />
+
+  <!-- ===================== CANVA PANEL ===================== -->
+  <div class="canva-overlay" id="canvaOverlay">
+    <div class="canva-panel">
+      <h3>Canva</h3>
+      <p class="sub">Connect your Canva account, then create a design directly from here using Canva's MCP tools.</p>
+
+      <div class="canva-status-row">
+        <span class="dot" id="canvaStatusDot"></span>
+        <span id="canvaStatusText">Not connected</span>
+      </div>
+
+      <button class="canva-primary-btn" id="canvaConnectBtn">Connect Canva</button>
+
+      <div id="canvaConnectedControls" style="display:none;">
+        <div class="canva-field">
+          <label for="canvaDesignTitle">Design title</label>
+          <input type="text" id="canvaDesignTitle" placeholder="e.g. Product launch post" />
+        </div>
+        <div class="canva-field">
+          <label for="canvaToolName">MCP tool</label>
+          <input type="text" id="canvaToolName" value="create_design" />
+        </div>
+        <div class="canva-field">
+          <label for="canvaToolArgs">Arguments (JSON)</label>
+          <textarea id="canvaToolArgs" rows="3">{"title": ""}</textarea>
+        </div>
+        <div class="canva-actions">
+          <button class="canva-primary-btn" id="canvaRunBtn">Run</button>
+          <button class="canva-close-btn" id="canvaCloseBtn">Close</button>
+        </div>
+        <div class="canva-result" id="canvaResult"></div>
+        <div class="canva-error-text" id="canvaErrorText"></div>
+      </div>
+
+      <div id="canvaDisconnectedFooter" class="canva-actions">
+        <button class="canva-close-btn" id="canvaCloseBtn2">Close</button>
+      </div>
+    </div>
+  </div>
 
 <script>
 (function () {
@@ -329,6 +421,128 @@
   const attachmentPreview = document.getElementById('attachmentPreview');
   const attachmentFileName = document.getElementById('attachmentFileName');
   const removeAttachBtn = document.getElementById('removeAttachBtn');
+
+  // ---- Canva panel refs ----
+  const canvaBtn = document.getElementById('canvaBtn');
+  const canvaOverlay = document.getElementById('canvaOverlay');
+  const canvaStatusDot = document.getElementById('canvaStatusDot');
+  const canvaStatusText = document.getElementById('canvaStatusText');
+  const canvaConnectBtn = document.getElementById('canvaConnectBtn');
+  const canvaConnectedControls = document.getElementById('canvaConnectedControls');
+  const canvaDisconnectedFooter = document.getElementById('canvaDisconnectedFooter');
+  const canvaDesignTitle = document.getElementById('canvaDesignTitle');
+  const canvaToolName = document.getElementById('canvaToolName');
+  const canvaToolArgs = document.getElementById('canvaToolArgs');
+  const canvaRunBtn = document.getElementById('canvaRunBtn');
+  const canvaCloseBtn = document.getElementById('canvaCloseBtn');
+  const canvaCloseBtn2 = document.getElementById('canvaCloseBtn2');
+  const canvaResult = document.getElementById('canvaResult');
+  const canvaErrorText = document.getElementById('canvaErrorText');
+
+  // MVP status tracking: the OAuth redirect appends ?canva=connected|error
+  // on return, which we mirror into localStorage so refreshes remember
+  // it. This is a client-side hint only — pages/api/me/canva.js is the
+  // real source of truth server-side and will return a `reconnect`
+  // action if the token's actually missing/expired, which we surface
+  // as an error rather than trusting the local flag blindly.
+  let canvaConnected = localStorage.getItem('canva_connected') === '1';
+
+  function renderCanvaStatus() {
+    canvaStatusDot.classList.toggle('connected', canvaConnected);
+    canvaBtn.classList.toggle('connected', canvaConnected);
+    canvaStatusText.textContent = canvaConnected ? 'Connected' : 'Not connected';
+    canvaConnectBtn.style.display = canvaConnected ? 'none' : 'block';
+    canvaConnectedControls.style.display = canvaConnected ? 'block' : 'none';
+    canvaDisconnectedFooter.style.display = canvaConnected ? 'none' : 'flex';
+  }
+
+  function openCanvaPanel() {
+    canvaResult.classList.remove('visible');
+    canvaErrorText.classList.remove('visible');
+    renderCanvaStatus();
+    canvaOverlay.classList.add('visible');
+  }
+  function closeCanvaPanel() {
+    canvaOverlay.classList.remove('visible');
+  }
+
+  canvaBtn.addEventListener('click', openCanvaPanel);
+  canvaCloseBtn.addEventListener('click', closeCanvaPanel);
+  canvaCloseBtn2.addEventListener('click', closeCanvaPanel);
+  canvaOverlay.addEventListener('click', (e) => { if (e.target === canvaOverlay) closeCanvaPanel(); });
+
+  canvaConnectBtn.addEventListener('click', () => {
+    // Full navigation, not fetch — this has to hit Canva's consent screen.
+    window.location.href = '/api/canva/authorize';
+  });
+
+  canvaDesignTitle.addEventListener('input', () => {
+    try {
+      const args = JSON.parse(canvaToolArgs.value || '{}');
+      args.title = canvaDesignTitle.value;
+      canvaToolArgs.value = JSON.stringify(args);
+    } catch {}
+  });
+
+  canvaRunBtn.addEventListener('click', async () => {
+    canvaErrorText.classList.remove('visible');
+    canvaResult.classList.remove('visible');
+
+    let args;
+    try {
+      args = JSON.parse(canvaToolArgs.value || '{}');
+    } catch {
+      canvaErrorText.textContent = 'Arguments must be valid JSON.';
+      canvaErrorText.classList.add('visible');
+      return;
+    }
+
+    canvaRunBtn.disabled = true;
+    canvaRunBtn.textContent = 'Running…';
+    try {
+      const res = await fetch('/api/me/canva', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tool: canvaToolName.value.trim(), arguments: args, threadId: currentThreadId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.action === 'reconnect') {
+          canvaConnected = false;
+          localStorage.removeItem('canva_connected');
+          renderCanvaStatus();
+        }
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
+      canvaResult.textContent = JSON.stringify(data.result, null, 2);
+      canvaResult.classList.add('visible');
+    } catch (err) {
+      canvaErrorText.textContent = err.message;
+      canvaErrorText.classList.add('visible');
+    } finally {
+      canvaRunBtn.disabled = false;
+      canvaRunBtn.textContent = 'Run';
+    }
+  });
+
+  // Pick up ?canva=connected|error left by /api/canva/callback's redirect.
+  (function checkCanvaRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('canva');
+    if (!status) return;
+    if (status === 'connected') {
+      canvaConnected = true;
+      localStorage.setItem('canva_connected', '1');
+    } else if (status === 'error') {
+      canvaConnected = false;
+      localStorage.removeItem('canva_connected');
+    }
+    params.delete('canva');
+    const cleanUrl = window.location.pathname + (params.toString() ? `?${params}` : '');
+    window.history.replaceState({}, '', cleanUrl);
+    renderCanvaStatus();
+    if (status) openCanvaPanel();
+  })();
 
   let mode = 'signup';
   let conversation = [];
@@ -465,6 +679,7 @@
     authScreen.style.display = 'none';
     dashboard.classList.add('visible');
     populateModelSelect();
+    renderCanvaStatus();
     // Load or create a thread for this model
     await loadOrCreateThread();
   }
