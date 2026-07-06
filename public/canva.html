@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Canva Bridge</title>
+<style>
+  :root {
+    --bg: #14151a;
+    --panel: #1c1e26;
+    --line: #2b2e3a;
+    --text: #e8e9ee;
+    --muted: #8b8fa3;
+    --accent: #8b6bff;
+    --accent-dim: #6b4fd6;
+    --ok: #4fd1a5;
+    --warn: #ff8a6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+  h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  h1 span { color: var(--text); }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+  .status.connected { color: var(--ok); border-color: rgba(79,209,165,0.35); }
+  .status.connected .dot { background: var(--ok); }
+  .status.off { color: var(--warn); border-color: rgba(255,138,107,0.35); }
+  .status.off .dot { background: var(--warn); }
+
+  a.connect-btn, button {
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  a.connect-btn:hover, button:hover { background: var(--accent-dim); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+  }
+
+  textarea {
+    width: 100%;
+    background: #101117;
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 70px;
+  }
+  textarea:focus, button:focus, a.connect-btn:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .actions { display: flex; justify-content: flex-end; margin-top: 12px; gap: 8px; }
+
+  .log {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .entry {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .entry .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .entry .text { white-space: pre-wrap; }
+
+  .assets { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .assets img {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+  }
+  .asset-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  .asset-link:hover { border-color: var(--accent); }
+
+  details { margin-top: 10px; }
+  summary { color: var(--muted); font-size: 12px; cursor: pointer; }
+  pre {
+    background: #101117;
+    padding: 10px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 12px;
+    border: 1px solid var(--line);
+  }
+
+  .empty { color: var(--muted); font-size: 13px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="row">
+    <h1>canva <span>bridge</span></h1>
+    <div id="status" class="status"><span class="dot"></span><span id="status-text">checking…</span></div>
+  </div>
+
+  <div class="panel" id="connect-panel" style="display:none;">
+    <div class="row">
+      <div style="color:var(--muted);">No Canva account connected yet.</div>
+      <a class="connect-btn" href="/api/canva/authorize">Connect Canva</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <textarea id="prompt" placeholder="e.g. Create a 1080x1080 Instagram post titled 'Summer Sale', export it as PNG"></textarea>
+    <div class="actions">
+      <button id="send" onclick="generate()">Generate</button>
+    </div>
+  </div>
+
+  <div class="log" id="log"></div>
+  <div class="empty" id="empty-hint">Nothing yet — send a prompt above.</div>
+
+</div>
+
+<script>
+const logEl = document.getElementById('log');
+const emptyHint = document.getElementById('empty-hint');
+const statusEl = document.getElementById('status');
+const statusText = document.getElementById('status-text');
+const connectPanel = document.getElementById('connect-panel');
+const sendBtn = document.getElementById('send');
+const promptEl = document.getElementById('prompt');
+
+async function checkStatus() {
+  try {
+    const r = await fetch('/api/canva/status');
+    const data = await r.json();
+    if (data.connected) {
+      statusEl.className = 'status connected';
+      statusText.textContent = 'canva connected';
+      connectPanel.style.display = 'none';
+    } else {
+      statusEl.className = 'status off';
+      statusText.textContent = 'not connected';
+      connectPanel.style.display = 'block';
+    }
+  } catch (e) {
+    statusText.textContent = 'status check failed';
+  }
+}
+
+// Walk any JSON value and pull out every string that looks like a URL.
+function extractUrls(value, found) {
+  if (value == null) return;
+  if (typeof value === 'string') {
+    if (/^https?:\/\//i.test(value)) found.add(value);
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((v) => extractUrls(v, found));
+    return;
+  }
+  if (typeof value === 'object') {
+    Object.values(value).forEach((v) => extractUrls(v, found));
+  }
+}
+
+function isImageUrl(url) {
+  return /\.(png|jpe?g|webp|gif)(\?|$)/i.test(url);
+}
+
+function renderAssets(urls) {
+  if (!urls.length) return '';
+  const items = urls.map((url) => {
+    if (isImageUrl(url)) {
+      return `<a href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="design asset" /></a>`;
+    }
+    const label = url.includes('canva.com/design') ? 'Open in Canva →' : 'Open link →';
+    return `<a class="asset-link" href="${url}" target="_blank" rel="noopener">${label}</a>`;
+  });
+  return `<div class="assets">${items.join('')}</div>`;
+}
+
+function addEntry(label, textContent, urls, rawJson) {
+  emptyHint.style.display = 'none';
+  const div = document.createElement('div');
+  div.className = 'entry';
+  div.innerHTML = `
+    <div class="label">${label}</div>
+    <div class="text"></div>
+    ${renderAssets(urls)}
+    ${rawJson ? `<details><summary>raw tool calls</summary><pre></pre></details>` : ''}
+  `;
+  div.querySelector('.text').textContent = textContent || '(no text response)';
+  if (rawJson) div.querySelector('pre').textContent = JSON.stringify(rawJson, null, 2);
+  logEl.prepend(div);
+}
+
+async function generate() {
+  const prompt = promptEl.value.trim();
+  if (!prompt) return;
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Working…';
+  addEntry('you', prompt, []);
+
+  try {
+    const r = await fetch('/api/chat-canva', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+    });
+    const data = await r.json();
+
+    if (!r.ok) {
+      addEntry('error', data.error || 'Request failed', []);
+      return;
+    }
+
+    const assistantText = data.choices?.[0]?.message?.content || '';
+    const urls = new Set();
+    extractUrls(data.tool_results, urls);
+
+    addEntry('assistant', assistantText, Array.from(urls), data.tool_results);
+  } catch (e) {
+    addEntry('error', e.message, []);
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Generate';
+    promptEl.value = '';
+  }
+}
+
+promptEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) generate();
+});
+
+checkStatus();
+</script>
+</body>
+</html>
