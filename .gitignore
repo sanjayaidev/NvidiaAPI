@@ -2,32 +2,52 @@
 # Dependencies
 node_modules/
 
-# Environment variables
-.env.local
+# Environment
 .env
+.env.local
+.env.*
 
-# Build artifacts
-build/
-dist/
-
-# Logs
-*.log
-
-# Editor/IDE
+# Editors
 .vscode/
 .idea/
+
+# Logs and temp files
+*.log
 *.tmp
 *.swp
 
-# Python (if applicable)
+# Build artifacts
+dist/
+build/
+*.js
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-venv/
-.venv/
-.ENV
-.env.bak
-.env.save
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```
