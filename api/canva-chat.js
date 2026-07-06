@@ -110,6 +110,7 @@ export default async function handler(req, res) {
   }
 
   const conversation = messages.map((m) => ({ role: m.role, content: m.content }));
+  const toolResults = []; // every tool call + its raw result, for the UI to inspect
   let finalData = null;
 
   for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
@@ -150,13 +151,17 @@ export default async function handler(req, res) {
         // malformed args from the model -> call with empty args rather than crash
       }
 
+      let result;
       let resultText;
       try {
-        const result = await callCanvaTool(canvaToken, toolName, args);
+        result = await callCanvaTool(canvaToken, toolName, args);
         resultText = JSON.stringify(result);
       } catch (err) {
-        resultText = JSON.stringify({ error: err.message });
+        result = { error: err.message };
+        resultText = JSON.stringify(result);
       }
+
+      toolResults.push({ tool: toolName, args, result });
 
       conversation.push({
         role: 'tool',
@@ -171,5 +176,11 @@ export default async function handler(req, res) {
   }
 
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ ...finalData, canva_connected: Boolean(canvaToken) }));
+  res.end(
+    JSON.stringify({
+      ...finalData,
+      canva_connected: Boolean(canvaToken),
+      tool_results: toolResults,
+    })
+  );
 }
