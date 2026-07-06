@@ -17,6 +17,7 @@
     "@upstash/ratelimit": "^2",
     "@neondatabase/serverless": "^0.10",
     "@aws-sdk/client-s3": "^3",
-    "googleapis": "^131.0.0"
+    "googleapis": "^131.0.0",
+    "@modelcontextprotocol/sdk": "^1.13.0"
   }
 }
