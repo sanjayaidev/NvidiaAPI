@@ -9,72 +9,91 @@
 // exposes — call POST /api/me/canva with { tool: "list_tools" } style
 // discovery first if you want to enumerate them at runtime instead of
 // hardcoding a list here.
+//
+// RUNTIME NOTE: this must run on Vercel's Node.js runtime, NOT edge —
+// lib/canva-mcp.js needs Node APIs the MCP SDK relies on (see the
+// comment at the top of that file). Every other pages/api/* route in
+// this project declares `export const config = { runtime: 'edge' }` and
+// uses the Fetch-style Request/Response API; this file previously copied
+// that style (req.json(), `new Response(...)`) without realizing it
+// can't be edge here, which meant every call crashed with something like
+// "req.json is not a function" since the default Node.js runtime hands
+// you a classic (req, res) pair, not a Fetch Request. Fixed below to use
+// the plain Node.js request/response API instead, matching how
+// api/chat-canva.js (also Node-only, for the same reason) is written.
 
 import { getValidCanvaAccessToken, DEMO_USER_ID } from '../../../lib/canva-auth';
 import { listCanvaTools, callCanvaTool } from '../../../lib/canva-mcp';
 
-const DEFAULT_RPM = 20; // Canva calls are heavier than chat tokens — keep this tighter
-
-function json(data, status = 200, extraHeaders = {}) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json', ...extraHeaders },
+function readJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => (data += chunk));
+    req.on('end', () => {
+      try {
+        resolve(data ? JSON.parse(data) : {});
+      } catch (err) {
+        reject(err);
+      }
+    });
+    req.on('error', reject);
   });
 }
 
-export default async function handler(req) {
+function sendJson(res, status, data) {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405);
+    return sendJson(res, 405, { error: 'Method not allowed' });
   }
 
   let body;
   try {
-    body = await req.json();
+    body = await readJsonBody(req);
   } catch {
-    return json({ error: 'Invalid JSON body' }, 400);
+    return sendJson(res, 400, { error: 'Invalid JSON body' });
   }
 
   const { tool, arguments: toolArgs = {}, threadId = null } = body || {};
   if (!tool) {
-    return json({ error: '"tool" is required' }, 400);
+    return sendJson(res, 400, { error: '"tool" is required' });
+  }
+
+  // Single-identity personal-use setup, same as lib/canva-auth.js and
+  // api/chat-canva.js. Swap DEMO_USER_ID for a real per-user id here
+  // (from your session/auth layer) if you add multi-user support later —
+  // note lib/session.js is currently Edge-only (Web Crypto based), so a
+  // Node-compatible session lookup would need to be added alongside it.
+  const accessToken = await getValidCanvaAccessToken(DEMO_USER_ID);
+  if (!accessToken) {
+    return sendJson(res, 403, {
+      error: 'Canva not connected',
+      action: 'reconnect',
+      connect_url: '/api/canva/authorize',
+    });
   }
 
   // Special handling for list_tools discovery
   if (tool === 'list_tools') {
-    const accessToken = await getValidCanvaAccessToken(DEMO_USER_ID);
-    if (!accessToken) {
-      return json({ 
-        error: 'Canva not connected', 
-        action: 'reconnect', 
-        connect_url: '/api/canva/authorize' 
-      }, 403);
-    }
-    
     try {
       const tools = await listCanvaTools(accessToken);
-      return json({ tools });
+      return sendJson(res, 200, { tools });
     } catch (err) {
-      return json({ error: 'Failed to list Canva tools', details: err.message }, 500);
+      return sendJson(res, 500, { error: 'Failed to list Canva tools', details: err.message });
     }
   }
 
   // Execute a specific tool
-  const accessToken = await getValidCanvaAccessToken(DEMO_USER_ID);
-  if (!accessToken) {
-    return json({ 
-      error: 'Canva not connected', 
-      action: 'reconnect', 
-      connect_url: '/api/canva/authorize' 
-    }, 403);
-  }
-
   try {
     const result = await callCanvaTool(accessToken, tool, toolArgs);
-    return json({ result });
+    return sendJson(res, 200, { result, threadId });
   } catch (err) {
-    return json({ 
-      error: err.message, 
-      details: err.details || {} 
-    }, err.status || 500);
+    return sendJson(res, err.status || 500, {
+      error: err.message,
+      details: err.details || {},
+    });
   }
 }

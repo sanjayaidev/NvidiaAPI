@@ -5,6 +5,11 @@
 // don't exist at the edge. Keep chat.js as-is for plain fast chat; use
 // this endpoint when you want the model to be able to call Canva.
 //
+// NOTE: this file used to be named canva-chat.js, which silently 404'd
+// every call from canva.html since the UI and README both call
+// /api/chat-canva — Vercel routes purely off the filename. Keep this
+// filename matching the fetch() calls below.
+//
 // Flow: call NIM with `tools` built from the user's connected Canva MCP
 // server -> if the model responds with tool_calls, execute them against
 // Canva -> feed results back -> repeat until the model gives a final

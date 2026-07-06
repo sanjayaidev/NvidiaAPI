@@ -6,6 +6,11 @@
 // Redis under a one-time state token, and redirects to Canva's authorize
 // screen. Canva redirects back to /api/canva/callback when the user
 // approves.
+//
+// NOTE: this file used to be named authorise.js (British spelling), which
+// silently 404'd every "Connect Canva" click since the UI and README both
+// link to /api/canva/authorize (American spelling) — Vercel routes purely
+// off the filename. Keep this filename matching the links below.
 
 import crypto from 'node:crypto';
 import { createPkcePair, saveAuthState, DEMO_USER_ID } from '../../lib/canva-auth';
