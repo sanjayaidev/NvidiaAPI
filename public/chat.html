@@ -175,27 +175,40 @@
 .sidebar-item .badge.coming-soon { background: rgba(124, 92, 252, 0.12); color: #a78bfa; }
 
 /* Sidebar dropdown sub-items */
-.sidebar-item .sub-items {
+.sidebar-group { display: flex; flex-direction: column; }
+
+.sidebar-group .sub-items {
   display: none;
   flex-direction: column;
   gap: 1px;
   margin-left: 28px;
   margin-top: 2px;
 }
-.sidebar-item .sub-items.visible {
-  display: flex !important;
+.sidebar-group.expanded .sub-items {
+  display: flex;
 }
-.sidebar-item .sub-items .sidebar-item {
+
+.sidebar-group .sub-items .sidebar-item {
   font-size: 11.5px;
   padding: 4px 10px;
   font-weight: 400;
 }
-.sidebar-item .sub-items .sidebar-item i { 
+.sidebar-group .sub-items .sidebar-item i { 
   font-size: 11px; 
   width: 16px; 
 }
-.sidebar-item .sub-items .sidebar-item.active { 
+.sidebar-group .sub-items .sidebar-item.active { 
   background: rgba(124, 92, 252, 0.1); 
+}
+
+.chevron {
+  margin-left: auto;
+  font-size: 10px;
+  color: #4d5872;
+  transition: transform 0.2s ease;
+}
+.sidebar-group.expanded .chevron {
+  transform: rotate(180deg);
 }
 
 .sidebar-divider {
@@ -549,10 +562,10 @@
       .sidebar-brand h1, .sidebar-brand small, .sidebar-section-label, .sidebar-item span, .badge { display: none; }
       .sidebar-item { justify-content: center; padding: 8px; }
       .sidebar-item i { font-size: 16px; width: auto; }
-      .sidebar-item .sub-items { margin-left: 0; }
-      .sidebar-item .sub-items .sidebar-item span { display: none; }
-      .sidebar-item .sub-items .sidebar-item { padding: 6px; }
-      .sidebar-item .sub-items .sidebar-item i { font-size: 14px; }
+      .sidebar-group .sub-items { margin-left: 0; }
+      .sidebar-group .sub-items .sidebar-item span { display: none; }
+      .sidebar-group .sub-items .sidebar-item { padding: 6px; }
+      .sidebar-group .sub-items .sidebar-item i { font-size: 14px; }
       .header-left .page-subtitle { display: none; }
       .header-right .usage-pill { display: none; }
       .model-select { max-width: 120px; font-size: 11px; }
@@ -632,53 +645,59 @@
       <!-- Social Media -->
       <div class="sidebar-section">
         <div class="sidebar-section-label">Social Media</div>
-        
+
         <!-- IG & FB -->
-        <div class="sidebar-item parent-item" data-parent="igfb">
-          <i class="fab fa-instagram"></i>
-          <span>IG & FB</span>
-          <span class="badge">7 tools</span>
-          <i class="fas fa-chevron-down" style="margin-left:auto;font-size:10px;color:#4d5872;"></i>
-        </div>
-        <div class="sub-items" data-parent="igfb">
-          <div class="sidebar-item" data-tab="caption"><i class="fas fa-pen-fancy"></i> <span>Caption</span></div>
-          <div class="sidebar-item" data-tab="hashtags"><i class="fas fa-hashtag"></i> <span>Hashtags</span></div>
-          <div class="sidebar-item" data-tab="story"><i class="fas fa-circle"></i> <span>Story</span></div>
-          <div class="sidebar-item" data-tab="reel"><i class="fas fa-video"></i> <span>Reel VO</span></div>
-          <div class="sidebar-item" data-tab="carousel"><i class="fas fa-images"></i> <span>Carousel</span></div>
-          <div class="sidebar-item" data-tab="singleimage"><i class="fas fa-image"></i> <span>Single Image</span></div>
-          <div class="sidebar-item" data-tab="collab"><i class="fas fa-handshake"></i> <span>Collab Message</span></div>
-          <div class="sidebar-item" data-tab="bio"><i class="fas fa-id-badge"></i> <span>Bio</span></div>
+        <div class="sidebar-group" data-group="igfb">
+          <div class="sidebar-item parent-item">
+            <i class="fab fa-instagram"></i>
+            <span>IG & FB</span>
+            <span class="badge">8 tools</span>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="sub-items">
+            <div class="sidebar-item" data-tab="caption"><i class="fas fa-pen-fancy"></i> <span>Caption</span></div>
+            <div class="sidebar-item" data-tab="hashtags"><i class="fas fa-hashtag"></i> <span>Hashtags</span></div>
+            <div class="sidebar-item" data-tab="story"><i class="fas fa-circle"></i> <span>Story</span></div>
+            <div class="sidebar-item" data-tab="reel"><i class="fas fa-video"></i> <span>Reel VO</span></div>
+            <div class="sidebar-item" data-tab="carousel"><i class="fas fa-images"></i> <span>Carousel</span></div>
+            <div class="sidebar-item" data-tab="singleimage"><i class="fas fa-image"></i> <span>Single Image</span></div>
+            <div class="sidebar-item" data-tab="collab"><i class="fas fa-handshake"></i> <span>Collab Message</span></div>
+            <div class="sidebar-item" data-tab="bio"><i class="fas fa-id-badge"></i> <span>Bio</span></div>
+          </div>
         </div>
 
         <!-- LinkedIn -->
-        <div class="sidebar-item parent-item" data-parent="linkedin">
-          <i class="fab fa-linkedin-in"></i>
-          <span>LinkedIn</span>
-          <span class="badge">6 tools</span>
-          <i class="fas fa-chevron-down" style="margin-left:auto;font-size:10px;color:#4d5872;"></i>
-        </div>
-        <div class="sub-items" data-parent="linkedin">
-          <div class="sidebar-item" data-tab="linkedin-post"><i class="fas fa-pen-fancy"></i> <span>Post</span></div>
-          <div class="sidebar-item" data-tab="linkedin-article"><i class="fas fa-newspaper"></i> <span>Article</span></div>
-          <div class="sidebar-item" data-tab="linkedin-connection"><i class="fas fa-user-plus"></i> <span>Connection Message</span></div>
-          <div class="sidebar-item" data-tab="linkedin-headline"><i class="fas fa-heading"></i> <span>Headline</span></div>
-          <div class="sidebar-item" data-tab="linkedin-about"><i class="fas fa-address-card"></i> <span>About</span></div>
-          <div class="sidebar-item" data-tab="linkedin-case"><i class="fas fa-briefcase"></i> <span>Case Studies</span></div>
+        <div class="sidebar-group" data-group="linkedin">
+          <div class="sidebar-item parent-item">
+            <i class="fab fa-linkedin-in"></i>
+            <span>LinkedIn</span>
+            <span class="badge">6 tools</span>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="sub-items">
+            <div class="sidebar-item" data-tab="linkedin-post"><i class="fas fa-pen-fancy"></i> <span>Post</span></div>
+            <div class="sidebar-item" data-tab="linkedin-article"><i class="fas fa-newspaper"></i> <span>Article</span></div>
+            <div class="sidebar-item" data-tab="linkedin-connection"><i class="fas fa-user-plus"></i> <span>Connection Message</span></div>
+            <div class="sidebar-item" data-tab="linkedin-headline"><i class="fas fa-heading"></i> <span>Headline</span></div>
+            <div class="sidebar-item" data-tab="linkedin-about"><i class="fas fa-address-card"></i> <span>About</span></div>
+            <div class="sidebar-item" data-tab="linkedin-case"><i class="fas fa-briefcase"></i> <span>Case Studies</span></div>
+          </div>
         </div>
 
         <!-- YouTube -->
-        <div class="sidebar-item parent-item" data-parent="youtube">
-          <i class="fab fa-youtube"></i>
-          <span>YouTube</span>
-          <span class="badge">4 tools</span>
-          <i class="fas fa-chevron-down" style="margin-left:auto;font-size:10px;color:#4d5872;"></i>
-        </div>
-        <div class="sub-items" data-parent="youtube">
-          <div class="sidebar-item" data-tab="youtube-title"><i class="fas fa-tag"></i> <span>Title</span></div>
-          <div class="sidebar-item" data-tab="youtube-description"><i class="fas fa-align-left"></i> <span>Description</span></div>
-          <div class="sidebar-item" data-tab="youtube-tags"><i class="fas fa-hashtag"></i> <span>Tags</span></div>
-          <div class="sidebar-item" data-tab="youtube-script"><i class="fas fa-file-alt"></i> <span>Script</span></div>
+        <div class="sidebar-group" data-group="youtube">
+          <div class="sidebar-item parent-item">
+            <i class="fab fa-youtube"></i>
+            <span>YouTube</span>
+            <span class="badge">4 tools</span>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="sub-items">
+            <div class="sidebar-item" data-tab="youtube-title"><i class="fas fa-tag"></i> <span>Title</span></div>
+            <div class="sidebar-item" data-tab="youtube-description"><i class="fas fa-align-left"></i> <span>Description</span></div>
+            <div class="sidebar-item" data-tab="youtube-tags"><i class="fas fa-hashtag"></i> <span>Tags</span></div>
+            <div class="sidebar-item" data-tab="youtube-script"><i class="fas fa-file-alt"></i> <span>Script</span></div>
+          </div>
         </div>
       </div>
 
@@ -841,127 +860,127 @@
         label: 'Caption Generator',
         subtitle: 'Instagram & Facebook captions',
         type: 'short',
-        systemPrompt: 'You are a social media expert specializing in creating engaging Instagram and Facebook captions. Always generate exactly 5 varied options.',
-        prompt: (topic) => `Generate 5 engaging Instagram and Facebook captions for: "${topic}". Each caption should be under 220 characters, include 1 question to boost engagement, 1 CTA (call to action), and relevant emojis. Make them varied in tone: one professional, one funny, one inspirational, one casual, one storytelling.`
+        systemPrompt: 'You are a social media expert. You must respond with ONLY valid JSON, no markdown formatting, no code fences, no commentary before or after. The JSON shape must be exactly: {"options": ["...", "...", "...", "...", "..."]} with exactly 5 string entries.',
+        prompt: (topic) => `Generate 5 engaging Instagram and Facebook captions for: "${topic}". Each caption under 220 characters, include 1 question, 1 CTA, and relevant emojis. Vary tone: professional, funny, inspirational, casual, storytelling. Return ONLY JSON: {"options": ["caption1", "caption2", "caption3", "caption4", "caption5"]}`
       },
       'hashtags': {
         label: 'Hashtag Generator',
         subtitle: 'Optimized hashtag clusters',
         type: 'short',
-        systemPrompt: 'You are a hashtag optimization expert. Generate well-organized hashtag sets categorized by volume.',
-        prompt: (topic) => `Generate 30 hashtags for: "${topic}". Split into 3 tiers: 10 high-volume (1M+ posts), 10 mid-volume (100K-1M), 10 low-volume (10K-100K). Format as a comma-separated list with tier labels.`
+        systemPrompt: 'You are a hashtag optimization expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "..."]}.',
+        prompt: (topic) => `Generate hashtags for: "${topic}" split into 3 tiers. Return ONLY JSON: {"options": ["High-volume: #tag1, #tag2...", "Mid-volume: #tag1, #tag2...", "Low-volume: #tag1, #tag2..."]}`
       },
       'story': {
         label: 'Story Generator',
         subtitle: 'Instagram & Facebook stories',
         type: 'short',
-        systemPrompt: 'You are a social media story creator. Generate concise, actionable story ideas with interactive elements.',
-        prompt: (topic) => `Generate 5 Instagram/Facebook story ideas for: "${topic}". Each should include: a text overlay idea, a poll/quiz/QA sticker suggestion, and a CTA (swipe up, DM, or link). Keep each under 100 characters.`
+        systemPrompt: 'You are a social media story creator. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 Instagram/Facebook story ideas for: "${topic}". Each should include: a text overlay idea, a poll/quiz/QA sticker suggestion, and a CTA. Keep each under 100 characters. Return ONLY JSON: {"options": ["story1", "story2", "story3", "story4", "story5"]}`
       },
       'reel': {
         label: 'Reel Script Generator',
         subtitle: 'Voiceover and hooks for Reels',
         type: 'short',
-        systemPrompt: 'You are a video content creator specializing in short-form video scripts. Create attention-grabbing hooks and concise voiceovers.',
-        prompt: (topic) => `Generate 5 Instagram Reel hooks and voiceover scripts for: "${topic}". Each hook must be under 60 characters (stop-scrolling line). Then provide a 15-30 second voiceover script that delivers value and ends with a CTA.`
+        systemPrompt: 'You are a video content creator specializing in short-form video scripts. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 Instagram Reel hooks and voiceover scripts for: "${topic}". Each hook under 60 characters, then a 15-30 second voiceover script with CTA. Return ONLY JSON: {"options": ["hook + script 1", "hook + script 2", "hook + script 3", "hook + script 4", "hook + script 5"]}`
       },
       'carousel': {
         label: 'Carousel Generator',
         subtitle: 'Multi-slide post ideas',
         type: 'long',
-        systemPrompt: 'You are a content strategist specializing in educational carousel posts. Create detailed, slide-by-slide content.',
-        prompt: (topic) => `Create a detailed Instagram carousel post (5-7 slides) for: "${topic}". Include: Slide 1: Hook headline, Slides 2-4: Key points with bullet-style text, Slide 5: CTA. Make it educational and actionable.`
+        systemPrompt: 'You are a content strategist. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
+        prompt: (topic) => `Create a detailed Instagram carousel post (5-7 slides) for: "${topic}". Include hook, key points, CTA. Return ONLY JSON: {"content": "full markdown content here"}`
       },
       'singleimage': {
         label: 'Single Image Post',
         subtitle: 'Caption + hashtags for photos',
         type: 'short',
-        systemPrompt: 'You are a photography and social media expert. Create engaging captions that complement visual content.',
-        prompt: (topic) => `Generate 5 single-image Instagram/Facebook post captions for: "${topic}". Each caption: 150-200 characters, includes 1 question, 1 CTA, 5-8 relevant hashtags.`
+        systemPrompt: 'You are a photography and social media expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 single-image Instagram/Facebook post captions for: "${topic}". Each caption: 150-200 characters, includes 1 question, 1 CTA, 5-8 relevant hashtags. Return ONLY JSON: {"options": ["caption1", "caption2", "caption3", "caption4", "caption5"]}`
       },
       'collab': {
         label: 'Collab Message',
         subtitle: 'DM templates for partnerships',
         type: 'short',
-        systemPrompt: 'You are a partnership outreach specialist. Write professional yet friendly collaboration messages.',
-        prompt: (topic) => `Generate 5 DM templates for collaboration or partnership requests related to: "${topic}". Each should be professional, friendly, and include a clear value proposition for the recipient. Keep under 200 characters.`
+        systemPrompt: 'You are a partnership outreach specialist. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 DM templates for collaboration or partnership requests related to: "${topic}". Each should be professional, friendly, and include a clear value proposition. Keep under 200 characters. Return ONLY JSON: {"options": ["message1", "message2", "message3", "message4", "message5"]}`
       },
       'bio': {
         label: 'Bio Generator',
         subtitle: 'Profile bios for IG & FB',
         type: 'short',
-        systemPrompt: 'You are a personal branding expert. Create memorable, concise bios that capture essence and attract followers.',
-        prompt: (topic) => `Generate 5 Instagram/Facebook bios for: "${topic}". Offer 3 styles: professional, playful, and keyword-rich (SEO). Each bio should be under 150 characters.`
+        systemPrompt: 'You are a personal branding expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 Instagram/Facebook bios for: "${topic}". Offer 3 styles: professional, playful, and keyword-rich (SEO). Each bio under 150 characters. Return ONLY JSON: {"options": ["bio1", "bio2", "bio3", "bio4", "bio5"]}`
       },
       'linkedin-post': {
         label: 'LinkedIn Post',
         subtitle: 'Professional posts for LinkedIn',
         type: 'short',
-        systemPrompt: 'You are a LinkedIn content strategist. Create professional posts that drive engagement and showcase expertise.',
-        prompt: (topic) => `Generate 5 LinkedIn posts for: "${topic}". Each post should: start with a hook, include 2-3 key insights, end with a question to drive comments. Keep under 300 words. Use a professional but conversational tone.`
+        systemPrompt: 'You are a LinkedIn content strategist. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 LinkedIn posts for: "${topic}". Each post should: start with a hook, include 2-3 key insights, end with a question. Keep under 300 words. Return ONLY JSON: {"options": ["post1", "post2", "post3", "post4", "post5"]}`
       },
       'linkedin-article': {
         label: 'LinkedIn Article',
         subtitle: 'Long-form thought leadership',
         type: 'long',
-        systemPrompt: 'You are a thought leadership writer specializing in long-form LinkedIn articles. Structure content with clear sections and actionable insights.',
-        prompt: (topic) => `Write a complete LinkedIn article (600-800 words) for: "${topic}". Structure: Hook headline, introduction with a question, 3-4 subheadings with key points, a conclusion with a CTA. Include actionable tips and a professional tone.`
+        systemPrompt: 'You are a thought leadership writer. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
+        prompt: (topic) => `Write a complete LinkedIn article (600-800 words) for: "${topic}". Structure: Hook headline, introduction with a question, 3-4 subheadings with key points, conclusion with CTA. Return ONLY JSON: {"content": "full markdown content here"}`
       },
       'linkedin-connection': {
         label: 'Connection Message',
         subtitle: 'Personalized connection requests',
         type: 'short',
-        systemPrompt: 'You are a networking specialist. Craft personalized, professional connection requests that get accepted.',
-        prompt: (topic) => `Generate 5 LinkedIn connection request messages for: "${topic}". Each should: mention a mutual interest, give a reason for connecting, and suggest a next step. Keep under 200 characters. Professional and personal.`
+        systemPrompt: 'You are a networking specialist. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 LinkedIn connection request messages for: "${topic}". Each should: mention a mutual interest, give a reason for connecting, suggest a next step. Keep under 200 characters. Return ONLY JSON: {"options": ["message1", "message2", "message3", "message4", "message5"]}`
       },
       'linkedin-headline': {
         label: 'Headline Generator',
         subtitle: 'Professional headlines for profiles',
         type: 'short',
-        systemPrompt: 'You are a LinkedIn profile optimization expert. Create compelling headlines that highlight value and improve discoverability.',
-        prompt: (topic) => `Generate 5 LinkedIn headlines for: "${topic}". Each headline should: be under 120 characters, include keywords for discoverability, and highlight value proposition.`
+        systemPrompt: 'You are a LinkedIn profile optimization expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 LinkedIn headlines for: "${topic}". Each headline under 120 characters, include keywords for discoverability, highlight value proposition. Return ONLY JSON: {"options": ["headline1", "headline2", "headline3", "headline4", "headline5"]}`
       },
       'linkedin-about': {
         label: 'About Section',
         subtitle: 'Professional summary for profiles',
         type: 'long',
-        systemPrompt: 'You are a career coach and LinkedIn profile expert. Write compelling About sections that tell a professional story.',
-        prompt: (topic) => `Write a professional LinkedIn About section (200-300 words) for: "${topic}". Include: who you are, what you do, key achievements, and a call to action. Use a warm, professional tone.`
+        systemPrompt: 'You are a career coach and LinkedIn profile expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
+        prompt: (topic) => `Write a professional LinkedIn About section (200-300 words) for: "${topic}". Include: who you are, what you do, key achievements, call to action. Return ONLY JSON: {"content": "full markdown content here"}`
       },
       'linkedin-case': {
         label: 'Case Studies',
         subtitle: 'Success stories and case studies',
         type: 'long',
-        systemPrompt: 'You are a business case study writer. Create data-driven, compelling success stories with clear structure.',
-        prompt: (topic) => `Create a LinkedIn case study (400-500 words) for: "${topic}". Structure: Challenge, Solution, Results. Include specific metrics, quotes, and a CTA. Make it compelling and data-driven.`
+        systemPrompt: 'You are a business case study writer. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
+        prompt: (topic) => `Create a LinkedIn case study (400-500 words) for: "${topic}". Structure: Challenge, Solution, Results. Include specific metrics, quotes, CTA. Return ONLY JSON: {"content": "full markdown content here"}`
       },
       'youtube-title': {
         label: 'YouTube Title Generator',
         subtitle: 'Click-worthy video titles',
         type: 'short',
-        systemPrompt: 'You are a YouTube SEO and CTR optimization expert. Create titles that rank and get clicks.',
-        prompt: (topic) => `Generate 5 YouTube video titles for: "${topic}". Each title should: be under 60 characters, include keywords, create curiosity, and promise value. Use brackets for context if needed (e.g., [Tutorial], [Review]).`
+        systemPrompt: 'You are a YouTube SEO and CTR optimization expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]}.',
+        prompt: (topic) => `Generate 5 YouTube video titles for: "${topic}". Each title under 60 characters, include keywords, create curiosity, promise value. Return ONLY JSON: {"options": ["title1", "title2", "title3", "title4", "title5"]}`
       },
       'youtube-description': {
         label: 'YouTube Description',
         subtitle: 'Optimized video descriptions',
         type: 'long',
-        systemPrompt: 'You are a YouTube SEO specialist. Write comprehensive video descriptions optimized for search and viewer engagement.',
-        prompt: (topic) => `Write a YouTube video description (200-300 words) for: "${topic}". Include: 1-2 sentence summary, timestamps (0:00, 1:30, etc.) for key sections, CTA to like/comment/subscribe, relevant links, and 10-15 hashtags.`
+        systemPrompt: 'You are a YouTube SEO specialist. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
+        prompt: (topic) => `Write a YouTube video description (200-300 words) for: "${topic}". Include: 1-2 sentence summary, timestamps, CTA, relevant links, 10-15 hashtags. Return ONLY JSON: {"content": "full markdown content here"}`
       },
       'youtube-tags': {
         label: 'YouTube Tags',
         subtitle: 'SEO-friendly tag clusters',
         type: 'short',
-        systemPrompt: 'You are a YouTube SEO expert. Generate strategic tag combinations for maximum discoverability.',
-        prompt: (topic) => `Generate 25 YouTube tags for: "${topic}". Include: 5 broad tags, 10 specific tags, 5 long-tail tags. Separate with commas.`
+        systemPrompt: 'You are a YouTube SEO expert. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["..."]}.',
+        prompt: (topic) => `Generate 25 YouTube tags for: "${topic}". Include: 5 broad tags, 10 specific tags, 5 long-tail tags. Return ONLY JSON: {"options": ["tag1, tag2, tag3...", "tag1, tag2, tag3...", "tag1, tag2, tag3..."]}`
       },
       'youtube-script': {
         label: 'YouTube Script',
         subtitle: 'Complete video scripts',
         type: 'long',
-        systemPrompt: 'You are a professional video scriptwriter for YouTube. Create engaging, well-structured scripts with visual cues.',
-        prompt: (topic) => `Write a complete YouTube video script (5-7 minutes, ~800-1000 words) for: "${topic}". Structure: Hook (0-10s), Intro (10-60s), Body with 3-4 key points (60s-5min), Outro with CTA (5-7min). Include visual cues in brackets [show graphic].`
+        systemPrompt: 'You are a professional video scriptwriter for YouTube. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
+        prompt: (topic) => `Write a complete YouTube video script (5-7 minutes, ~800-1000 words) for: "${topic}". Structure: Hook (0-10s), Intro (10-60s), Body with 3-4 key points (60s-5min), Outro with CTA (5-7min). Include visual cues in brackets [show graphic]. Return ONLY JSON: {"content": "full markdown content here"}`
       }
     };
 
@@ -1031,50 +1050,12 @@
     // 5. SIDEBAR NAVIGATION
     // ============================================================
     
-    // Track dropdown visibility state for each parent
-    const dropdownState = {
-      igfb: false,
-      linkedin: false,
-      youtube: false
-    };
-
-    function toggleDropdown(parentId) {
-      const subItems = document.querySelector(`.sub-items[data-parent="${parentId}"]`);
-      const parentItem = document.querySelector(`.parent-item[data-parent="${parentId}"]`);
-      if (!subItems || !parentItem) return;
-      
-      // Toggle the state
-      dropdownState[parentId] = !dropdownState[parentId];
-      
-      // Apply visibility class
-      if (dropdownState[parentId]) {
-        subItems.classList.add('visible');
-        const chevron = parentItem.querySelector('.fa-chevron-down');
-        if (chevron) {
-          chevron.style.transform = 'rotate(180deg)';
-          chevron.style.transition = 'transform 0.2s ease';
-        }
-      } else {
-        subItems.classList.remove('visible');
-        const chevron = parentItem.querySelector('.fa-chevron-down');
-        if (chevron) {
-          chevron.style.transform = 'rotate(0deg)';
-        }
-      }
-    }
-
-    // Parent items click handler - toggle dropdown visibility
-    document.querySelectorAll('.parent-item').forEach(item => {
-      const newItem = item.cloneNode(true);
-      item.parentNode.replaceChild(newItem, item);
-      
-      newItem.addEventListener('click', function(e) {
+    document.querySelectorAll('.sidebar-group').forEach(group => {
+      const header = group.querySelector('.parent-item');
+      header.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const parentId = this.dataset.parent;
-        if (parentId) {
-          toggleDropdown(parentId);
-        }
+        group.classList.toggle('expanded');
       });
     });
 
@@ -1145,87 +1126,68 @@
                 .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    // Split content into 5 options for caption generator
-    function splitOptions(text) {
-      // For captions, we expect exactly 5 options
-      // Try to split by numbered items (1., 2., 3., 4., 5.) or "Option X" patterns
-      const lines = text.split('\n').filter(line => line.trim());
-      const options = [];
-      let current = '';
-      
-      for (const line of lines) {
-        const trimmed = line.trim();
-        // Check if it is a new option starting with number or "Option" keyword
-        if (/^(\d+[).]\s|Option\s*\d+[:.])\s*/i.test(trimmed)) {
-          if (current) {
-            options.push(current.trim());
-            current = '';
-          }
-          current = trimmed;
-        } else if (current) {
-          // Continue the current option
-          current += ' ' + trimmed;
-        } else {
-          // If no current option, start one
-          current = trimmed;
-        }
+    function safeParseJSON(raw) {
+      // Strip accidental code fences if the model adds them anyway
+      let cleaned = raw.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '');
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        return null;
       }
-      
-      if (current) {
-        options.push(current.trim());
-      }
-      
-      // If we could not split properly, try alternative method - look for double newlines
-      if (options.length < 2 && text.includes('\n\n')) {
-        const parts = text.split(/\n\s*\n/);
-        if (parts.length >= 3) {
-          return parts.map(p => p.trim()).filter(p => p);
-        }
-      }
-      
-      // If still no luck, try to split by any numbered pattern more aggressively
-      if (options.length < 2) {
-        const numbered = text.match(/\d+[).:]\s[^\n]+/g);
-        if (numbered && numbered.length >= 3) {
-          return numbered.map(p => p.trim());
-        }
-      }
-      
-      return options.length > 0 ? options : [text];
     }
 
-    // Update copyText function
-    window.copyText = function(btn, text) {
-      // Clean the text - remove any extra whitespace
-      const cleanText = text.replace(/\s+/g, ' ').trim();
-      
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(cleanText).then(() => {
-          btn.classList.add('copied');
-          btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-          setTimeout(() => {
-            btn.classList.remove('copied');
-            btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-          }, 2000);
-        }).catch(() => fallbackCopy(cleanText, btn));
-      } else {
-        fallbackCopy(cleanText, btn);
-      }
-    };
+    function createOptionBox(text, index) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'option-wrapper';
 
-    function fallbackCopy(text, btn) {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      try { document.execCommand('copy'); } catch {}
-      document.body.removeChild(textarea);
-      btn.classList.add('copied');
-      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-      }, 2000);
+      const label = document.createElement('div');
+      label.className = 'option-label';
+      label.innerHTML = `<span class="opt-num">${index}</span> Option ${index}`;
+
+      const box = document.createElement('div');
+      box.className = 'option-box';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'content has-copy-btn';
+      contentDiv.innerHTML = marked.parse(text);
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+      copyBtn.onclick = function() { copyText(this, contentDiv.textContent.trim()); };
+
+      box.appendChild(copyBtn);
+      box.appendChild(contentDiv);
+      wrapper.appendChild(label);
+      wrapper.appendChild(box);
+      return wrapper;
+    }
+
+    function createLongContentBox(text) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'option-wrapper';
+
+      const label = document.createElement('div');
+      label.className = 'option-label';
+      label.innerHTML = '<span class="opt-num">📄</span> Full Content';
+
+      const box = document.createElement('div');
+      box.className = 'option-box';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'content long has-copy-btn';
+      contentDiv.innerHTML = marked.parse(text);
+
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-btn';
+      copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+      copyBtn.onclick = function() { copyText(this, contentDiv.textContent.trim()); };
+
+      box.appendChild(copyBtn);
+      box.appendChild(contentDiv);
+      wrapper.appendChild(label);
+      wrapper.appendChild(box);
+      return wrapper;
     }
 
     async function generateContent() {
@@ -1236,20 +1198,19 @@
         setTimeout(() => generatorInput.style.borderColor = '', 2000);
         return;
       }
-      
+
       const config = GENERATOR_CONFIGS[currentTab];
       if (!config) return;
-      
+
       generateBtn.disabled = true;
       generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-      
       generatorOutput.innerHTML = '';
-      
+
       try {
         const prompt = config.prompt(topic);
         const systemPrompt = config.systemPrompt || 'You are a helpful content generation assistant.';
         const isLong = config.type === 'long';
-        
+
         const res = await fetch('/api/me/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1264,134 +1225,41 @@
             max_tokens: isLong ? 4096 : 1024,
           }),
         });
-        
+
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.error || 'Generation failed');
         }
-        
+
         const data = await res.json();
-        const content = data.choices?.[0]?.message?.content || data.content || '';
-        
+        const rawContent = data.choices?.[0]?.message?.content || data.content || '';
+        const parsed = safeParseJSON(rawContent);
+
         generatorOutput.innerHTML = '';
-        
-        // Add section heading
+
         const headingDiv = document.createElement('div');
         headingDiv.className = 'section-heading';
         headingDiv.textContent = config.label;
         generatorOutput.appendChild(headingDiv);
-        
+
         if (isLong) {
-          // Long form: single wrapper with label outside, content inside box
-          const wrapper = document.createElement('div');
-          wrapper.className = 'option-wrapper';
-          
-          const label = document.createElement('div');
-          label.className = 'option-label';
-          label.innerHTML = '<span class="opt-num">📄</span> Full Content';
-          
-          const box = document.createElement('div');
-          box.className = 'option-box';
-          
-          const contentDiv = document.createElement('div');
-          contentDiv.className = 'content long';
-          contentDiv.innerHTML = marked.parse(content);
-          
-          box.appendChild(contentDiv);
-          
-          // Only add copy button for caption type
-          if (currentTab === 'caption') {
-            contentDiv.classList.add('has-copy-btn');
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'copy-btn';
-            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-            copyBtn.onclick = function() {
-              const textToCopy = contentDiv.textContent.trim();
-              copyText(this, textToCopy);
-            };
-            box.insertBefore(copyBtn, contentDiv);
-          }
-          
-          wrapper.appendChild(label);
-          wrapper.appendChild(box);
-          generatorOutput.appendChild(wrapper);
+          const text = (parsed && typeof parsed.content === 'string' && parsed.content.trim())
+            ? parsed.content
+            : rawContent; // fallback if JSON parsing failed
+          generatorOutput.appendChild(createLongContentBox(text));
         } else {
-          // Split content into separate options (expect 5 for captions)
-          const options = splitOptions(content);
-          
-          if (options.length >= 3) {
-            options.forEach((opt, i) => {
-              // Clean the option text - remove numbering like "1.", "2)", "Option 1:", etc.
-              const cleanOpt = opt.replace(/^(\d+[).:]|Option\s*\d+[:.])\s*/i, '').trim();
-              
-              const wrapper = document.createElement('div');
-              wrapper.className = 'option-wrapper';
-              
-              const label = document.createElement('div');
-              label.className = 'option-label';
-              label.innerHTML = `<span class="opt-num">${i + 1}</span> Option ${i + 1}`;
-              
-              const box = document.createElement('div');
-              box.className = 'option-box';
-              
-              const contentDiv = document.createElement('div');
-              contentDiv.className = 'content';
-              contentDiv.innerHTML = marked.parse(cleanOpt);
-              
-              box.appendChild(contentDiv);
-              
-              // Only add copy button for caption type
-              if (currentTab === 'caption') {
-                contentDiv.classList.add('has-copy-btn');
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-                copyBtn.onclick = function() {
-                  const textToCopy = contentDiv.textContent.trim();
-                  copyText(this, textToCopy);
-                };
-                box.insertBefore(copyBtn, contentDiv);
-              }
-              
-              wrapper.appendChild(label);
-              wrapper.appendChild(box);
-              generatorOutput.appendChild(wrapper);
-            });
-          } else {
-            // Fallback: single option
-            const wrapper = document.createElement('div');
-            wrapper.className = 'option-wrapper';
-            
-            const label = document.createElement('div');
-            label.className = 'option-label';
-            label.innerHTML = '<span class="opt-num">📄</span> Content';
-            
-            const box = document.createElement('div');
-            box.className = 'option-box';
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'content';
-            contentDiv.innerHTML = marked.parse(content);
-            
-            box.appendChild(contentDiv);
-            
-            // Only add copy button for caption type
-            if (currentTab === 'caption') {
-              contentDiv.classList.add('has-copy-btn');
-              const copyBtn = document.createElement('button');
-              copyBtn.className = 'copy-btn';
-              copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-              copyBtn.onclick = function() {
-                const textToCopy = contentDiv.textContent.trim();
-                copyText(this, textToCopy);
-              };
-              box.insertBefore(copyBtn, contentDiv);
-            }
-            
-            wrapper.appendChild(label);
-            wrapper.appendChild(box);
-            generatorOutput.appendChild(wrapper);
+          let options = (parsed && Array.isArray(parsed.options))
+            ? parsed.options.map(o => String(o).trim()).filter(o => o.length > 0)
+            : null;
+
+          if (!options || options.length === 0) {
+            // Fallback: treat whole response as one option if JSON parsing failed
+            options = [rawContent.trim()].filter(o => o.length > 0);
           }
+
+          options.forEach((opt, i) => {
+            generatorOutput.appendChild(createOptionBox(opt, i + 1));
+          });
         }
       } catch (err) {
         generatorOutput.innerHTML = `
@@ -1408,6 +1276,19 @@
       }
     }
 
+    window.copyText = function(btn, text) {
+      const cleanText = text.replace(/\s+/g, ' ').trim();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(cleanText).then(() => {
+          btn.classList.add('copied');
+          btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+          }, 2000);
+        });
+      }
+    };
     generatorInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') generateContent();
     });
