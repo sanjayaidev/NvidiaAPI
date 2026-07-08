@@ -1044,47 +1044,47 @@
       const subItems = document.querySelector(`.sub-items[data-parent="${parentId}"]`);
       if (!subItems) return;
       
-      // Close all other sub-items first (accordion behavior)
-      document.querySelectorAll('.sub-items').forEach(si => {
-        if (si !== subItems) {
-          si.classList.remove('open');
-          const otherChevron = document.querySelector(`.parent-item[data-parent="${si.dataset.parent}"] .fa-chevron-down`);
-          if (otherChevron) otherChevron.style.transform = 'rotate(0deg)';
-        }
-      });
-      
+      // Toggle the clicked one
       subItems.classList.toggle('open');
       const chevron = parentItem.querySelector('.fa-chevron-down');
       if (chevron) {
         chevron.style.transform = subItems.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
         chevron.style.transition = 'transform 0.2s ease';
       }
+      
+      // Close others (optional - remove for accordion behavior)
+      document.querySelectorAll('.sub-items').forEach(si => {
+        if (si !== subItems && si.classList.contains('open')) {
+          si.classList.remove('open');
+          const otherChevron = document.querySelector(`.parent-item[data-parent="${si.dataset.parent}"] .fa-chevron-down`);
+          if (otherChevron) otherChevron.style.transform = 'rotate(0deg)';
+        }
+      });
     }
 
-    // Parent items toggle open/close
+    // Parent items toggle open/close - replace existing listeners
     document.querySelectorAll('.parent-item').forEach(item => {
-      item.addEventListener('click', function(e) {
+      // Remove any existing listeners by cloning
+      const newItem = item.cloneNode(true);
+      item.parentNode.replaceChild(newItem, item);
+      
+      newItem.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         toggleSubItems(this);
       });
     });
 
-    // FIX: Close dropdowns when clicking outside sidebar (including main header)
-    document.addEventListener('click', function(e) {
-      const sidebar = document.getElementById('sidebar');
-      if (!sidebar.contains(e.target)) {
-        closeAllDropdowns();
-      }
-    });
-
-    // Sub-item navigation
+    // Re-attach sub-item click handlers
     document.querySelectorAll('.sub-items .sidebar-item, .sidebar-item:not(.parent-item)').forEach(item => {
       item.addEventListener('click', function(e) {
         e.stopPropagation();
         const tab = this.dataset.tab;
         if (!tab) return;
-        // If it's a "Coming Soon" tab, show a message
+        
+        // Close dropdowns when navigating
+        closeAllDropdowns();
+        
         if (['resume', 'email', 'events'].includes(tab)) {
           alert('Coming soon! This feature is under development.');
           return;
@@ -1145,40 +1145,70 @@
                 .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
+    // Update splitOptions function to better handle different formats
     function splitOptions(text) {
+      // Try to split by numbered items (1., 2., 3.) or bullet points
       const lines = text.split('\n').filter(line => line.trim());
       const options = [];
       let current = '';
+      
       for (const line of lines) {
         const trimmed = line.trim();
-        if (/^[•\-*]\s/.test(trimmed) || /^\d+[).]\s/.test(trimmed)) {
-          if (current) { options.push(current.trim()); current = ''; }
+        // Check if it's a new option starting with number or bullet
+        if (/^(\d+[).]\s|[-•*]\s)/.test(trimmed)) {
+          if (current) {
+            options.push(current.trim());
+            current = '';
+          }
           current = trimmed;
         } else if (current) {
+          // Continue the current option
           current += ' ' + trimmed;
         } else {
+          // If no current option, start one
           current = trimmed;
         }
       }
-      if (current) options.push(current.trim());
-      return options.length >= 3 ? options : [text];
+      
+      if (current) {
+        options.push(current.trim());
+      }
+      
+      // If we couldn't split, try alternative method - look for double newlines
+      if (options.length < 2 && text.includes('\n\n')) {
+        const parts = text.split(/\n\s*\n/);
+        if (parts.length >= 3) {
+          return parts.map(p => p.trim()).filter(p => p);
+        }
+      }
+      
+      // If still no luck, try to split by any numbered pattern
+      if (options.length < 2) {
+        const numbered = text.match(/\d+[).]\s[^\n]+/g);
+        if (numbered && numbered.length >= 3) {
+          return numbered.map(p => p.trim());
+        }
+      }
+      
+      return options.length > 0 ? options : [text];
     }
 
+    // Update copyText function
     window.copyText = function(btn, text) {
-      // Unescape HTML entities for copying actual text
-      const unescaped = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-                            .replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+      // Clean the text - remove any extra whitespace
+      const cleanText = text.replace(/\s+/g, ' ').trim();
+      
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(unescaped).then(() => {
+        navigator.clipboard.writeText(cleanText).then(() => {
           btn.classList.add('copied');
           btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
           setTimeout(() => {
             btn.classList.remove('copied');
             btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
           }, 2000);
-        }).catch(() => fallbackCopy(unescaped, btn));
+        }).catch(() => fallbackCopy(cleanText, btn));
       } else {
-        fallbackCopy(unescaped, btn);
+        fallbackCopy(cleanText, btn);
       }
     };
 
@@ -1197,7 +1227,7 @@
       }, 2000);
     }
 
-    generateBtn.addEventListener('click', async () => {
+    async function generateContent() {
       const topic = generatorInput.value.trim();
       if (!topic) {
         generatorInput.focus();
@@ -1213,15 +1243,6 @@
       generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
       
       generatorOutput.innerHTML = '';
-      const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'option-box';
-      loadingDiv.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;color:#8896b0;padding:8px 0;">
-          <i class="fas fa-spinner fa-spin"></i>
-          <span>Generating ${config.type === 'long' ? 'long-form content' : '5 options'}...</span>
-        </div>
-      `;
-      generatorOutput.appendChild(loadingDiv);
       
       try {
         const prompt = config.prompt(topic);
@@ -1253,7 +1274,7 @@
         
         generatorOutput.innerHTML = '';
         
-        // Create heading for the content type (outside all boxes)
+        // Add section heading
         const headingDiv = document.createElement('div');
         headingDiv.className = 'section-heading';
         headingDiv.textContent = config.label;
@@ -1270,23 +1291,35 @@
           
           const box = document.createElement('div');
           box.className = 'option-box';
-          box.innerHTML = `
-            <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
-              <i class="fas fa-copy"></i> Copy
-            </button>
-            <div class="content long">${marked.parse(content)}</div>
-          `;
+          
+          // Create copy button that copies ONLY the content, not the label
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'copy-btn';
+          copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+          copyBtn.onclick = function() {
+            const contentDiv = this.parentElement.querySelector('.content');
+            const textToCopy = contentDiv.textContent.trim();
+            copyText(this, textToCopy);
+          };
+          
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'content long';
+          contentDiv.innerHTML = marked.parse(content);
+          
+          box.appendChild(copyBtn);
+          box.appendChild(contentDiv);
           
           wrapper.appendChild(label);
           wrapper.appendChild(box);
           generatorOutput.appendChild(wrapper);
         } else {
+          // Split content into separate options
           const options = splitOptions(content);
+          
           if (options.length >= 3) {
             options.forEach((opt, i) => {
               const cleanOpt = opt.replace(/^.{1,3}[).]\s*/, '').trim();
               
-              // Wrapper: label outside, box inside
               const wrapper = document.createElement('div');
               wrapper.className = 'option-wrapper';
               
@@ -1296,12 +1329,23 @@
               
               const box = document.createElement('div');
               box.className = 'option-box';
-              box.innerHTML = `
-                <button class="copy-btn" onclick="copyText(this, '${escapeHtml(cleanOpt)}')">
-                  <i class="fas fa-copy"></i> Copy
-                </button>
-                <div class="content">${marked.parse(cleanOpt)}</div>
-              `;
+              
+              // Create copy button that copies ONLY the content
+              const copyBtn = document.createElement('button');
+              copyBtn.className = 'copy-btn';
+              copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+              copyBtn.onclick = function() {
+                const contentDiv = this.parentElement.querySelector('.content');
+                const textToCopy = contentDiv.textContent.trim();
+                copyText(this, textToCopy);
+              };
+              
+              const contentDiv = document.createElement('div');
+              contentDiv.className = 'content';
+              contentDiv.innerHTML = marked.parse(cleanOpt);
+              
+              box.appendChild(copyBtn);
+              box.appendChild(contentDiv);
               
               wrapper.appendChild(label);
               wrapper.appendChild(box);
@@ -1318,12 +1362,22 @@
             
             const box = document.createElement('div');
             box.className = 'option-box';
-            box.innerHTML = `
-              <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
-                <i class="fas fa-copy"></i> Copy
-              </button>
-              <div class="content">${marked.parse(content)}</div>
-            `;
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            copyBtn.onclick = function() {
+              const contentDiv = this.parentElement.querySelector('.content');
+              const textToCopy = contentDiv.textContent.trim();
+              copyText(this, textToCopy);
+            };
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'content';
+            contentDiv.innerHTML = marked.parse(content);
+            
+            box.appendChild(copyBtn);
+            box.appendChild(contentDiv);
             
             wrapper.appendChild(label);
             wrapper.appendChild(box);
@@ -1343,11 +1397,15 @@
         generateBtn.disabled = false;
         generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate';
       }
+    }
+
+    generatorInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') generateContent();
     });
 
-    generatorInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') generateBtn.click();
-    });
+    // Update generate button click handler
+    generateBtn.removeEventListener('click', generateContent);
+    generateBtn.addEventListener('click', generateContent);
 
     // ============================================================
     // 7. CHAT FUNCTIONS (from original app.html)
