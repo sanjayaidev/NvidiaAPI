@@ -97,103 +97,110 @@
     }
     .app-container.visible { display: flex; }
 
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: 240px;
-      min-width: 240px;
-      background: rgba(0, 0, 0, 0.3);
-      border-right: 1px solid rgba(255,255,255,0.04);
-      padding: 16px 10px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .sidebar::-webkit-scrollbar { width: 3px; }
-    .sidebar::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  padding: 16px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
 
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 8px 12px 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .sidebar-brand .brand-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, #7c5cfc, #a78bfa);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: white;
-      box-shadow: 0 8px 24px -6px #7c5cfc80;
-      flex-shrink: 0;
-    }
-    .sidebar-brand h1 { font-size: 17px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
-    .sidebar-brand small { font-size: 10px; color: #8896b0; display: block; margin-top: 0px; }
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.sidebar-brand .brand-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: white;
+  box-shadow: 0 8px 24px -6px #7c5cfc80;
+  flex-shrink: 0;
+}
+.sidebar-brand h1 { font-size: 17px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
+.sidebar-brand small { font-size: 10px; color: #8896b0; display: block; margin-top: 0px; }
 
-    .sidebar-section { display: flex; flex-direction: column; gap: 2px; }
-    .sidebar-section-label {
-      font-size: 9.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: #4d5872;
-      padding: 0 8px 4px 8px;
-      font-weight: 700;
-    }
+.sidebar-section { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-section-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #4d5872;
+  padding: 0 8px 4px 8px;
+  font-weight: 700;
+}
 
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 12px;
-      border-radius: 8px;
-      color: #8896b0;
-      font-size: 12.5px;
-      cursor: pointer;
-      transition: 0.15s;
-      font-weight: 500;
-      user-select: none;
-    }
-    .sidebar-item:hover { background: rgba(255,255,255,0.05); color: #eef2f9; }
-    .sidebar-item.active { 
-      background: rgba(124, 92, 252, 0.15); 
-      color: #cdbfff; 
-      box-shadow: 0 0 0 1px rgba(124, 92, 252, 0.08);
-    }
-    .sidebar-item i { width: 18px; font-size: 14px; text-align: center; flex-shrink: 0; }
-    .sidebar-item .badge {
-      margin-left: auto;
-      font-size: 8.5px;
-      background: rgba(255,255,255,0.06);
-      padding: 1px 8px;
-      border-radius: 10px;
-      color: #5b6a84;
-      font-weight: 600;
-    }
-    .sidebar-item .badge.coming-soon { background: rgba(124, 92, 252, 0.12); color: #a78bfa; }
-    .sidebar-item .sub-items {
-      display: none;
-      flex-direction: column;
-      gap: 1px;
-      margin-left: 28px;
-      margin-top: 2px;
-    }
-    .sidebar-item .sub-items.open { display: flex; }
-    .sidebar-item .sub-items .sidebar-item {
-      font-size: 11.5px;
-      padding: 4px 10px;
-      font-weight: 400;
-    }
-    .sidebar-item .sub-items .sidebar-item i { font-size: 11px; width: 16px; }
-    .sidebar-item .sub-items .sidebar-item.active { 
-      background: rgba(124, 92, 252, 0.1); 
-    }
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  color: #8896b0;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-weight: 500;
+  user-select: none;
+}
+.sidebar-item:hover { background: rgba(255,255,255,0.05); color: #eef2f9; }
+.sidebar-item.active { 
+  background: rgba(124, 92, 252, 0.15); 
+  color: #cdbfff; 
+  box-shadow: 0 0 0 1px rgba(124, 92, 252, 0.08);
+}
+.sidebar-item i { width: 18px; font-size: 14px; text-align: center; flex-shrink: 0; }
+.sidebar-item .badge {
+  margin-left: auto;
+  font-size: 8.5px;
+  background: rgba(255,255,255,0.06);
+  padding: 1px 8px;
+  border-radius: 10px;
+  color: #5b6a84;
+  font-weight: 600;
+}
+.sidebar-item .badge.coming-soon { background: rgba(124, 92, 252, 0.12); color: #a78bfa; }
 
-    .sidebar-divider {
-      height: 1px;
-      background: rgba(255,255,255,0.04);
-      margin: 0 8px;
-    }
+/* FIX: Dropdown sub-items - THIS IS THE FIX */
+.sidebar-item .sub-items {
+  display: none !important;
+  flex-direction: column;
+  gap: 1px;
+  margin-left: 28px;
+  margin-top: 2px;
+}
+.sidebar-item .sub-items.open {
+  display: flex !important;
+}
+.sidebar-item .sub-items .sidebar-item {
+  font-size: 11.5px;
+  padding: 4px 10px;
+  font-weight: 400;
+}
+.sidebar-item .sub-items .sidebar-item i { 
+  font-size: 11px; 
+  width: 16px; 
+}
+.sidebar-item .sub-items .sidebar-item.active { 
+  background: rgba(124, 92, 252, 0.1); 
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.04);
+  margin: 0 8px;
+}
 
     /* ===== MAIN CONTENT ===== */
     .main-content {
@@ -979,7 +986,8 @@
       subItems.classList.toggle('open');
       const chevron = parentItem.querySelector('.fa-chevron-down');
       if (chevron) {
-        chevron.style.transform = subItems.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+  chevron.style.transform = subItems.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+  chevron.style.transition = 'transform 0.2s ease';
       }
     }
 
