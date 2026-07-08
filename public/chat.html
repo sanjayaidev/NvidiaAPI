@@ -172,16 +172,16 @@
 }
 .sidebar-item .badge.coming-soon { background: rgba(124, 92, 252, 0.12); color: #a78bfa; }
 
-/* FIX: Dropdown sub-items - THIS IS THE FIX */
+/* FIX: Dropdown sub-items */
 .sidebar-item .sub-items {
-  display: none !important;
+  display: none;
   flex-direction: column;
   gap: 1px;
   margin-left: 28px;
   margin-top: 2px;
 }
 .sidebar-item .sub-items.open {
-  display: flex !important;
+  display: flex;
 }
 .sidebar-item .sub-items .sidebar-item {
   font-size: 11.5px;
@@ -801,115 +801,133 @@
     const ALLOWED_EXTENSIONS = ['txt', 'md', 'markdown', 'json', 'csv', 'js', 'ts', 'jsx', 'tsx', 'py', 'html', 'css', 'xml', 'yaml', 'yml', 'sql', 'sh', 'bash', 'log'];
 
     // ============================================================
-    // 2. GENERATOR CONFIGURATIONS
+    // 2. GENERATOR CONFIGURATIONS WITH SYSTEM PROMPTS
     // ============================================================
     const GENERATOR_CONFIGS = {
       'caption': {
         label: 'Caption Generator',
         subtitle: 'Instagram & Facebook captions',
         type: 'short',
+        systemPrompt: 'You are a social media expert specializing in creating engaging Instagram and Facebook captions. Always generate exactly 5 varied options.',
         prompt: (topic) => `Generate 5 engaging Instagram and Facebook captions for: "${topic}". Each caption should be under 220 characters, include 1 question to boost engagement, 1 CTA (call to action), and relevant emojis. Make them varied in tone: one professional, one funny, one inspirational, one casual, one storytelling.`
       },
       'hashtags': {
         label: 'Hashtag Generator',
         subtitle: 'Optimized hashtag clusters',
         type: 'short',
+        systemPrompt: 'You are a hashtag optimization expert. Generate well-organized hashtag sets categorized by volume.',
         prompt: (topic) => `Generate 30 hashtags for: "${topic}". Split into 3 tiers: 10 high-volume (1M+ posts), 10 mid-volume (100K-1M), 10 low-volume (10K-100K). Format as a comma-separated list with tier labels.`
       },
       'story': {
         label: 'Story Generator',
         subtitle: 'Instagram & Facebook stories',
         type: 'short',
+        systemPrompt: 'You are a social media story creator. Generate concise, actionable story ideas with interactive elements.',
         prompt: (topic) => `Generate 5 Instagram/Facebook story ideas for: "${topic}". Each should include: a text overlay idea, a poll/quiz/QA sticker suggestion, and a CTA (swipe up, DM, or link). Keep each under 100 characters.`
       },
       'reel': {
         label: 'Reel Script Generator',
         subtitle: 'Voiceover and hooks for Reels',
         type: 'short',
+        systemPrompt: 'You are a video content creator specializing in short-form video scripts. Create attention-grabbing hooks and concise voiceovers.',
         prompt: (topic) => `Generate 5 Instagram Reel hooks and voiceover scripts for: "${topic}". Each hook must be under 60 characters (stop-scrolling line). Then provide a 15-30 second voiceover script that delivers value and ends with a CTA.`
       },
       'carousel': {
         label: 'Carousel Generator',
         subtitle: 'Multi-slide post ideas',
         type: 'long',
+        systemPrompt: 'You are a content strategist specializing in educational carousel posts. Create detailed, slide-by-slide content.',
         prompt: (topic) => `Create a detailed Instagram carousel post (5-7 slides) for: "${topic}". Include: Slide 1: Hook headline, Slides 2-4: Key points with bullet-style text, Slide 5: CTA. Make it educational and actionable.`
       },
       'singleimage': {
         label: 'Single Image Post',
         subtitle: 'Caption + hashtags for photos',
         type: 'short',
+        systemPrompt: 'You are a photography and social media expert. Create engaging captions that complement visual content.',
         prompt: (topic) => `Generate 5 single-image Instagram/Facebook post captions for: "${topic}". Each caption: 150-200 characters, includes 1 question, 1 CTA, 5-8 relevant hashtags.`
       },
       'collab': {
         label: 'Collab Message',
         subtitle: 'DM templates for partnerships',
         type: 'short',
+        systemPrompt: 'You are a partnership outreach specialist. Write professional yet friendly collaboration messages.',
         prompt: (topic) => `Generate 5 DM templates for collaboration or partnership requests related to: "${topic}". Each should be professional, friendly, and include a clear value proposition for the recipient. Keep under 200 characters.`
       },
       'bio': {
         label: 'Bio Generator',
         subtitle: 'Profile bios for IG & FB',
         type: 'short',
+        systemPrompt: 'You are a personal branding expert. Create memorable, concise bios that capture essence and attract followers.',
         prompt: (topic) => `Generate 5 Instagram/Facebook bios for: "${topic}". Offer 3 styles: professional, playful, and keyword-rich (SEO). Each bio should be under 150 characters.`
       },
       'linkedin-post': {
         label: 'LinkedIn Post',
         subtitle: 'Professional posts for LinkedIn',
         type: 'short',
+        systemPrompt: 'You are a LinkedIn content strategist. Create professional posts that drive engagement and showcase expertise.',
         prompt: (topic) => `Generate 5 LinkedIn posts for: "${topic}". Each post should: start with a hook, include 2-3 key insights, end with a question to drive comments. Keep under 300 words. Use a professional but conversational tone.`
       },
       'linkedin-article': {
         label: 'LinkedIn Article',
         subtitle: 'Long-form thought leadership',
         type: 'long',
+        systemPrompt: 'You are a thought leadership writer specializing in long-form LinkedIn articles. Structure content with clear sections and actionable insights.',
         prompt: (topic) => `Write a complete LinkedIn article (600-800 words) for: "${topic}". Structure: Hook headline, introduction with a question, 3-4 subheadings with key points, a conclusion with a CTA. Include actionable tips and a professional tone.`
       },
       'linkedin-connection': {
         label: 'Connection Message',
         subtitle: 'Personalized connection requests',
         type: 'short',
+        systemPrompt: 'You are a networking specialist. Craft personalized, professional connection requests that get accepted.',
         prompt: (topic) => `Generate 5 LinkedIn connection request messages for: "${topic}". Each should: mention a mutual interest, give a reason for connecting, and suggest a next step. Keep under 200 characters. Professional and personal.`
       },
       'linkedin-headline': {
         label: 'Headline Generator',
         subtitle: 'Professional headlines for profiles',
         type: 'short',
+        systemPrompt: 'You are a LinkedIn profile optimization expert. Create compelling headlines that highlight value and improve discoverability.',
         prompt: (topic) => `Generate 5 LinkedIn headlines for: "${topic}". Each headline should: be under 120 characters, include keywords for discoverability, and highlight value proposition.`
       },
       'linkedin-about': {
         label: 'About Section',
         subtitle: 'Professional summary for profiles',
         type: 'long',
+        systemPrompt: 'You are a career coach and LinkedIn profile expert. Write compelling About sections that tell a professional story.',
         prompt: (topic) => `Write a professional LinkedIn About section (200-300 words) for: "${topic}". Include: who you are, what you do, key achievements, and a call to action. Use a warm, professional tone.`
       },
       'linkedin-case': {
         label: 'Case Studies',
         subtitle: 'Success stories and case studies',
         type: 'long',
+        systemPrompt: 'You are a business case study writer. Create data-driven, compelling success stories with clear structure.',
         prompt: (topic) => `Create a LinkedIn case study (400-500 words) for: "${topic}". Structure: Challenge, Solution, Results. Include specific metrics, quotes, and a CTA. Make it compelling and data-driven.`
       },
       'youtube-title': {
         label: 'YouTube Title Generator',
         subtitle: 'Click-worthy video titles',
         type: 'short',
+        systemPrompt: 'You are a YouTube SEO and CTR optimization expert. Create titles that rank and get clicks.',
         prompt: (topic) => `Generate 5 YouTube video titles for: "${topic}". Each title should: be under 60 characters, include keywords, create curiosity, and promise value. Use brackets for context if needed (e.g., [Tutorial], [Review]).`
       },
       'youtube-description': {
         label: 'YouTube Description',
         subtitle: 'Optimized video descriptions',
         type: 'long',
+        systemPrompt: 'You are a YouTube SEO specialist. Write comprehensive video descriptions optimized for search and viewer engagement.',
         prompt: (topic) => `Write a YouTube video description (200-300 words) for: "${topic}". Include: 1-2 sentence summary, timestamps (0:00, 1:30, etc.) for key sections, CTA to like/comment/subscribe, relevant links, and 10-15 hashtags.`
       },
       'youtube-tags': {
         label: 'YouTube Tags',
         subtitle: 'SEO-friendly tag clusters',
         type: 'short',
+        systemPrompt: 'You are a YouTube SEO expert. Generate strategic tag combinations for maximum discoverability.',
         prompt: (topic) => `Generate 25 YouTube tags for: "${topic}". Include: 5 broad tags, 10 specific tags, 5 long-tail tags. Separate with commas.`
       },
       'youtube-script': {
         label: 'YouTube Script',
         subtitle: 'Complete video scripts',
         type: 'long',
+        systemPrompt: 'You are a professional video scriptwriter for YouTube. Create engaging, well-structured scripts with visual cues.',
         prompt: (topic) => `Write a complete YouTube video script (5-7 minutes, ~800-1000 words) for: "${topic}". Structure: Hook (0-10s), Intro (10-60s), Body with 3-4 key points (60s-5min), Outro with CTA (5-7min). Include visual cues in brackets [show graphic].`
       }
     };
@@ -1086,17 +1104,20 @@
     }
 
     window.copyText = function(btn, text) {
+      // Unescape HTML entities for copying actual text
+      const unescaped = text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+                            .replace(/&quot;/g, '"').replace(/&#039;/g, "'");
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
+        navigator.clipboard.writeText(unescaped).then(() => {
           btn.classList.add('copied');
           btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
           setTimeout(() => {
             btn.classList.remove('copied');
             btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
           }, 2000);
-        }).catch(() => fallbackCopy(text, btn));
+        }).catch(() => fallbackCopy(unescaped, btn));
       } else {
-        fallbackCopy(text, btn);
+        fallbackCopy(unescaped, btn);
       }
     };
 
@@ -1143,13 +1164,17 @@
       
       try {
         const prompt = config.prompt(topic);
+        const systemPrompt = config.systemPrompt || 'You are a helpful content generation assistant.';
         const isLong = config.type === 'long';
         
         const res = await fetch('/api/me/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            messages: [{ role: 'user', content: prompt }],
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt }
+            ],
             model: modelSelect.value || MODELS[0],
             stream: false,
             temperature: 0.7,
