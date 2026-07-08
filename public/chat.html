@@ -419,17 +419,50 @@
     }
     .generator-output::-webkit-scrollbar { width: 4px; }
     .generator-output::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
-    .generator-output .result-item {
+
+    /* ===== NEW OPTION CARD STRUCTURE ===== */
+    .generator-output .section-heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: #cdbfff;
+      margin: 6px 0 4px 0;
+      padding-left: 2px;
+    }
+    .generator-output .option-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      animation: slideUp 0.25s ease;
+    }
+    .generator-output .option-label {
+      font-size: 10.5px;
+      color: #6a7a94;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .generator-output .option-label .opt-num {
+      background: rgba(124, 92, 252, 0.15);
+      color: #a78bfa;
+      padding: 1px 7px;
+      border-radius: 6px;
+      font-size: 9.5px;
+      font-weight: 700;
+    }
+    .generator-output .option-box {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.05);
       border-radius: 12px;
       padding: 14px 16px;
       position: relative;
-      animation: slideUp 0.25s ease;
       transition: 0.2s;
     }
-    .generator-output .result-item:hover { border-color: rgba(124, 92, 252, 0.15); }
-    .generator-output .result-item .copy-btn {
+    .generator-output .option-box:hover { border-color: rgba(124, 92, 252, 0.15); }
+    .generator-output .option-box .copy-btn {
       position: absolute;
       top: 8px;
       right: 10px;
@@ -446,31 +479,22 @@
       align-items: center;
       gap: 4px;
     }
-    .generator-output .result-item .copy-btn:hover { background: rgba(124, 92, 252, 0.15); color: #cdbfff; }
-    .generator-output .result-item .copy-btn.copied { background: rgba(52, 211, 142, 0.15); color: #34d38e; }
-    .generator-output .result-item .label {
-      font-size: 10.5px;
-      color: #6a7a94;
-      margin-bottom: 4px;
-      display: block;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-    .generator-output .result-item .content {
+    .generator-output .option-box .copy-btn:hover { background: rgba(124, 92, 252, 0.15); color: #cdbfff; }
+    .generator-output .option-box .copy-btn.copied { background: rgba(52, 211, 142, 0.15); color: #34d38e; }
+    .generator-output .option-box .content {
       color: #eef2f9;
       font-size: 13.5px;
       line-height: 1.6;
       word-break: break-word;
       padding-right: 60px;
     }
-    .generator-output .result-item .content p { margin: 0.4em 0; }
-    .generator-output .result-item .content pre { background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; overflow-x: auto; margin: 0.4em 0; }
-    .generator-output .result-item .content code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
-    .generator-output .result-item .content pre code { background: transparent; padding: 0; }
-    .generator-output .result-item .content ul, .generator-output .result-item .content ol { margin: 0.4em 0; padding-left: 1.5em; }
-    .generator-output .result-item .content blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.4em 0; color: #a78bfa; }
-    .generator-output .result-item .content.long {
+    .generator-output .option-box .content p { margin: 0.4em 0; }
+    .generator-output .option-box .content pre { background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; overflow-x: auto; margin: 0.4em 0; }
+    .generator-output .option-box .content code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+    .generator-output .option-box .content pre code { background: transparent; padding: 0; }
+    .generator-output .option-box .content ul, .generator-output .option-box .content ol { margin: 0.4em 0; padding-left: 1.5em; }
+    .generator-output .option-box .content blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.4em 0; color: #a78bfa; }
+    .generator-output .option-box .content.long {
       font-size: 13px;
       line-height: 1.7;
     }
@@ -1004,6 +1028,17 @@
     // ============================================================
     // 5. SIDEBAR NAVIGATION
     // ============================================================
+    function closeAllDropdowns() {
+      document.querySelectorAll('.sub-items.open').forEach(si => {
+        si.classList.remove('open');
+        const parentItem = document.querySelector(`.parent-item[data-parent="${si.dataset.parent}"]`);
+        if (parentItem) {
+          const chevron = parentItem.querySelector('.fa-chevron-down');
+          if (chevron) chevron.style.transform = 'rotate(0deg)';
+        }
+      });
+    }
+
     function toggleSubItems(parentItem) {
       const parentId = parentItem.dataset.parent;
       const subItems = document.querySelector(`.sub-items[data-parent="${parentId}"]`);
@@ -1033,6 +1068,14 @@
         e.stopPropagation();
         toggleSubItems(this);
       });
+    });
+
+    // FIX: Close dropdowns when clicking outside sidebar (including main header)
+    document.addEventListener('click', function(e) {
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar.contains(e.target)) {
+        closeAllDropdowns();
+      }
     });
 
     // Sub-item navigation
@@ -1171,7 +1214,7 @@
       
       generatorOutput.innerHTML = '';
       const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'result-item';
+      loadingDiv.className = 'option-box';
       loadingDiv.innerHTML = `
         <div style="display:flex;align-items:center;gap:12px;color:#8896b0;padding:8px 0;">
           <i class="fas fa-spinner fa-spin"></i>
@@ -1210,57 +1253,86 @@
         
         generatorOutput.innerHTML = '';
         
-        // Create heading for the content type
+        // Create heading for the content type (outside all boxes)
         const headingDiv = document.createElement('div');
-        headingDiv.style.cssText = 'font-size: 16px; font-weight: 600; color: #cdbfff; margin-bottom: 12px;';
+        headingDiv.className = 'section-heading';
         headingDiv.textContent = config.label;
         generatorOutput.appendChild(headingDiv);
         
         if (isLong) {
-          const item = document.createElement('div');
-          item.className = 'result-item';
-          // Use marked.parse for markdown rendering in display, but keep raw text for copy
-          item.innerHTML = `
+          // Long form: single wrapper with label outside, content inside box
+          const wrapper = document.createElement('div');
+          wrapper.className = 'option-wrapper';
+          
+          const label = document.createElement('div');
+          label.className = 'option-label';
+          label.innerHTML = '<span class="opt-num">📄</span> Full Content';
+          
+          const box = document.createElement('div');
+          box.className = 'option-box';
+          box.innerHTML = `
             <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
               <i class="fas fa-copy"></i> Copy
             </button>
-            <span class="label">📄 Content</span>
             <div class="content long">${marked.parse(content)}</div>
           `;
-          generatorOutput.appendChild(item);
+          
+          wrapper.appendChild(label);
+          wrapper.appendChild(box);
+          generatorOutput.appendChild(wrapper);
         } else {
           const options = splitOptions(content);
           if (options.length >= 3) {
             options.forEach((opt, i) => {
-              const item = document.createElement('div');
-              item.className = 'result-item';
               const cleanOpt = opt.replace(/^.{1,3}[).]\s*/, '').trim();
-              // Use marked.parse for markdown rendering in display, but keep raw text for copy
-              item.innerHTML = `
+              
+              // Wrapper: label outside, box inside
+              const wrapper = document.createElement('div');
+              wrapper.className = 'option-wrapper';
+              
+              const label = document.createElement('div');
+              label.className = 'option-label';
+              label.innerHTML = `<span class="opt-num">${i + 1}</span> Option ${i + 1}`;
+              
+              const box = document.createElement('div');
+              box.className = 'option-box';
+              box.innerHTML = `
                 <button class="copy-btn" onclick="copyText(this, '${escapeHtml(cleanOpt)}')">
                   <i class="fas fa-copy"></i> Copy
                 </button>
-                <span class="label">Option ${i + 1}</span>
                 <div class="content">${marked.parse(cleanOpt)}</div>
               `;
-              generatorOutput.appendChild(item);
+              
+              wrapper.appendChild(label);
+              wrapper.appendChild(box);
+              generatorOutput.appendChild(wrapper);
             });
           } else {
-            const item = document.createElement('div');
-            item.className = 'result-item';
-            item.innerHTML = `
+            // Fallback: single option
+            const wrapper = document.createElement('div');
+            wrapper.className = 'option-wrapper';
+            
+            const label = document.createElement('div');
+            label.className = 'option-label';
+            label.innerHTML = '<span class="opt-num">📄</span> Content';
+            
+            const box = document.createElement('div');
+            box.className = 'option-box';
+            box.innerHTML = `
               <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
                 <i class="fas fa-copy"></i> Copy
               </button>
-              <span class="label">📄 Content</span>
               <div class="content">${marked.parse(content)}</div>
             `;
-            generatorOutput.appendChild(item);
+            
+            wrapper.appendChild(label);
+            wrapper.appendChild(box);
+            generatorOutput.appendChild(wrapper);
           }
         }
       } catch (err) {
         generatorOutput.innerHTML = `
-          <div class="result-item" style="border-color:rgba(255,90,90,0.2);">
+          <div class="option-box" style="border-color:rgba(255,90,90,0.2);">
             <div style="color:#ff9b9b;display:flex;align-items:center;gap:10px;">
               <i class="fas fa-exclamation-circle"></i>
               <span>${escapeHtml(err.message)}</span>
