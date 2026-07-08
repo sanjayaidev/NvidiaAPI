@@ -160,6 +160,8 @@
   color: #cdbfff; 
   box-shadow: 0 0 0 1px rgba(124, 92, 252, 0.08);
 }
+.sidebar-item.parent-item { cursor: pointer; }
+.sidebar-item.parent-item:hover { background: rgba(255,255,255,0.08); }
 .sidebar-item i { width: 18px; font-size: 14px; text-align: center; flex-shrink: 0; }
 .sidebar-item .badge {
   margin-left: auto;
@@ -181,7 +183,7 @@
   margin-top: 2px;
 }
 .sidebar-item .sub-items.open {
-  display: flex;
+  display: flex !important;
 }
 .sidebar-item .sub-items .sidebar-item {
   font-size: 11.5px;
@@ -459,10 +461,15 @@
       color: #eef2f9;
       font-size: 13.5px;
       line-height: 1.6;
-      white-space: pre-wrap;
       word-break: break-word;
       padding-right: 60px;
     }
+    .generator-output .result-item .content p { margin: 0.4em 0; }
+    .generator-output .result-item .content pre { background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; overflow-x: auto; margin: 0.4em 0; }
+    .generator-output .result-item .content code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+    .generator-output .result-item .content pre code { background: transparent; padding: 0; }
+    .generator-output .result-item .content ul, .generator-output .result-item .content ol { margin: 0.4em 0; padding-left: 1.5em; }
+    .generator-output .result-item .content blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.4em 0; color: #a78bfa; }
     .generator-output .result-item .content.long {
       font-size: 13px;
       line-height: 1.7;
@@ -1001,17 +1008,28 @@
       const parentId = parentItem.dataset.parent;
       const subItems = document.querySelector(`.sub-items[data-parent="${parentId}"]`);
       if (!subItems) return;
+      
+      // Close all other sub-items first (accordion behavior)
+      document.querySelectorAll('.sub-items').forEach(si => {
+        if (si !== subItems) {
+          si.classList.remove('open');
+          const otherChevron = document.querySelector(`.parent-item[data-parent="${si.dataset.parent}"] .fa-chevron-down`);
+          if (otherChevron) otherChevron.style.transform = 'rotate(0deg)';
+        }
+      });
+      
       subItems.classList.toggle('open');
       const chevron = parentItem.querySelector('.fa-chevron-down');
       if (chevron) {
-  chevron.style.transform = subItems.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-  chevron.style.transition = 'transform 0.2s ease';
+        chevron.style.transform = subItems.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+        chevron.style.transition = 'transform 0.2s ease';
       }
     }
 
     // Parent items toggle open/close
     document.querySelectorAll('.parent-item').forEach(item => {
       item.addEventListener('click', function(e) {
+        e.preventDefault();
         e.stopPropagation();
         toggleSubItems(this);
       });
@@ -1192,15 +1210,22 @@
         
         generatorOutput.innerHTML = '';
         
+        // Create heading for the content type
+        const headingDiv = document.createElement('div');
+        headingDiv.style.cssText = 'font-size: 16px; font-weight: 600; color: #cdbfff; margin-bottom: 12px;';
+        headingDiv.textContent = config.label;
+        generatorOutput.appendChild(headingDiv);
+        
         if (isLong) {
           const item = document.createElement('div');
           item.className = 'result-item';
+          // Use marked.parse for markdown rendering in display, but keep raw text for copy
           item.innerHTML = `
             <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
               <i class="fas fa-copy"></i> Copy
             </button>
             <span class="label">📄 Content</span>
-            <div class="content long">${escapeHtml(content)}</div>
+            <div class="content long">${marked.parse(content)}</div>
           `;
           generatorOutput.appendChild(item);
         } else {
@@ -1210,12 +1235,13 @@
               const item = document.createElement('div');
               item.className = 'result-item';
               const cleanOpt = opt.replace(/^.{1,3}[).]\s*/, '').trim();
+              // Use marked.parse for markdown rendering in display, but keep raw text for copy
               item.innerHTML = `
-                <button class="copy-btn" onclick="copyText(this, '${escapeHtml(opt)}')">
+                <button class="copy-btn" onclick="copyText(this, '${escapeHtml(cleanOpt)}')">
                   <i class="fas fa-copy"></i> Copy
                 </button>
                 <span class="label">Option ${i + 1}</span>
-                <div class="content">${escapeHtml(cleanOpt)}</div>
+                <div class="content">${marked.parse(cleanOpt)}</div>
               `;
               generatorOutput.appendChild(item);
             });
@@ -1227,7 +1253,7 @@
                 <i class="fas fa-copy"></i> Copy
               </button>
               <span class="label">📄 Content</span>
-              <div class="content">${escapeHtml(content)}</div>
+              <div class="content">${marked.parse(content)}</div>
             `;
             generatorOutput.appendChild(item);
           }
