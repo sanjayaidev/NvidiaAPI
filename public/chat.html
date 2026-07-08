@@ -10,9 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    /* ===== YOUR EXISTING STYLES ===== */
-    /* Keep all your existing styles from the original */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       font-family: 'Inter', sans-serif;
       background: #0a0c10;
@@ -23,9 +22,68 @@
       padding: 16px;
     }
 
-    /* ===== NEW SIDEBAR STYLES ===== */
-    .app-container {
+    /* ===== AUTH SCREEN ===== */
+    .auth-screen {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(18, 22, 28, 0.8);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 32px;
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04);
+      padding: 40px 36px;
+    }
+    .auth-brand {
       display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .brand-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white;
+      box-shadow: 0 8px 24px -6px #7c5cfc80;
+      flex-shrink: 0;
+    }
+    .auth-brand h1 { font-size: 20px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
+    .auth-brand span { font-size: 12.5px; color: #8896b0; display: block; margin-top: 2px; }
+    .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(255,255,255,0.04); border-radius: 14px; padding: 4px; }
+    .auth-tab {
+      flex: 1; text-align: center; padding: 9px 0; border-radius: 11px;
+      font-size: 13.5px; font-weight: 600; color: #8896b0; cursor: pointer; transition: 0.2s;
+    }
+    .auth-tab.active { background: rgba(124, 92, 252, 0.18); color: #cdbfff; }
+    .field-group { margin-bottom: 16px; }
+    .field-group label { font-size: 12px; color: #8896b0; display: block; margin-bottom: 6px; font-weight: 500; }
+    .field-group input {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 12px 14px; color: #eef2f9; font-size: 14.5px;
+      font-family: 'Inter', sans-serif; outline: none; transition: 0.2s;
+    }
+    .field-group input:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
+    .field-group input::placeholder { color: #4d5872; }
+    .field-hint { font-size: 11.5px; color: #5b6a84; margin-top: 6px; }
+    .auth-submit {
+      width: 100%; background: #7c5cfc; border: none; border-radius: 14px; padding: 13px 0;
+      color: white; font-weight: 600; font-size: 14.5px; cursor: pointer; transition: 0.2s;
+      font-family: 'Inter', sans-serif; margin-top: 6px;
+      box-shadow: 0 8px 24px -8px #7c5cfc;
+    }
+    .auth-submit:hover { background: #6b4be8; }
+    .auth-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+    .auth-error {
+      background: rgba(255, 90, 90, 0.1); border: 1px solid rgba(255, 90, 90, 0.25);
+      color: #ff9b9b; font-size: 13px; padding: 10px 14px; border-radius: 12px; margin-bottom: 16px;
+      display: none;
+    }
+    .auth-error.visible { display: block; }
+
+    /* ===== APP CONTAINER ===== */
+    .app-container {
+      display: none;
       width: 100%;
       max-width: 1400px;
       height: 92vh;
@@ -37,18 +95,19 @@
       box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04);
       overflow: hidden;
     }
+    .app-container.visible { display: flex; }
 
-    /* Sidebar */
+    /* ===== SIDEBAR ===== */
     .sidebar {
       width: 240px;
       min-width: 240px;
       background: rgba(0, 0, 0, 0.3);
       border-right: 1px solid rgba(255,255,255,0.04);
-      padding: 20px 12px;
+      padding: 16px 10px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
     .sidebar::-webkit-scrollbar { width: 3px; }
     .sidebar::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
@@ -57,7 +116,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 0 8px 16px 8px;
+      padding: 0 8px 12px 8px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
     }
     .sidebar-brand .brand-icon {
@@ -69,69 +128,74 @@
       box-shadow: 0 8px 24px -6px #7c5cfc80;
       flex-shrink: 0;
     }
-    .sidebar-brand h1 { font-size: 18px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
-    .sidebar-brand small { font-size: 11px; color: #8896b0; display: block; margin-top: 1px; }
+    .sidebar-brand h1 { font-size: 17px; font-weight: 700; color: #f0f4fe; letter-spacing: -0.3px; }
+    .sidebar-brand small { font-size: 10px; color: #8896b0; display: block; margin-top: 0px; }
 
-    .sidebar-section { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-section { display: flex; flex-direction: column; gap: 2px; }
     .sidebar-section-label {
-      font-size: 10.5px;
+      font-size: 9.5px;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #5b6a84;
-      padding: 0 8px 6px 8px;
-      font-weight: 600;
+      letter-spacing: 0.8px;
+      color: #4d5872;
+      padding: 0 8px 4px 8px;
+      font-weight: 700;
     }
 
     .sidebar-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 12px;
-      border-radius: 10px;
+      padding: 7px 12px;
+      border-radius: 8px;
       color: #8896b0;
-      font-size: 13px;
+      font-size: 12.5px;
       cursor: pointer;
       transition: 0.15s;
-      text-decoration: none;
       font-weight: 500;
+      user-select: none;
     }
     .sidebar-item:hover { background: rgba(255,255,255,0.05); color: #eef2f9; }
     .sidebar-item.active { 
       background: rgba(124, 92, 252, 0.15); 
       color: #cdbfff; 
-      box-shadow: 0 0 0 1px rgba(124, 92, 252, 0.1);
+      box-shadow: 0 0 0 1px rgba(124, 92, 252, 0.08);
     }
     .sidebar-item i { width: 18px; font-size: 14px; text-align: center; flex-shrink: 0; }
     .sidebar-item .badge {
       margin-left: auto;
-      font-size: 9px;
+      font-size: 8.5px;
       background: rgba(255,255,255,0.06);
-      padding: 2px 8px;
-      border-radius: 12px;
+      padding: 1px 8px;
+      border-radius: 10px;
       color: #5b6a84;
+      font-weight: 600;
     }
     .sidebar-item .badge.coming-soon { background: rgba(124, 92, 252, 0.12); color: #a78bfa; }
     .sidebar-item .sub-items {
-      display: flex;
+      display: none;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
       margin-left: 28px;
-      margin-top: 4px;
+      margin-top: 2px;
     }
+    .sidebar-item .sub-items.open { display: flex; }
     .sidebar-item .sub-items .sidebar-item {
-      font-size: 12px;
-      padding: 5px 10px;
+      font-size: 11.5px;
+      padding: 4px 10px;
       font-weight: 400;
     }
-    .sidebar-item .sub-items .sidebar-item i { font-size: 12px; width: 16px; }
+    .sidebar-item .sub-items .sidebar-item i { font-size: 11px; width: 16px; }
+    .sidebar-item .sub-items .sidebar-item.active { 
+      background: rgba(124, 92, 252, 0.1); 
+    }
 
     .sidebar-divider {
       height: 1px;
       background: rgba(255,255,255,0.04);
-      margin: 4px 8px;
+      margin: 0 8px;
     }
 
-    /* Main Content */
+    /* ===== MAIN CONTENT ===== */
     .main-content {
       flex: 1;
       display: flex;
@@ -140,78 +204,198 @@
       min-width: 0;
     }
 
-    /* Reuse your existing chat-header, chat-messages, etc. */
+    /* ===== CHAT HEADER ===== */
     .chat-header {
-      padding: 16px 24px;
+      padding: 14px 22px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       flex-shrink: 0;
-      min-height: 68px;
+      min-height: 60px;
     }
-    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
     .header-left .back-btn {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.06);
       color: #8896b0;
       border-radius: 8px;
-      padding: 6px 10px;
+      padding: 5px 10px;
       cursor: pointer;
       display: none;
-      font-size: 14px;
+      font-size: 13px;
       transition: 0.2s;
     }
     .header-left .back-btn:hover { border-color: #7c5cfc; color: #cdbfff; }
-    .header-left .page-title { color: #eef2f9; font-weight: 600; font-size: 15px; }
-    .header-left .page-subtitle { color: #6a7a94; font-size: 12px; display: block; margin-top: 1px; }
+    .header-left .page-title { color: #eef2f9; font-weight: 600; font-size: 14.5px; }
+    .header-left .page-subtitle { color: #6a7a94; font-size: 11.5px; display: block; margin-top: 0px; }
 
-    .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    /* Keep your existing model-select, usage-pill, etc. */
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .model-select {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 6px 10px; color: #cdbfff; font-size: 12px;
+      font-family: 'Inter', sans-serif; outline: none; cursor: pointer; max-width: 180px;
+    }
+    .model-select option { background: #1a1f29; color: #eef2f9; }
+    .usage-pill {
+      font-size: 11px; color: #6a7a94; background: rgba(255,255,255,0.04);
+      padding: 4px 10px; border-radius: 16px; white-space: nowrap;
+    }
+    .canva-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #8896b0;
+      border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+    }
+    .canva-btn:hover { color: #eef2f9; border-color: rgba(255,255,255,0.15); }
+    .canva-btn.connected { color: #7cf2c1; border-color: rgba(124, 242, 193, 0.2); }
+    .canva-btn .dot { width: 5px; height: 5px; border-radius: 50%; background: #5b6a84; }
+    .canva-btn.connected .dot { background: #34d38e; }
+    .logout-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #8896b0;
+      border-radius: 8px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: 0.2s;
+    }
+    .logout-btn:hover { color: #eef2f9; border-color: rgba(255,255,255,0.15); }
 
-    /* Generator Output Area */
+    /* ===== CHAT INTERFACE ===== */
+    #chatInterface {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    .chat-messages {
+      flex: 1; padding: 20px 24px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
+    .chat-messages.hidden { display: none; }
+
+    .message {
+      max-width: 78%; padding: 12px 18px; border-radius: 20px; font-size: 14.5px; line-height: 1.6;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      word-break: break-word;
+    }
+    .message .msg-text { white-space: pre-wrap; }
+    .message .msg-text :first-child { margin-top: 0; }
+    .message .msg-text :last-child { margin-bottom: 0; }
+    .message .msg-text p { margin: 0.4em 0; }
+    .message .msg-text pre { background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; overflow-x: auto; margin: 0.4em 0; }
+    .message .msg-text code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+    .message .msg-text pre code { background: transparent; padding: 0; }
+    .message .msg-text ul, .message .msg-text ol { margin: 0.4em 0; padding-left: 1.5em; }
+    .message .msg-text blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.4em 0; color: #a78bfa; }
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(14px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    .message.user { align-self: flex-end; background: linear-gradient(145deg, #2d3440, #1e232e); border-bottom-right-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
+    .message.ai { align-self: flex-start; background: rgba(40, 46, 58, 0.7); border-bottom-left-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
+    .message.error { align-self: flex-start; background: rgba(255, 90, 90, 0.08); border: 1px solid rgba(255, 90, 90, 0.2); color: #ff9b9b; }
+
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #5b6a84; gap: 10px; text-align: center; padding: 0 40px; }
+    .empty-state i { font-size: 28px; color: #3a4356; }
+    .empty-state p { font-size: 13px; line-height: 1.6; }
+
+    .chat-input-area {
+      padding: 14px 20px 20px 20px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.1);
+    }
+    .chat-input-area.hidden { display: none; }
+    .input-wrapper {
+      flex: 1; display: flex; background: rgba(255,255,255,0.04); border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.06); padding: 3px 3px 3px 18px; transition: 0.2s;
+    }
+    .input-wrapper:focus-within { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.1); }
+    .input-wrapper input {
+      width: 100%; background: transparent; border: none; padding: 12px 0; font-size: 14px;
+      color: #f0f4fc; outline: none; font-family: 'Inter', sans-serif;
+    }
+    .input-wrapper input::placeholder { color: #5b6a84; }
+    .input-wrapper button {
+      background: #7c5cfc; border: none; border-radius: 24px; padding: 9px 18px;
+      color: white; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px;
+      cursor: pointer; transition: 0.2s; box-shadow: 0 8px 24px -8px #7c5cfc; font-family: 'Inter', sans-serif;
+    }
+    .input-wrapper button:hover { background: #6b4be8; }
+    .input-wrapper button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .attach-btn {
+      background: transparent !important; border: none !important;
+      border-radius: 24px !important; padding: 9px 10px !important; color: #8896b0 !important;
+      font-size: 14px !important; cursor: pointer !important; box-shadow: none !important;
+    }
+    .attach-btn:hover { color: #cdbfff !important; }
+    .attach-btn.disabled { opacity: 0.4; cursor: not-allowed !important; pointer-events: none; }
+    .attachment-preview {
+      display: none; align-items: center; gap: 8px; padding: 6px 14px;
+      background: rgba(124, 92, 252, 0.08); border-radius: 12px;
+      margin: 0 20px 8px 20px; max-width: 400px;
+    }
+    .attachment-preview.visible { display: flex; }
+    .attachment-preview .file-icon { font-size: 16px; color: #a78bfa; }
+    .attachment-preview .file-name { flex: 1; font-size: 12px; color: #eef2f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .attachment-preview .remove-attach {
+      background: transparent; border: none; color: #6a7a94; cursor: pointer;
+      font-size: 14px; padding: 4px; display: flex; align-items: center; justify-content: center;
+    }
+    .attachment-preview .remove-attach:hover { color: #ff6b6b; }
+    .message .attachment-media { display: block; max-width: 100%; border-radius: 12px; margin-top: 6px; }
+    .message img.attachment-media { cursor: pointer; max-height: 350px; object-fit: cover; }
+
+    /* ===== GENERATOR INTERFACE ===== */
     .generator-content {
       flex: 1;
-      padding: 24px;
+      padding: 20px 24px;
       overflow-y: auto;
       display: none;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
     .generator-content.visible { display: flex; }
+    .generator-content::-webkit-scrollbar { width: 4px; }
+    .generator-content::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
 
     .generator-input-area {
       display: flex;
-      gap: 12px;
-      padding: 0 0 16px 0;
+      gap: 10px;
+      padding-bottom: 14px;
       border-bottom: 1px solid rgba(255,255,255,0.04);
+      flex-shrink: 0;
     }
     .generator-input-area input {
       flex: 1;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
-      padding: 12px 16px;
+      padding: 11px 16px;
       color: #eef2f9;
-      font-size: 14px;
+      font-size: 13.5px;
       font-family: 'Inter', sans-serif;
       outline: none;
+      transition: 0.2s;
     }
-    .generator-input-area input:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.12); }
+    .generator-input-area input:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.1); }
+    .generator-input-area input::placeholder { color: #4d5872; }
     .generator-input-area button {
       background: #7c5cfc;
       border: none;
       border-radius: 12px;
-      padding: 0 24px;
+      padding: 0 20px;
       color: white;
       font-weight: 600;
-      font-size: 13.5px;
+      font-size: 13px;
       cursor: pointer;
       transition: 0.2s;
       font-family: 'Inter', sans-serif;
       box-shadow: 0 8px 24px -8px #7c5cfc;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .generator-input-area button:hover { background: #6b4be8; }
     .generator-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -219,29 +403,33 @@
     .generator-output {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 8px 0;
+      gap: 10px;
+      padding: 4px 0;
+      flex: 1;
+      overflow-y: auto;
     }
+    .generator-output::-webkit-scrollbar { width: 4px; }
+    .generator-output::-webkit-scrollbar-thumb { background: #3d4452; border-radius: 10px; }
     .generator-output .result-item {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 14px;
-      padding: 16px 18px;
+      border-radius: 12px;
+      padding: 14px 16px;
       position: relative;
-      animation: slideUp 0.3s ease;
+      animation: slideUp 0.25s ease;
       transition: 0.2s;
     }
-    .generator-output .result-item:hover { border-color: rgba(124, 92, 252, 0.2); }
+    .generator-output .result-item:hover { border-color: rgba(124, 92, 252, 0.15); }
     .generator-output .result-item .copy-btn {
       position: absolute;
-      top: 10px;
-      right: 12px;
+      top: 8px;
+      right: 10px;
       background: rgba(255,255,255,0.06);
       border: none;
       color: #8896b0;
-      padding: 5px 10px;
+      padding: 4px 10px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       transition: 0.2s;
       font-family: 'Inter', sans-serif;
@@ -252,56 +440,133 @@
     .generator-output .result-item .copy-btn:hover { background: rgba(124, 92, 252, 0.15); color: #cdbfff; }
     .generator-output .result-item .copy-btn.copied { background: rgba(52, 211, 142, 0.15); color: #34d38e; }
     .generator-output .result-item .label {
-      font-size: 11px;
+      font-size: 10.5px;
       color: #6a7a94;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       display: block;
       font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     .generator-output .result-item .content {
       color: #eef2f9;
-      font-size: 14px;
+      font-size: 13.5px;
       line-height: 1.6;
       white-space: pre-wrap;
       word-break: break-word;
       padding-right: 60px;
     }
     .generator-output .result-item .content.long {
-      font-size: 13.5px;
+      font-size: 13px;
       line-height: 1.7;
     }
 
-    /* Keep your existing chat styles, just adjust for new layout */
-    .chat-messages { flex: 1; padding: 24px 26px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-    .chat-messages.hidden { display: none; }
-    .chat-input-area { padding: 16px 22px 22px 22px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0; background: rgba(0,0,0,0.1); }
-    .chat-input-area.hidden { display: none; }
+    /* ===== CANVA OVERLAY ===== */
+    .canva-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      align-items: center; justify-content: center; z-index: 50; padding: 16px;
+    }
+    .canva-overlay.visible { display: flex; }
+    .canva-panel {
+      width: 100%; max-width: 460px; background: #12161c; border-radius: 24px;
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06);
+      padding: 24px 26px; color: #eef2f9; max-height: 80vh; overflow-y: auto;
+    }
+    .canva-panel h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .canva-panel p.sub { font-size: 12px; color: #8896b0; margin-bottom: 16px; line-height: 1.5; }
+    .canva-status-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #cdbfff; margin-bottom: 14px; }
+    .canva-status-row .dot { width: 8px; height: 8px; border-radius: 50%; background: #5b6a84; }
+    .canva-status-row .dot.connected { background: #34d38e; }
+    .canva-field { margin-bottom: 12px; }
+    .canva-field label { font-size: 11.5px; color: #8896b0; display: block; margin-bottom: 4px; font-weight: 500; }
+    .canva-field input, .canva-field textarea {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 9px 12px; color: #eef2f9; font-size: 13px;
+      font-family: 'Inter', sans-serif; outline: none; resize: vertical;
+    }
+    .canva-field input:focus, .canva-field textarea:focus { border-color: #7c5cfc; box-shadow: 0 0 0 4px rgba(124, 92, 252, 0.1); }
+    .canva-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .canva-primary-btn {
+      flex: 1; background: #7c5cfc; border: none; border-radius: 10px; padding: 10px 0;
+      color: white; font-weight: 600; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .canva-primary-btn:hover { background: #6b4be8; }
+    .canva-primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .canva-close-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.08); color: #8896b0;
+      border-radius: 10px; padding: 10px 14px; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .canva-result { margin-top: 14px; font-size: 12px; color: #a9b4c6; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 10px 12px; max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; display: none; }
+    .canva-result.visible { display: block; }
+    .canva-result a { color: #cdbfff; }
+    .canva-error-text { color: #ff9b9b; font-size: 12px; margin-top: 8px; display: none; }
+    .canva-error-text.visible { display: block; }
 
-    /* Responsive */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .app-container { border-radius: 20px; height: 96vh; }
+      .app-container { border-radius: 20px; height: 96vh; max-height: none; }
       .sidebar { width: 56px; min-width: 56px; padding: 12px 6px; }
       .sidebar-brand h1, .sidebar-brand small, .sidebar-section-label, .sidebar-item span, .badge { display: none; }
-      .sidebar-item { justify-content: center; padding: 10px; }
-      .sidebar-item i { font-size: 18px; width: auto; }
+      .sidebar-item { justify-content: center; padding: 8px; }
+      .sidebar-item i { font-size: 16px; width: auto; }
       .sidebar-item .sub-items { margin-left: 0; }
       .sidebar-item .sub-items .sidebar-item span { display: none; }
+      .sidebar-item .sub-items .sidebar-item { padding: 6px; }
+      .sidebar-item .sub-items .sidebar-item i { font-size: 14px; }
       .header-left .page-subtitle { display: none; }
+      .header-right .usage-pill { display: none; }
+      .model-select { max-width: 120px; font-size: 11px; }
     }
-
-    @keyframes slideUp {
-      0% { opacity: 0; transform: translateY(12px); }
-      100% { opacity: 1; transform: translateY(0); }
+    @media (max-width: 480px) {
+      body { padding: 8px; }
+      .auth-screen { padding: 24px 20px; }
+      .chat-header { padding: 10px 14px; flex-wrap: wrap; }
+      .header-right { gap: 6px; }
+      .canva-btn span { display: none; }
+      .message { max-width: 92%; font-size: 13.5px; padding: 10px 14px; }
+      .chat-messages { padding: 12px 14px; }
+      .chat-input-area { padding: 10px 14px 14px 14px; }
+      .input-wrapper input { font-size: 13px; padding: 10px 0; }
+      .input-wrapper button { padding: 8px 12px; font-size: 12px; }
+      .generator-content { padding: 14px 16px; }
+      .generator-input-area { flex-direction: column; }
+      .generator-input-area button { padding: 10px 16px; justify-content: center; }
     }
   </style>
 </head>
 <body>
-  <!-- ===== AUTH SCREEN ===== -->
-  <!-- Keep your exact auth screen from the original -->
-  <div class="auth-screen" id="authScreen">...</div>
 
-  <!-- ===== MAIN APP CONTAINER ===== -->
-  <div class="app-container" id="appContainer" style="display:none;">
+  <!-- ===== AUTH SCREEN ===== -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-brand">
+      <div class="brand-icon"><i class="fas fa-brain"></i></div>
+      <div>
+        <h1>SMAgents</h1>
+        <span>AI chat, free tier</span>
+      </div>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-mode="signup">Sign up</div>
+      <div class="auth-tab" data-mode="login">Log in</div>
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <form id="authForm">
+      <div class="field-group">
+        <label for="emailInput">Email</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="field-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" placeholder="At least 8 characters" required autocomplete="current-password" minlength="8" />
+        <div class="field-hint" id="passwordHint">No verification email — just pick something you'll remember.</div>
+        <div class="field-hint" style="color:#a78bfa;margin-top:8px;">⚠️ Free trial expires in 7 days. One account per IP address.</div>
+      </div>
+      <button type="submit" class="auth-submit" id="authSubmit">Create account</button>
+    </form>
+  </div>
+
+  <!-- ===== APP CONTAINER ===== -->
+  <div class="app-container" id="appContainer">
     
     <!-- ===== SIDEBAR ===== -->
     <nav class="sidebar" id="sidebar">
@@ -316,7 +581,7 @@
       <!-- Assistants -->
       <div class="sidebar-section">
         <div class="sidebar-section-label">Assistants</div>
-        <div class="sidebar-item active" data-tab="chat" data-section="chat">
+        <div class="sidebar-item active" data-tab="chat">
           <i class="fas fa-comment-dots"></i>
           <span>Chat with AI</span>
         </div>
@@ -329,84 +594,51 @@
         <div class="sidebar-section-label">Social Media</div>
         
         <!-- IG & FB -->
-        <div class="sidebar-item" data-tab="igfb" data-section="social">
+        <div class="sidebar-item parent-item" data-parent="igfb">
           <i class="fab fa-instagram"></i>
           <span>IG & FB</span>
           <span class="badge">7 tools</span>
+          <i class="fas fa-chevron-down" style="margin-left:auto;font-size:10px;color:#4d5872;"></i>
         </div>
         <div class="sub-items" data-parent="igfb">
-          <div class="sidebar-item" data-tab="caption" data-section="social">
-            <i class="fas fa-pen-fancy"></i> <span>Caption</span>
-          </div>
-          <div class="sidebar-item" data-tab="hashtags" data-section="social">
-            <i class="fas fa-hashtag"></i> <span>Hashtags</span>
-          </div>
-          <div class="sidebar-item" data-tab="story" data-section="social">
-            <i class="fas fa-circle"></i> <span>Story</span>
-          </div>
-          <div class="sidebar-item" data-tab="reel" data-section="social">
-            <i class="fas fa-video"></i> <span>Reel VO</span>
-          </div>
-          <div class="sidebar-item" data-tab="carousel" data-section="social">
-            <i class="fas fa-images"></i> <span>Carousel</span>
-          </div>
-          <div class="sidebar-item" data-tab="singleimage" data-section="social">
-            <i class="fas fa-image"></i> <span>Single Image</span>
-          </div>
-          <div class="sidebar-item" data-tab="collab" data-section="social">
-            <i class="fas fa-handshake"></i> <span>Collab Message</span>
-          </div>
-          <div class="sidebar-item" data-tab="bio" data-section="social">
-            <i class="fas fa-id-badge"></i> <span>Bio</span>
-          </div>
+          <div class="sidebar-item" data-tab="caption"><i class="fas fa-pen-fancy"></i> <span>Caption</span></div>
+          <div class="sidebar-item" data-tab="hashtags"><i class="fas fa-hashtag"></i> <span>Hashtags</span></div>
+          <div class="sidebar-item" data-tab="story"><i class="fas fa-circle"></i> <span>Story</span></div>
+          <div class="sidebar-item" data-tab="reel"><i class="fas fa-video"></i> <span>Reel VO</span></div>
+          <div class="sidebar-item" data-tab="carousel"><i class="fas fa-images"></i> <span>Carousel</span></div>
+          <div class="sidebar-item" data-tab="singleimage"><i class="fas fa-image"></i> <span>Single Image</span></div>
+          <div class="sidebar-item" data-tab="collab"><i class="fas fa-handshake"></i> <span>Collab Message</span></div>
+          <div class="sidebar-item" data-tab="bio"><i class="fas fa-id-badge"></i> <span>Bio</span></div>
         </div>
 
         <!-- LinkedIn -->
-        <div class="sidebar-item" data-tab="linkedin" data-section="social">
+        <div class="sidebar-item parent-item" data-parent="linkedin">
           <i class="fab fa-linkedin-in"></i>
           <span>LinkedIn</span>
-          <span class="badge">5 tools</span>
+          <span class="badge">6 tools</span>
+          <i class="fas fa-chevron-down" style="margin-left:auto;font-size:10px;color:#4d5872;"></i>
         </div>
         <div class="sub-items" data-parent="linkedin">
-          <div class="sidebar-item" data-tab="linkedin-post" data-section="social">
-            <i class="fas fa-pen-fancy"></i> <span>Post</span>
-          </div>
-          <div class="sidebar-item" data-tab="linkedin-article" data-section="social">
-            <i class="fas fa-newspaper"></i> <span>Article</span>
-          </div>
-          <div class="sidebar-item" data-tab="linkedin-connection" data-section="social">
-            <i class="fas fa-user-plus"></i> <span>Connection Message</span>
-          </div>
-          <div class="sidebar-item" data-tab="linkedin-headline" data-section="social">
-            <i class="fas fa-heading"></i> <span>Headline</span>
-          </div>
-          <div class="sidebar-item" data-tab="linkedin-about" data-section="social">
-            <i class="fas fa-address-card"></i> <span>About</span>
-          </div>
-          <div class="sidebar-item" data-tab="linkedin-case" data-section="social">
-            <i class="fas fa-briefcase"></i> <span>Case Studies</span>
-          </div>
+          <div class="sidebar-item" data-tab="linkedin-post"><i class="fas fa-pen-fancy"></i> <span>Post</span></div>
+          <div class="sidebar-item" data-tab="linkedin-article"><i class="fas fa-newspaper"></i> <span>Article</span></div>
+          <div class="sidebar-item" data-tab="linkedin-connection"><i class="fas fa-user-plus"></i> <span>Connection Message</span></div>
+          <div class="sidebar-item" data-tab="linkedin-headline"><i class="fas fa-heading"></i> <span>Headline</span></div>
+          <div class="sidebar-item" data-tab="linkedin-about"><i class="fas fa-address-card"></i> <span>About</span></div>
+          <div class="sidebar-item" data-tab="linkedin-case"><i class="fas fa-briefcase"></i> <span>Case Studies</span></div>
         </div>
 
         <!-- YouTube -->
-        <div class="sidebar-item" data-tab="youtube" data-section="social">
+        <div class="sidebar-item parent-item" data-parent="youtube">
           <i class="fab fa-youtube"></i>
           <span>YouTube</span>
           <span class="badge">4 tools</span>
+          <i class="fas fa-chevron-down" style="margin-left:auto;font-size:10px;color:#4d5872;"></i>
         </div>
         <div class="sub-items" data-parent="youtube">
-          <div class="sidebar-item" data-tab="youtube-title" data-section="social">
-            <i class="fas fa-tag"></i> <span>Title</span>
-          </div>
-          <div class="sidebar-item" data-tab="youtube-description" data-section="social">
-            <i class="fas fa-align-left"></i> <span>Description</span>
-          </div>
-          <div class="sidebar-item" data-tab="youtube-tags" data-section="social">
-            <i class="fas fa-hashtag"></i> <span>Tags</span>
-          </div>
-          <div class="sidebar-item" data-tab="youtube-script" data-section="social">
-            <i class="fas fa-file-alt"></i> <span>Script</span>
-          </div>
+          <div class="sidebar-item" data-tab="youtube-title"><i class="fas fa-tag"></i> <span>Title</span></div>
+          <div class="sidebar-item" data-tab="youtube-description"><i class="fas fa-align-left"></i> <span>Description</span></div>
+          <div class="sidebar-item" data-tab="youtube-tags"><i class="fas fa-hashtag"></i> <span>Tags</span></div>
+          <div class="sidebar-item" data-tab="youtube-script"><i class="fas fa-file-alt"></i> <span>Script</span></div>
         </div>
       </div>
 
@@ -415,17 +647,17 @@
       <!-- Other Tools -->
       <div class="sidebar-section">
         <div class="sidebar-section-label">Other Tools</div>
-        <div class="sidebar-item" data-tab="resume" data-section="other">
+        <div class="sidebar-item" data-tab="resume">
           <i class="fas fa-file-pdf"></i>
           <span>Resume Making</span>
           <span class="badge coming-soon">Soon</span>
         </div>
-        <div class="sidebar-item" data-tab="email" data-section="other">
+        <div class="sidebar-item" data-tab="email">
           <i class="fas fa-envelope"></i>
           <span>Email</span>
           <span class="badge coming-soon">Soon</span>
         </div>
-        <div class="sidebar-item" data-tab="events" data-section="other">
+        <div class="sidebar-item" data-tab="events">
           <i class="fas fa-gift"></i>
           <span>Special Event Wishes</span>
           <span class="badge coming-soon">Soon</span>
@@ -453,8 +685,8 @@
         </div>
       </div>
 
-      <!-- ===== CHAT INTERFACE (default visible) ===== -->
-      <div id="chatInterface" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+      <!-- ===== CHAT INTERFACE ===== -->
+      <div id="chatInterface">
         <div class="chat-messages" id="chatMessages">
           <div class="empty-state" id="emptyState">
             <i class="fas fa-comment-dots"></i>
@@ -463,7 +695,7 @@
         </div>
         <div class="chat-input-area" id="chatInputArea">
           <div class="input-wrapper">
-            <button id="attachBtn" class="attach-btn" style="display:none;"><i class="fas fa-paperclip"></i></button>
+            <button id="attachBtn" class="attach-btn" style="display:none;" title="Attach image"><i class="fas fa-paperclip"></i></button>
             <input type="text" id="chatInput" placeholder="Ask anything…" />
             <button id="sendBtn"><i class="fas fa-paper-plane"></i> Send</button>
           </div>
@@ -475,27 +707,58 @@
         </div>
       </div>
 
-      <!-- ===== GENERATOR INTERFACE (hidden by default) ===== -->
+      <!-- ===== GENERATOR INTERFACE ===== -->
       <div class="generator-content" id="generatorInterface">
         <div class="generator-input-area">
           <input type="text" id="generatorInput" placeholder="Enter your topic, product, or idea..." />
           <button id="generateBtn"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>
         </div>
         <div class="generator-output" id="generatorOutput">
-          <!-- Results appear here -->
-          <div class="empty-state" style="padding:40px 0;">
-            <i class="fas fa-lightbulb" style="font-size:24px;color:#3a4356;"></i>
-            <p style="color:#5b6a84;font-size:13.5px;">Enter a topic above to generate content</p>
+          <div class="empty-state" style="padding:30px 0;flex:none;">
+            <i class="fas fa-lightbulb" style="font-size:22px;color:#3a4356;"></i>
+            <p style="color:#5b6a84;font-size:13px;">Enter a topic above to generate content</p>
           </div>
         </div>
       </div>
 
-    </div><!-- /main-content -->
-  </div><!-- /app-container -->
+    </div>
+  </div>
 
   <!-- ===== CANVA OVERLAY ===== -->
-  <!-- Keep your existing Canva overlay -->
-  <div class="canva-overlay" id="canvaOverlay">...</div>
+  <div class="canva-overlay" id="canvaOverlay">
+    <div class="canva-panel">
+      <h3>Canva</h3>
+      <p class="sub">Connect your Canva account to create designs directly.</p>
+      <div class="canva-status-row">
+        <span class="dot" id="canvaStatusDot"></span>
+        <span id="canvaStatusText">Not connected</span>
+      </div>
+      <button class="canva-primary-btn" id="canvaConnectBtn">Connect Canva</button>
+      <div id="canvaConnectedControls" style="display:none;">
+        <div class="canva-field">
+          <label for="canvaDesignTitle">Design title</label>
+          <input type="text" id="canvaDesignTitle" placeholder="e.g. Product launch post" />
+        </div>
+        <div class="canva-field">
+          <label for="canvaToolName">MCP tool</label>
+          <input type="text" id="canvaToolName" value="create_design" />
+        </div>
+        <div class="canva-field">
+          <label for="canvaToolArgs">Arguments (JSON)</label>
+          <textarea id="canvaToolArgs" rows="3">{"title": ""}</textarea>
+        </div>
+        <div class="canva-actions">
+          <button class="canva-primary-btn" id="canvaRunBtn">Run</button>
+          <button class="canva-close-btn" id="canvaCloseBtn">Close</button>
+        </div>
+        <div class="canva-result" id="canvaResult"></div>
+        <div class="canva-error-text" id="canvaErrorText"></div>
+      </div>
+      <div id="canvaDisconnectedFooter" class="canva-actions">
+        <button class="canva-close-btn" id="canvaCloseBtn2">Close</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== HIDDEN FILE INPUT ===== -->
   <input type="file" id="fileInput" accept=".txt,.md,.markdown,.json,.csv,.js,.ts,.jsx,.tsx,.py,.html,.css,.xml,.yaml,.yml,.sql,.sh,.bash,.log" style="display:none;" />
@@ -503,22 +766,30 @@
   <script>
   (function() {
     // ============================================================
-    // 1. KEEP ALL YOUR EXISTING JAVASCRIPT
-    //    (auth, chat, canva, models, threads, etc.)
-    //    Just add the new generator logic below.
+    // 1. MODEL LIST (updated - Kimi removed)
     // ============================================================
-
-    // --- Your existing variables and functions ---
     const MODELS = [
-      'meta/llama-3.3-70b-instruct',
+      'abacusai/dracarys-llama-3.1-70b-instruct',
+      'deepseek-ai/deepseek-v4-flash',
+      'deepseek-ai/deepseek-v4-pro',
       'meta/llama-3.1-70b-instruct',
       'meta/llama-3.1-8b-instruct',
+      'meta/llama-3.2-11b-vision-instruct',
+      'meta/llama-3.2-1b-instruct',
+      'meta/llama-3.2-3b-instruct',
+      'meta/llama-3.2-90b-vision-instruct',
+      'meta/llama-3.3-70b-instruct',
       'meta/llama-4-maverick-17b-128e-instruct',
-      'deepseek-ai/deepseek-v4-flash',
+      'meta/llama-guard-4-12b',
+      'mistralai/ministral-14b-instruct-2512',
       'mistralai/mistral-large-3-675b-instruct-2512',
-      // 'moonshotai/kimi-k2.6'  // REMOVED - deprecated
+      'mistralai/mistral-medium-3.5-128b',
+      'mistralai/mistral-small-4-119b-2603',
+      'mistralai/mixtral-8x7b-instruct-v0.1',
+      'nvidia/llama-3.1-nemoguard-8b-content-safety',
+      'nvidia/llama-3.1-nemoguard-8b-topic-control',
     ];
-    
+
     const MODELS_WITH_ATTACHMENTS = new Set([
       'meta/llama-3.2-11b-vision-instruct',
       'meta/llama-3.2-90b-vision-instruct',
@@ -526,18 +797,10 @@
 
     const ALLOWED_EXTENSIONS = ['txt', 'md', 'markdown', 'json', 'csv', 'js', 'ts', 'jsx', 'tsx', 'py', 'html', 'css', 'xml', 'yaml', 'yml', 'sql', 'sh', 'bash', 'log'];
 
-    // --- DOM refs ---
-    const authScreen = document.getElementById('authScreen');
-    const appContainer = document.getElementById('appContainer');
-    // ... all your other existing refs ...
-
     // ============================================================
-    // 2. NEW: GENERATOR LOGIC
+    // 2. GENERATOR CONFIGURATIONS
     // ============================================================
-    
-    // Map sidebar tabs to generator configs
     const GENERATOR_CONFIGS = {
-      // IG & FB
       'caption': {
         label: 'Caption Generator',
         subtitle: 'Instagram & Facebook captions',
@@ -586,8 +849,6 @@
         type: 'short',
         prompt: (topic) => `Generate 5 Instagram/Facebook bios for: "${topic}". Offer 3 styles: professional, playful, and keyword-rich (SEO). Each bio should be under 150 characters.`
       },
-      
-      // LinkedIn
       'linkedin-post': {
         label: 'LinkedIn Post',
         subtitle: 'Professional posts for LinkedIn',
@@ -624,8 +885,6 @@
         type: 'long',
         prompt: (topic) => `Create a LinkedIn case study (400-500 words) for: "${topic}". Structure: Challenge, Solution, Results. Include specific metrics, quotes, and a CTA. Make it compelling and data-driven.`
       },
-      
-      // YouTube
       'youtube-title': {
         label: 'YouTube Title Generator',
         subtitle: 'Click-worthy video titles',
@@ -652,54 +911,105 @@
       }
     };
 
-    // Keep track of current tab
-    let currentTab = 'chat';
-    let generatorAbortController = null;
-
-    // DOM refs for generator
+    // ============================================================
+    // 3. DOM REFS
+    // ============================================================
+    const authScreen = document.getElementById('authScreen');
+    const appContainer = document.getElementById('appContainer');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const authForm = document.getElementById('authForm');
+    const authSubmit = document.getElementById('authSubmit');
+    const authError = document.getElementById('authError');
+    const passwordHint = document.getElementById('passwordHint');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const emailLabel = document.getElementById('emailLabel');
+    const modelSelect = document.getElementById('modelSelect');
+    const usagePill = document.getElementById('usagePill');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const emptyState = document.getElementById('emptyState');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    const fileInput = document.getElementById('fileInput');
+    const attachmentPreview = document.getElementById('attachmentPreview');
+    const attachmentFileName = document.getElementById('attachmentFileName');
+    const removeAttachBtn = document.getElementById('removeAttachBtn');
+    const backBtn = document.getElementById('backBtn');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSubtitle = document.getElementById('pageSubtitle');
     const generatorInterface = document.getElementById('generatorInterface');
     const chatInterface = document.getElementById('chatInterface');
     const generatorInput = document.getElementById('generatorInput');
     const generateBtn = document.getElementById('generateBtn');
     const generatorOutput = document.getElementById('generatorOutput');
-    const pageTitle = document.getElementById('pageTitle');
-    const pageSubtitle = document.getElementById('pageSubtitle');
-    const backBtn = document.getElementById('backBtn');
 
-    // --- Sidebar navigation ---
-    document.querySelectorAll('.sidebar-item').forEach(item => {
+    // Canva refs
+    const canvaBtn = document.getElementById('canvaBtn');
+    const canvaOverlay = document.getElementById('canvaOverlay');
+    const canvaStatusDot = document.getElementById('canvaStatusDot');
+    const canvaStatusText = document.getElementById('canvaStatusText');
+    const canvaConnectBtn = document.getElementById('canvaConnectBtn');
+    const canvaConnectedControls = document.getElementById('canvaConnectedControls');
+    const canvaDisconnectedFooter = document.getElementById('canvaDisconnectedFooter');
+    const canvaDesignTitle = document.getElementById('canvaDesignTitle');
+    const canvaToolName = document.getElementById('canvaToolName');
+    const canvaToolArgs = document.getElementById('canvaToolArgs');
+    const canvaRunBtn = document.getElementById('canvaRunBtn');
+    const canvaCloseBtn = document.getElementById('canvaCloseBtn');
+    const canvaCloseBtn2 = document.getElementById('canvaCloseBtn2');
+    const canvaResult = document.getElementById('canvaResult');
+    const canvaErrorText = document.getElementById('canvaErrorText');
+
+    // ============================================================
+    // 4. STATE
+    // ============================================================
+    let mode = 'signup';
+    let conversation = [];
+    let isBusy = false;
+    let currentThreadId = null;
+    let currentTab = 'chat';
+    let canvaConnected = localStorage.getItem('canva_connected') === '1';
+    let currentAttachment = null;
+
+    // ============================================================
+    // 5. SIDEBAR NAVIGATION
+    // ============================================================
+    function toggleSubItems(parentItem) {
+      const parentId = parentItem.dataset.parent;
+      const subItems = document.querySelector(`.sub-items[data-parent="${parentId}"]`);
+      if (!subItems) return;
+      subItems.classList.toggle('open');
+      const chevron = parentItem.querySelector('.fa-chevron-down');
+      if (chevron) {
+        chevron.style.transform = subItems.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
+
+    // Parent items toggle open/close
+    document.querySelectorAll('.parent-item').forEach(item => {
       item.addEventListener('click', function(e) {
-        // Don't trigger if clicking on sub-item or badge
-        if (e.target.closest('.badge')) return;
-        
-        const tab = this.dataset.tab;
-        if (!tab) return;
-        
-        // If it's a parent item (has sub-items), toggle expand
-        const subItems = this.nextElementSibling;
-        if (subItems && subItems.classList.contains('sub-items')) {
-          const isExpanded = subItems.style.display !== 'none';
-          subItems.style.display = isExpanded ? 'none' : 'flex';
-          return;
-        }
-        
-        // If it's a sub-item, navigate
-        if (this.closest('.sub-items')) {
-          navigateToTab(tab);
-        }
+        e.stopPropagation();
+        toggleSubItems(this);
       });
     });
 
-    // Also allow clicking on sub-items directly
-    document.querySelectorAll('.sub-items .sidebar-item').forEach(item => {
+    // Sub-item navigation
+    document.querySelectorAll('.sub-items .sidebar-item, .sidebar-item:not(.parent-item)').forEach(item => {
       item.addEventListener('click', function(e) {
         e.stopPropagation();
         const tab = this.dataset.tab;
-        if (tab) navigateToTab(tab);
+        if (!tab) return;
+        // If it's a "Coming Soon" tab, show a message
+        if (['resume', 'email', 'events'].includes(tab)) {
+          alert('Coming soon! This feature is under development.');
+          return;
+        }
+        navigateToTab(tab);
       });
     });
 
-    // Navigate to a specific tab
     function navigateToTab(tab) {
       // Update active state
       document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
@@ -708,7 +1018,6 @@
       
       currentTab = tab;
       
-      // If tab is 'chat', show chat interface
       if (tab === 'chat') {
         chatInterface.style.display = 'flex';
         generatorInterface.classList.remove('visible');
@@ -718,12 +1027,11 @@
         return;
       }
       
-      // Otherwise, show generator
+      // Generator mode
       chatInterface.style.display = 'none';
       generatorInterface.classList.add('visible');
       backBtn.style.display = 'flex';
       
-      // Update header
       const config = GENERATOR_CONFIGS[tab];
       if (config) {
         pageTitle.textContent = config.label;
@@ -735,156 +1043,33 @@
       
       // Clear previous output
       generatorOutput.innerHTML = `
-        <div class="empty-state" style="padding:40px 0;">
-          <i class="fas fa-lightbulb" style="font-size:24px;color:#3a4356;"></i>
-          <p style="color:#5b6a84;font-size:13.5px;">Enter a topic above to generate content</p>
+        <div class="empty-state" style="padding:30px 0;flex:none;">
+          <i class="fas fa-lightbulb" style="font-size:22px;color:#3a4356;"></i>
+          <p style="color:#5b6a84;font-size:13px;">Enter a topic above to generate content</p>
         </div>
       `;
       generatorInput.value = '';
     }
 
-    // Back button
-    backBtn.addEventListener('click', () => {
-      navigateToTab('chat');
-    });
+    backBtn.addEventListener('click', () => navigateToTab('chat'));
 
-    // --- Generate content ---
-    generateBtn.addEventListener('click', async () => {
-      const topic = generatorInput.value.trim();
-      if (!topic) {
-        generatorInput.focus();
-        generatorInput.style.borderColor = '#ff6b6b';
-        setTimeout(() => generatorInput.style.borderColor = '', 2000);
-        return;
-      }
-      
-      const config = GENERATOR_CONFIGS[currentTab];
-      if (!config) return;
-      
-      // Disable button
-      generateBtn.disabled = true;
-      generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-      
-      // Clear previous output
-      generatorOutput.innerHTML = '';
-      
-      // Show loading state
-      const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'result-item';
-      loadingDiv.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;color:#8896b0;padding:12px 0;">
-          <i class="fas fa-spinner fa-spin"></i>
-          <span>Generating ${config.type === 'long' ? 'long-form content' : '5 options'}...</span>
-        </div>
-      `;
-      generatorOutput.appendChild(loadingDiv);
-      
-      try {
-        const prompt = config.prompt(topic);
-        const isLong = config.type === 'long';
-        
-        // Use your existing chat API
-        const res = await fetch('/api/me/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [{ role: 'user', content: prompt }],
-            model: modelSelect ? modelSelect.value : MODELS[0],
-            stream: false // Non-streaming for generator
-          }),
-        });
-        
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || 'Generation failed');
-        }
-        
-        const data = await res.json();
-        const content = data.choices?.[0]?.message?.content || data.content || '';
-        
-        // Parse results
-        generatorOutput.innerHTML = '';
-        
-        if (isLong) {
-          // Just one long result
-          const item = document.createElement('div');
-          item.className = 'result-item';
-          item.innerHTML = `
-            <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
-              <i class="fas fa-copy"></i> Copy
-            </button>
-            <span class="label">📄 Content</span>
-            <div class="content long">${escapeHtml(content)}</div>
-          `;
-          generatorOutput.appendChild(item);
-        } else {
-          // Try to split into 5 options
-          const options = splitOptions(content);
-          if (options.length >= 3) {
-            options.forEach((opt, i) => {
-              const item = document.createElement('div');
-              item.className = 'result-item';
-              const label = opt.match(/^.{1,3}[).]\s*/) ? opt.replace(/^.{1,3}[).]\s*/, '').trim() : opt;
-              item.innerHTML = `
-                <button class="copy-btn" onclick="copyText(this, '${escapeHtml(opt)}')">
-                  <i class="fas fa-copy"></i> Copy
-                </button>
-                <span class="label">Option ${i + 1}</span>
-                <div class="content">${escapeHtml(opt)}</div>
-              `;
-              generatorOutput.appendChild(item);
-            });
-          } else {
-            // Just display as one block
-            const item = document.createElement('div');
-            item.className = 'result-item';
-            item.innerHTML = `
-              <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
-                <i class="fas fa-copy"></i> Copy
-              </button>
-              <span class="label">📄 Content</span>
-              <div class="content">${escapeHtml(content)}</div>
-            `;
-            generatorOutput.appendChild(item);
-          }
-        }
-        
-      } catch (err) {
-        generatorOutput.innerHTML = `
-          <div class="result-item" style="border-color:rgba(255,90,90,0.2);">
-            <div style="color:#ff9b9b;display:flex;align-items:center;gap:10px;">
-              <i class="fas fa-exclamation-circle"></i>
-              <span>${escapeHtml(err.message)}</span>
-            </div>
-          </div>
-        `;
-      } finally {
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate';
-      }
-    });
-
-    // Helper: escape HTML for content (simple version)
+    // ============================================================
+    // 6. GENERATOR FUNCTION
+    // ============================================================
     function escapeHtml(str) {
       if (!str) return '';
       return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    // Helper: split options (numbered or bulleted)
     function splitOptions(text) {
-      // Try to split by numbered items (1. 2. 3.) or bullets (• - *)
       const lines = text.split('\n').filter(line => line.trim());
       const options = [];
       let current = '';
-      
       for (const line of lines) {
         const trimmed = line.trim();
         if (/^[•\-*]\s/.test(trimmed) || /^\d+[).]\s/.test(trimmed)) {
-          if (current) {
-            options.push(current.trim());
-            current = '';
-          }
+          if (current) { options.push(current.trim()); current = ''; }
           current = trimmed;
         } else if (current) {
           current += ' ' + trimmed;
@@ -893,11 +1078,9 @@
         }
       }
       if (current) options.push(current.trim());
-      
       return options.length >= 3 ? options : [text];
     }
 
-    // Global copy function (attached to window)
     window.copyText = function(btn, text) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
@@ -907,9 +1090,7 @@
             btn.classList.remove('copied');
             btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
           }, 2000);
-        }).catch(() => {
-          fallbackCopy(text, btn);
-        });
+        }).catch(() => fallbackCopy(text, btn));
       } else {
         fallbackCopy(text, btn);
       }
@@ -930,48 +1111,505 @@
       }, 2000);
     }
 
-    // Enter key support for generator
+    generateBtn.addEventListener('click', async () => {
+      const topic = generatorInput.value.trim();
+      if (!topic) {
+        generatorInput.focus();
+        generatorInput.style.borderColor = '#ff6b6b';
+        setTimeout(() => generatorInput.style.borderColor = '', 2000);
+        return;
+      }
+      
+      const config = GENERATOR_CONFIGS[currentTab];
+      if (!config) return;
+      
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+      
+      generatorOutput.innerHTML = '';
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'result-item';
+      loadingDiv.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;color:#8896b0;padding:8px 0;">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Generating ${config.type === 'long' ? 'long-form content' : '5 options'}...</span>
+        </div>
+      `;
+      generatorOutput.appendChild(loadingDiv);
+      
+      try {
+        const prompt = config.prompt(topic);
+        const isLong = config.type === 'long';
+        
+        const res = await fetch('/api/me/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: prompt }],
+            model: modelSelect.value || MODELS[0],
+            stream: false,
+            temperature: 0.7,
+            max_tokens: isLong ? 4096 : 1024,
+          }),
+        });
+        
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Generation failed');
+        }
+        
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content || data.content || '';
+        
+        generatorOutput.innerHTML = '';
+        
+        if (isLong) {
+          const item = document.createElement('div');
+          item.className = 'result-item';
+          item.innerHTML = `
+            <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+            <span class="label">📄 Content</span>
+            <div class="content long">${escapeHtml(content)}</div>
+          `;
+          generatorOutput.appendChild(item);
+        } else {
+          const options = splitOptions(content);
+          if (options.length >= 3) {
+            options.forEach((opt, i) => {
+              const item = document.createElement('div');
+              item.className = 'result-item';
+              const cleanOpt = opt.replace(/^.{1,3}[).]\s*/, '').trim();
+              item.innerHTML = `
+                <button class="copy-btn" onclick="copyText(this, '${escapeHtml(opt)}')">
+                  <i class="fas fa-copy"></i> Copy
+                </button>
+                <span class="label">Option ${i + 1}</span>
+                <div class="content">${escapeHtml(cleanOpt)}</div>
+              `;
+              generatorOutput.appendChild(item);
+            });
+          } else {
+            const item = document.createElement('div');
+            item.className = 'result-item';
+            item.innerHTML = `
+              <button class="copy-btn" onclick="copyText(this, '${escapeHtml(content)}')">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+              <span class="label">📄 Content</span>
+              <div class="content">${escapeHtml(content)}</div>
+            `;
+            generatorOutput.appendChild(item);
+          }
+        }
+      } catch (err) {
+        generatorOutput.innerHTML = `
+          <div class="result-item" style="border-color:rgba(255,90,90,0.2);">
+            <div style="color:#ff9b9b;display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>${escapeHtml(err.message)}</span>
+            </div>
+          </div>
+        `;
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate';
+      }
+    });
+
     generatorInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') generateBtn.click();
     });
 
     // ============================================================
-    // 3. RE-INTEGRATE YOUR EXISTING AUTH, CHAT, CANVA LOGIC
-    //    (Paste your complete working code here)
+    // 7. CHAT FUNCTIONS (from original app.html)
     // ============================================================
-    
-    // --- YOUR EXISTING CODE GOES HERE ---
-    // (auth functions, chat functions, canva functions, etc.)
-    // Make sure to adapt the DOM refs to match the new structure.
-    
-    // For brevity, I'm showing the structure. You would paste your full 
-    // existing script here, but replace references to old containers 
-    // with the new ones (appContainer instead of dashboard, etc.)
+    function populateModelSelect() {
+      modelSelect.innerHTML = '';
+      MODELS.forEach((id) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = id;
+        modelSelect.appendChild(opt);
+      });
+      updateAttachmentButtonVisibility();
+    }
 
-    // Example: when auth succeeds, show appContainer instead of dashboard
-    // async function enterDashboard(email) {
-    //   emailLabel.textContent = email || '';
-    //   authScreen.style.display = 'none';
-    //   appContainer.style.display = 'flex';
-    //   // ... rest of your init
-    // }
+    function modelSupportsAttachments(modelId) {
+      return MODELS_WITH_ATTACHMENTS.has(modelId);
+    }
+
+    function updateAttachmentButtonVisibility() {
+      const supports = modelSupportsAttachments(modelSelect.value);
+      attachBtn.style.display = supports ? 'flex' : 'none';
+      if (!supports) clearAttachment();
+    }
+
+    modelSelect.addEventListener('change', updateAttachmentButtonVisibility);
+
+    function clearAttachment() {
+      if (currentAttachment && currentAttachment.url) {
+        URL.revokeObjectURL(currentAttachment.url);
+      }
+      currentAttachment = null;
+      attachmentPreview.classList.remove('visible');
+      fileInput.value = '';
+    }
+
+    attachBtn.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        alert('Invalid file type. Allowed: ' + ALLOWED_EXTENSIONS.join(', '));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        currentAttachment = {
+          file: file,
+          name: file.name,
+          type: file.type,
+          url: URL.createObjectURL(file),
+          content: ev.target.result
+        };
+        attachmentFileName.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+        attachmentPreview.classList.add('visible');
+      };
+      reader.readAsText(file);
+    });
+
+    removeAttachBtn.addEventListener('click', clearAttachment);
+
+    function addMessage(role, content, attachmentUrl) {
+      if (content !== null || attachmentUrl) emptyState.style.display = 'none';
+      const div = document.createElement('div');
+      const msgClass = role === 'user' ? 'user' : role === 'error' ? 'error' : 'ai';
+      div.className = `message ${msgClass}`;
+      let html = '';
+      if (content) {
+        if (role === 'assistant') {
+          html += `<span class="msg-text">${marked.parse(content)}</span>`;
+        } else {
+          html += `<span class="msg-text">${escapeHtml(content)}</span>`;
+        }
+      }
+      if (attachmentUrl) {
+        html += `<img class="attachment-media" src="${escapeHtml(attachmentUrl)}" onclick="window.open(this.src)" />`;
+      }
+      div.innerHTML = html;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return div;
+    }
+
+    function updateMessageText(div, text) {
+      const span = div.querySelector('.msg-text');
+      if (span) span.innerHTML = marked.parse(text);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function setBusy(busy) {
+      isBusy = busy;
+      sendBtn.disabled = busy;
+    }
+
+    async function sendMessage(text, attachment) {
+      let messageContent = text;
+      if (attachment && attachment.content) {
+        const fileContext = `\n\n[File: ${attachment.name}]\n${attachment.content}\n\n`;
+        messageContent = fileContext + (text || '');
+      }
+      
+      addMessage('user', text, attachment?.url);
+      const userMsg = { role: 'user', content: messageContent };
+      conversation.push(userMsg);
+      
+      const aiDiv = addMessage('assistant', '…');
+      let fullText = '';
+
+      const res = await fetch('/api/me/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: conversation,
+          model: modelSelect.value,
+          stream: true,
+          temperature: 0.7,
+          max_tokens: 2048,
+        }),
+      });
+
+      if (!res.ok || !res.body) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Request failed (${res.status})`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (payload === '[DONE]') continue;
+          try {
+            const j = JSON.parse(payload);
+            const delta = j.choices?.[0]?.delta?.content;
+            if (delta) { fullText += delta; updateMessageText(aiDiv, fullText); }
+          } catch {}
+        }
+      }
+      if (!fullText) fullText = '(no response)';
+      updateMessageText(aiDiv, fullText);
+      conversation.push({ role: 'assistant', content: fullText });
+    }
+
+    async function handleSend() {
+      const text = chatInput.value.trim();
+      if ((!text && !currentAttachment) || isBusy) return;
+      const attachmentToSend = currentAttachment;
+      chatInput.value = '';
+      clearAttachment();
+      setBusy(true);
+      try {
+        await sendMessage(text, attachmentToSend);
+      } catch (err) {
+        addMessage('error', err.message);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSend(); });
 
     // ============================================================
-    // 4. BOOT
+    // 8. AUTH FUNCTIONS
     // ============================================================
-    
-    // Check session, show auth or app
+    function showAuthError(msg) {
+      authError.textContent = msg;
+      authError.classList.add('visible');
+    }
+    function clearAuthError() {
+      authError.classList.remove('visible');
+    }
+
+    authTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        mode = tab.dataset.mode;
+        authTabs.forEach((t) => t.classList.toggle('active', t === tab));
+        authSubmit.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+        passwordHint.style.display = mode === 'signup' ? 'block' : 'none';
+        passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
+        clearAuthError();
+      });
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAuthError();
+      authSubmit.disabled = true;
+      authSubmit.textContent = mode === 'signup' ? 'Creating account…' : 'Logging in…';
+
+      try {
+        const res = await fetch(`/api/auth/${mode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailInput.value.trim(), password: passwordInput.value }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (data.error && data.error.includes('trial has expired')) {
+            throw new Error('Your trial has expired. Please contact support for access.');
+          }
+          throw new Error(data.error || 'Something went wrong');
+        }
+        await enterDashboard(data.email);
+      } catch (err) {
+        showAuthError(err.message);
+      } finally {
+        authSubmit.disabled = false;
+        authSubmit.textContent = mode === 'signup' ? 'Create account' : 'Log in';
+      }
+    });
+
+    async function enterDashboard(email) {
+      emailLabel.textContent = email || '';
+      authScreen.style.display = 'none';
+      appContainer.classList.add('visible');
+      populateModelSelect();
+      renderCanvaStatus();
+      await loadOrCreateThread();
+    }
+
+    // ============================================================
+    // 9. THREAD FUNCTIONS
+    // ============================================================
+    async function loadOrCreateThread() {
+      try {
+        const res = await fetch('/api/threads?tool=chat&model=' + encodeURIComponent(modelSelect.value));
+        if (res.ok) {
+          const data = await res.json();
+          const threads = data.threads || [];
+          if (threads.length > 0) {
+            currentThreadId = threads[0].id;
+            await loadThreadMessages(currentThreadId);
+            return;
+          }
+        }
+      } catch {}
+      conversation = [];
+      chatMessages.innerHTML = '';
+      chatMessages.appendChild(emptyState);
+      emptyState.style.display = 'flex';
+    }
+
+    async function loadThreadMessages(threadId) {
+      const res = await fetch(`/api/threads/${threadId}`);
+      if (!res.ok) throw new Error('Failed to load conversation');
+      const { messages } = await res.json();
+      conversation = [];
+      chatMessages.innerHTML = '';
+      chatMessages.appendChild(emptyState);
+      if (messages.length === 0) {
+        emptyState.style.display = 'flex';
+        return;
+      }
+      emptyState.style.display = 'none';
+      messages.forEach((m) => {
+        addMessage(m.role, m.content);
+        conversation.push({ role: m.role, content: m.content || '' });
+      });
+    }
+
+    // ============================================================
+    // 10. CANVA FUNCTIONS
+    // ============================================================
+    function renderCanvaStatus() {
+      canvaStatusDot.classList.toggle('connected', canvaConnected);
+      canvaBtn.classList.toggle('connected', canvaConnected);
+      canvaStatusText.textContent = canvaConnected ? 'Connected' : 'Not connected';
+      canvaConnectBtn.style.display = canvaConnected ? 'none' : 'block';
+      canvaConnectedControls.style.display = canvaConnected ? 'block' : 'none';
+      canvaDisconnectedFooter.style.display = canvaConnected ? 'none' : 'flex';
+    }
+
+    function openCanvaPanel() {
+      canvaResult.classList.remove('visible');
+      canvaErrorText.classList.remove('visible');
+      renderCanvaStatus();
+      canvaOverlay.classList.add('visible');
+    }
+    function closeCanvaPanel() {
+      canvaOverlay.classList.remove('visible');
+    }
+
+    canvaBtn.addEventListener('click', openCanvaPanel);
+    canvaCloseBtn.addEventListener('click', closeCanvaPanel);
+    canvaCloseBtn2.addEventListener('click', closeCanvaPanel);
+    canvaOverlay.addEventListener('click', (e) => { if (e.target === canvaOverlay) closeCanvaPanel(); });
+
+    canvaConnectBtn.addEventListener('click', () => {
+      window.location.href = '/api/canva/authorize';
+    });
+
+    canvaDesignTitle.addEventListener('input', () => {
+      try {
+        const args = JSON.parse(canvaToolArgs.value || '{}');
+        args.title = canvaDesignTitle.value;
+        canvaToolArgs.value = JSON.stringify(args);
+      } catch {}
+    });
+
+    canvaRunBtn.addEventListener('click', async () => {
+      canvaErrorText.classList.remove('visible');
+      canvaResult.classList.remove('visible');
+
+      let args;
+      try {
+        args = JSON.parse(canvaToolArgs.value || '{}');
+      } catch {
+        canvaErrorText.textContent = 'Arguments must be valid JSON.';
+        canvaErrorText.classList.add('visible');
+        return;
+      }
+
+      canvaRunBtn.disabled = true;
+      canvaRunBtn.textContent = 'Running…';
+      try {
+        const res = await fetch('/api/me/canva', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tool: canvaToolName.value.trim(), arguments: args, threadId: currentThreadId }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          if (data.action === 'reconnect') {
+            canvaConnected = false;
+            localStorage.removeItem('canva_connected');
+            renderCanvaStatus();
+          }
+          throw new Error(data.error || `Request failed (${res.status})`);
+        }
+        canvaResult.textContent = JSON.stringify(data.result, null, 2);
+        canvaResult.classList.add('visible');
+      } catch (err) {
+        canvaErrorText.textContent = err.message;
+        canvaErrorText.classList.add('visible');
+      } finally {
+        canvaRunBtn.disabled = false;
+        canvaRunBtn.textContent = 'Run';
+      }
+    });
+
+    (function checkCanvaRedirect() {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get('canva');
+      if (!status) return;
+      if (status === 'connected') {
+        canvaConnected = true;
+        localStorage.setItem('canva_connected', '1');
+      } else if (status === 'error') {
+        canvaConnected = false;
+        localStorage.removeItem('canva_connected');
+      }
+      params.delete('canva');
+      const cleanUrl = window.location.pathname + (params.toString() ? `?${params}` : '');
+      window.history.replaceState({}, '', cleanUrl);
+      renderCanvaStatus();
+      if (status) openCanvaPanel();
+    })();
+
+    // ============================================================
+    // 11. LOGOUT
+    // ============================================================
+    logoutBtn.addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.reload();
+    });
+
+    // ============================================================
+    // 12. BOOT
+    // ============================================================
     (async function init() {
       try {
         const res = await fetch('/api/auth/me');
         const data = await res.json();
         if (data.signedIn) {
-          authScreen.style.display = 'none';
-          appContainer.style.display = 'flex';
-          // Initialize your chat, models, etc.
-          // populateModelSelect();
-          // loadOrCreateThread();
-          // renderCanvaStatus();
+          await enterDashboard(data.email);
+        } else if (data.error) {
+          showAuthError(data.error);
         }
       } catch {}
     })();
