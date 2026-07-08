@@ -23,7 +23,9 @@ export const config = {
 
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 
-// Exact list of allowed models - only these will appear in the dropdown
+// ============================================================
+// UPDATED ALLOWED_MODELS - Only working models from test results
+// ============================================================
 const ALLOWED_MODELS = [
   'abacusai/dracarys-llama-3.1-70b-instruct',
   'deepseek-ai/deepseek-v4-flash',
@@ -31,43 +33,56 @@ const ALLOWED_MODELS = [
   'meta/llama-3.1-70b-instruct',
   'meta/llama-3.1-8b-instruct',
   'meta/llama-3.2-11b-vision-instruct',
-  'meta/llama-3.2-1b-instruct',
-  'meta/llama-3.2-3b-instruct',
   'meta/llama-3.2-90b-vision-instruct',
-  'meta/llama-3.3-70b-instruct',
-  'meta/llama-4-maverick-17b-128e-instruct',
   'meta/llama-guard-4-12b',
   'mistralai/ministral-14b-instruct-2512',
   'mistralai/mistral-large-3-675b-instruct-2512',
   'mistralai/mistral-medium-3.5-128b',
   'mistralai/mistral-small-4-119b-2603',
   'mistralai/mixtral-8x7b-instruct-v0.1',
-  'moonshotai/kimi-k2.6',
-  'nvidia/llama-3.1-nemoguard-8b-content-safety',
-  'nvidia/llama-3.1-nemoguard-8b-topic-control',
+  'nvidia/llama-3.1-nemoguard-8b-content-safety'
 ];
+
+// ============================================================
+// MODEL RPM OVERRIDES (per-model rate limits)
+// ============================================================
+const DEFAULT_RPM = 40;
+const MODEL_RPM_OVERRIDES = {
+  'abacusai/dracarys-llama-3.1-70b-instruct': 20,
+  'deepseek-ai/deepseek-v4-flash': 20,
+  'deepseek-ai/deepseek-v4-pro': 20,
+  'meta/llama-3.1-70b-instruct': 20,
+  'meta/llama-3.1-8b-instruct': 20,
+  'meta/llama-3.2-11b-vision-instruct': 20,
+  'meta/llama-3.2-90b-vision-instruct': 20,
+  'meta/llama-guard-4-12b': 20,
+  'mistralai/ministral-14b-instruct-2512': 20,
+  'mistralai/mistral-large-3-675b-instruct-2512': 20,
+  'mistralai/mistral-medium-3.5-128b': 20,
+  'mistralai/mistral-small-4-119b-2603': 20,
+  'mistralai/mixtral-8x7b-instruct-v0.1': 20,
+  'nvidia/llama-3.1-nemoguard-8b-content-safety': 20,
+};
+
+// Models that support vision (file attachments)
+const VISION_MODELS = new Set([
+  'meta/llama-3.2-11b-vision-instruct',
+  'meta/llama-3.2-90b-vision-instruct',
+]);
 
 function isAllowedModel(modelId) {
   return ALLOWED_MODELS.includes(modelId);
 }
 
-// Default RPM per model if NVIDIA's panel hasn't given us a specific
-// override for that model id. NVIDIA's own docs note limits "may vary by
-// model" — override per-id here as you confirm real numbers from your panel.
-const DEFAULT_RPM = 40;
-const MODEL_RPM_OVERRIDES = {
-  // 'meta/llama-3.1-70b-instruct': 40,
-  // 'deepseek-ai/deepseek-r1': 20,
-};
-
 function rpmForModel(modelId) {
   return MODEL_RPM_OVERRIDES[modelId] || DEFAULT_RPM;
 }
 
+function supportsVision(modelId) {
+  return VISION_MODELS.has(modelId);
+}
+
 // ---- Upstash Redis-backed per-model rate limiter ----
-// Lazily constructed per model id, then cached for the life of this
-// (warm) edge instance. Real enforcement still goes through Redis, so
-// it's accurate across multiple edge instances/regions, not just local.
 let redis = null;
 const limiterCache = new Map();
 
@@ -109,19 +124,17 @@ function json(data, status = 200, extraHeaders = {}) {
 }
 
 async function listModels(apiKey) {
-  // Return only our curated list of allowed models, grouped by provider
-  // We still make the API call to verify the key works, but ignore the results
+  // Return only our curated list of working models
   try {
     const r = await fetch(`${NVIDIA_BASE_URL}/models`, {
       headers: { Authorization: `Bearer ${apiKey}` },
     });
     if (!r.ok) throw new Error(`status ${r.status}`);
-    // API key is valid, return our curated list
   } catch (_) {
-    // Even if API call fails, return our curated list
+    // API key check failed, but we still return our curated list
   }
 
-  // Group models by provider (extracted from model id prefix)
+  // Group models by provider
   const byProvider = {};
   ALLOWED_MODELS.forEach((modelId) => {
     const parts = modelId.split('/');
@@ -130,15 +143,15 @@ async function listModels(apiKey) {
     byProvider[provider].push(modelId);
   });
 
-  return { models: ALLOWED_MODELS, by_provider: byProvider };
+  return { 
+    models: ALLOWED_MODELS, 
+    by_provider: byProvider,
+    vision_models: Array.from(VISION_MODELS),
+    total: ALLOWED_MODELS.length
+  };
 }
 
 // ---- thread/message persistence (Neon) ----
-// Best-effort: if Neon isn't configured (DATABASE_URL missing) or any
-// call here throws, we swallow the error and let the chat response go
-// through anyway. Saving history should never be the reason a chat
-// request fails.
-
 async function getOrCreateThread(sql, userId, threadId, model) {
   if (threadId) {
     const rows = await sql`
@@ -146,7 +159,6 @@ async function getOrCreateThread(sql, userId, threadId, model) {
     `;
     const thread = rows[0];
     if (thread && thread.user_id === userId) return thread.id;
-    // threadId given but not found/owned — fall through and create a new one
   }
   const rows = await sql`
     insert into threads (user_id, tool, model, title)
@@ -165,8 +177,6 @@ async function saveMessage(sql, threadId, role, content) {
 }
 
 async function maybeAutoTitleThread(sql, threadId, firstUserMessage) {
-  // Only set a real title if the thread still has the default placeholder —
-  // cheap way to avoid overwriting a title the user (or future UI) set.
   const title = firstUserMessage.slice(0, 60).trim() || 'New conversation';
   await sql`
     update threads set title = ${title}
@@ -186,7 +196,7 @@ export default async function handler(req) {
 
   const url = new URL(req.url);
 
-  // GET /api/chat?list=models  -> live, family-filtered model catalog
+  // GET /api/chat?list=models
   if (req.method === 'GET') {
     if (url.searchParams.get('list') === 'models') {
       const result = await listModels(apiKey);
@@ -219,11 +229,15 @@ export default async function handler(req) {
     return json({ error: 'Messages array is required' }, 400);
   }
 
+  // Check if model is allowed
   if (!isAllowedModel(model)) {
-    return json({ error: `Model "${model}" is not in the allowed list` }, 403);
+    return json({ 
+      error: `Model "${model}" is not in the allowed list.`,
+      allowed_models: ALLOWED_MODELS 
+    }, 403);
   }
 
-  // Per-model rate limit, enforced via Upstash before we spend any NVIDIA quota.
+  // Per-model rate limit
   const limiter = getLimiterForModel(model);
   if (limiter) {
     const { success, limit, remaining, reset } = await limiter.limit(model);
@@ -244,7 +258,7 @@ export default async function handler(req) {
     }
   }
 
-  // ---- persistence setup (best-effort, never blocks the chat call) ----
+  // ---- persistence setup ----
   let sql = null;
   let userId = null;
   let resolvedThreadId = null;
@@ -268,7 +282,7 @@ export default async function handler(req) {
     }
   } catch (err) {
     console.error('chat.js: persistence setup failed, continuing without history:', err.message);
-    sql = null; // disable further persistence attempts for this request
+    sql = null;
   }
 
   const formattedMessages = messages.map((m) => ({ role: m.role, content: m.content }));
@@ -301,9 +315,7 @@ export default async function handler(req) {
     let details = rawText;
     try {
       details = JSON.parse(rawText);
-    } catch (_) {
-      // leave details as raw text if it isn't JSON
-    }
+    } catch (_) {}
     return json(
       { error: 'NVIDIA API returned an error', status: upstream.status, details },
       upstream.status,
@@ -311,9 +323,7 @@ export default async function handler(req) {
     );
   }
 
-  // Streaming: pipe NVIDIA's SSE stream straight through to the client,
-  // while also tee-ing it so we can accumulate the full assistant text
-  // and persist it once the stream ends — without delaying the client.
+  // Streaming
   if (upstreamPayload.stream) {
     const threadIdForSave = resolvedThreadId;
     const sqlForSave = sql;
@@ -337,9 +347,7 @@ export default async function handler(req) {
             const data = JSON.parse(payload);
             const delta = data.choices?.[0]?.delta?.content;
             if (delta) accumulated += delta;
-          } catch (_) {
-            // ignore malformed/partial chunk, doesn't affect passthrough
-          }
+          } catch (_) {}
         }
       },
       async flush() {
@@ -367,8 +375,7 @@ export default async function handler(req) {
     });
   }
 
-  // Non-streaming: pass the JSON straight through (already OpenAI-shaped),
-  // and persist the assistant reply if we have a thread to attach it to.
+  // Non-streaming
   const data = await upstream.json();
 
   if (sql && resolvedThreadId) {
