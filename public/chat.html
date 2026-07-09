@@ -709,7 +709,6 @@
         <div class="sidebar-item" data-tab="resume">
           <i class="fas fa-file-pdf"></i>
           <span>Resume Making</span>
-          <span class="badge coming-soon">Soon</span>
         </div>
         <div class="sidebar-item" data-tab="email">
           <i class="fas fa-envelope"></i>
@@ -1068,7 +1067,12 @@
         const tab = this.dataset.tab;
         if (!tab) return;
         
-        if (['resume', 'email', 'events'].includes(tab)) {
+        if (tab === 'resume') {
+          window.open('/resume-builder.html', '_blank');
+          return;
+        }
+        
+        if (['email', 'events'].includes(tab)) {
           alert('Coming soon! This feature is under development.');
           return;
         }
