@@ -55,7 +55,7 @@ export default async function handler(req) {
         'Authorization': `Bearer ${NVIDIA_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-large-3',
+        model: 'mistralai/mistral-large-3-675b-instruct-2512',
         messages: [
           {
             role: 'system',
