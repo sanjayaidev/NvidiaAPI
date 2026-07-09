@@ -585,6 +585,92 @@
       .generator-input-area { flex-direction: column; }
       .generator-input-area button { padding: 10px 16px; justify-content: center; }
     }
+
+    /* ===== SPECIAL WISHES STYLES ===== */
+    .wishes-container { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .wishes-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; color: #f0f4fe; }
+    .wishes-subtitle { color: #8896b0; margin-bottom: 24px; font-size: 15px; }
+    .category-title { font-size: 16px; font-weight: 600; color: #cdbfff; margin: 24px 0 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
+
+    .wishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .occasion-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .occasion-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+      border-color: #7c5cfc;
+      background: rgba(124, 92, 252, 0.08);
+    }
+    .occasion-icon { font-size: 32px; margin-bottom: 10px; }
+    .occasion-name { font-weight: 600; font-size: 14px; color: #eef2f9; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: #12161c;
+      border-radius: 16px;
+      width: 90%; max-width: 700px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;
+    }
+    .modal-header h3 { font-size: 20px; font-weight: 700; color: #f0f4fe; }
+    .close-btn {
+      background: rgba(255,255,255,0.08); border: none; font-size: 24px; cursor: pointer; color: #8896b0;
+      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .close-btn:hover { background: rgba(255,255,255,0.15); color: #f0f4fe; }
+
+    /* Wish Cards (Inside Modal) */
+    .modal-wishes-grid { display: flex; flex-direction: column; gap: 16px; }
+    .wish-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .wish-text {
+      font-size: 15px; line-height: 1.6; color: #eef2f9;
+      white-space: pre-wrap; flex-grow: 1;
+    }
+    .copy-wish-btn {
+      background: #7c5cfc; color: white; border: none;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background 0.2s;
+      align-self: flex-end;
+    }
+    .copy-wish-btn:hover { background: #6b4be8; }
+    .copy-wish-btn.copied { background: #10b981; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -718,7 +804,6 @@
         <div class="sidebar-item" data-tab="events">
           <i class="fas fa-gift"></i>
           <span>Special Event Wishes</span>
-          <span class="badge coming-soon">Soon</span>
         </div>
       </div>
     </nav>
@@ -781,6 +866,32 @@
         </div>
       </div>
 
+      <!-- ===== SPECIAL WISHES VIEW ===== -->
+      <div id="special-wishes-view" class="wishes-container hidden">
+        <h2 class="wishes-title">Special Event Wishes 🎉</h2>
+        <p class="wishes-subtitle">Select an occasion to generate beautiful, culturally relevant wishes</p>
+        
+        <!-- Occasion Categories -->
+        <h3 class="category-title">🪔 Festive & Cultural</h3>
+        <div id="festive-grid" class="wishes-grid"></div>
+
+        <h3 class="category-title">🎂 Personal & Milestones</h3>
+        <div id="personal-grid" class="wishes-grid"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== WISH MODAL ===== -->
+  <div id="wish-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Wishes</h3>
+        <button id="close-modal" class="close-btn">&times;</button>
+      </div>
+      <div id="modal-wishes-container" class="modal-wishes-grid">
+        <!-- Wish cards will be injected here -->
+      </div>
     </div>
   </div>
 
@@ -981,6 +1092,11 @@
         type: 'long',
         systemPrompt: 'You are a professional video scriptwriter for YouTube. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"content": "..."} where content is a markdown-formatted string.',
         prompt: (topic) => `Write a complete YouTube video script (5-7 minutes, ~800-1000 words) for: "${topic}". Structure: Hook (0-10s), Intro (10-60s), Body with 3-4 key points (60s-5min), Outro with CTA (5-7min). Include visual cues in brackets [show graphic]. Return ONLY JSON: {"content": "full markdown content here"}`
+      },
+      'events': {
+        label: 'Special Event Wishes',
+        subtitle: 'Culturally relevant wishes for Indian occasions',
+        type: 'wishes'
       }
     };
 
@@ -1018,6 +1134,7 @@
     const generatorInput = document.getElementById('generatorInput');
     const generateBtn = document.getElementById('generateBtn');
     const generatorOutput = document.getElementById('generatorOutput');
+    const specialWishesView = document.getElementById('special-wishes-view');
 
     // Canva refs
     const canvaBtn = document.getElementById('canvaBtn');
@@ -1091,15 +1208,29 @@
       if (tab === 'chat') {
         chatInterface.style.display = 'flex';
         generatorInterface.classList.remove('visible');
+        specialWishesView.classList.add('hidden');
         pageTitle.textContent = 'Chat with AI';
         pageSubtitle.textContent = 'Ask anything';
         backBtn.style.display = 'none';
         return;
       }
       
+      // Special Event Wishes view
+      if (tab === 'events') {
+        chatInterface.style.display = 'none';
+        generatorInterface.classList.remove('visible');
+        specialWishesView.classList.remove('hidden');
+        pageTitle.textContent = 'Special Event Wishes';
+        pageSubtitle.textContent = 'Culturally relevant wishes for Indian occasions';
+        backBtn.style.display = 'flex';
+        initSpecialWishes();
+        return;
+      }
+      
       // Generator mode
       chatInterface.style.display = 'none';
       generatorInterface.classList.add('visible');
+      specialWishesView.classList.add('hidden');
       backBtn.style.display = 'flex';
       
       const config = GENERATOR_CONFIGS[tab];
@@ -1208,6 +1339,9 @@
       const config = GENERATOR_CONFIGS[currentTab];
       if (!config) return;
 
+      // Handle special 'wishes' type (events tab uses grid, not input)
+      if (config.type === 'wishes') return;
+
       generateBtn.disabled = true;
       generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
       generatorOutput.innerHTML = '';
@@ -1296,7 +1430,7 @@
       }
     };
     generatorInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') generateContent();
+      if (e.key === 'Enter' && currentTab !== 'events') generateContent();
     });
 
     // Update generate button click handler
@@ -1687,7 +1821,165 @@
     })();
 
     // ============================================================
-    // 11. LOGOUT
+    // 11. SPECIAL EVENT WISHES LOGIC
+    // ============================================================
+    const occasions = [
+      // Festive & Cultural
+      { name: "Diwali", icon: "🪔", type: "festive" },
+      { name: "Holi", icon: "🎨", type: "festive" },
+      { name: "Eid", icon: "🌙", type: "festive" },
+      { name: "Christmas", icon: "🎄", type: "festive" },
+      { name: "Raksha Bandhan", icon: "🧵", type: "festive" },
+      { name: "Navratri", icon: "💃", type: "festive" },
+      { name: "Ganesh Chaturthi", icon: "🐘", type: "festive" },
+      { name: "Janmashtami", icon: "🪈", type: "festive" },
+      { name: "Makar Sankranti / Pongal", icon: "🌾", type: "festive" },
+      { name: "Onam", icon: "🛶", type: "festive" },
+      { name: "Baisakhi", icon: "🌻", type: "festive" },
+      { name: "Guru Nanak Jayanti", icon: "🙏", type: "festive" },
+      { name: "Durga Puja", icon: "🌺", type: "festive" },
+      { name: "Karwa Chauth", icon: "🌕", type: "festive" },
+      
+      // Personal & Milestones
+      { name: "Birthday", icon: "🎂", type: "personal" },
+      { name: "Wedding", icon: "💍", type: "personal" },
+      { name: "Anniversary", icon: "🥂", type: "personal" },
+      { name: "Graduation", icon: "🎓", type: "personal" },
+      { name: "New Baby", icon: "👶", type: "personal" },
+      { name: "Housewarming", icon: "🏡", type: "personal" },
+      { name: "Retirement", icon: "🏖️", type: "personal" },
+      { name: "Condolence", icon: "🕊️", type: "personal" }
+    ];
+
+    function renderWishesGrids() {
+      const festiveGrid = document.getElementById('festive-grid');
+      const personalGrid = document.getElementById('personal-grid');
+      
+      if (!festiveGrid || !personalGrid) return;
+      
+      festiveGrid.innerHTML = '';
+      personalGrid.innerHTML = '';
+      
+      occasions.forEach(occasion => {
+        const card = document.createElement('div');
+        card.className = 'occasion-card';
+        card.innerHTML = `
+          <div class="occasion-icon">${occasion.icon}</div>
+          <div class="occasion-name">${occasion.name}</div>
+        `;
+        card.addEventListener('click', () => openWishModal(occasion.name));
+        
+        if (occasion.type === 'festive') festiveGrid.appendChild(card);
+        else personalGrid.appendChild(card);
+      });
+    }
+
+    async function generateAIWishes(occasionName) {
+      try {
+        const res = await fetch('/api/me/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'system', content: 'You are a warm, culturally-aware wishes generator for Indian occasions. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]} with exactly 5 heartfelt wish messages.' },
+              { role: 'user', content: `Generate 5 warm, heartfelt wishes for ${occasionName}. Each wish should be 1-2 sentences, include appropriate emojis, and reflect the cultural significance of this Indian occasion. Vary tones: traditional, modern, poetic, simple, and celebratory. Return ONLY JSON: {"options": ["wish1", "wish2", "wish3", "wish4", "wish5"]}` }
+            ],
+            model: modelSelect.value || MODELS[0],
+            stream: false,
+            temperature: 0.8,
+            max_tokens: 1024,
+          }),
+        });
+
+        if (!res.ok) throw new Error('Failed to generate wishes');
+        
+        const data = await res.json();
+        const rawContent = data.choices?.[0]?.message?.content || data.content || '';
+        const parsed = safeParseJSON(rawContent);
+        
+        if (parsed && parsed.options && Array.isArray(parsed.options)) {
+          return parsed.options;
+        }
+        
+        // Fallback to mock wishes if parsing fails
+        return getMockWishes(occasionName);
+      } catch (e) {
+        console.error('Error generating wishes:', e);
+        return getMockWishes(occasionName);
+      }
+    }
+
+    function getMockWishes(occasionName) {
+      return [
+        `Wishing you a very Happy ${occasionName}! May this special occasion bring joy, prosperity, and peace to you and your family. ✨`,
+        `On this auspicious ${occasionName}, may your life be filled with endless happiness and success. Have a wonderful celebration! 🎉`,
+        `Sending you my warmest greetings on ${occasionName}. May the divine blessings always be with you and your loved ones. 🙏`,
+        `Happy ${occasionName}! Let's celebrate the spirit of togetherness and love. May all your dreams come true this year. 💖`,
+        `May the magic of ${occasionName} bring endless moments of joy and laughter to your life. Have a blessed and beautiful day! 🌟`
+      ];
+    }
+
+    async function openWishModal(occasionName) {
+      const modal = document.getElementById('wish-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const container = document.getElementById('modal-wishes-container');
+      
+      if (!modal || !modalTitle || !container) return;
+      
+      modalTitle.textContent = `Wishes for ${occasionName}`;
+      container.innerHTML = '<p style="text-align:center; color:#8896b0; padding: 20px;">✨ Generating beautiful wishes...</p>';
+      modal.classList.remove('hidden');
+      
+      const wishes = await generateAIWishes(occasionName);
+      container.innerHTML = '';
+      
+      wishes.forEach((wish, index) => {
+        const wishCard = document.createElement('div');
+        wishCard.className = 'wish-card';
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'wish-text';
+        textDiv.textContent = wish;
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-wish-btn';
+        copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy Wish`;
+        
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(wish).then(() => {
+            const originalHTML = copyBtn.innerHTML;
+            copyBtn.innerHTML = '✅ Copied!';
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+              copyBtn.innerHTML = originalHTML;
+              copyBtn.classList.remove('copied');
+            }, 2000);
+          });
+        });
+
+        wishCard.appendChild(textDiv);
+        wishCard.appendChild(copyBtn);
+        container.appendChild(wishCard);
+      });
+    }
+
+    document.getElementById('close-modal').addEventListener('click', () => {
+      document.getElementById('wish-modal').classList.add('hidden');
+    });
+
+    document.getElementById('wish-modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('wish-modal')) {
+        document.getElementById('wish-modal').classList.add('hidden');
+      }
+    });
+
+    // Initialize wishes grid when events tab is selected
+    function initSpecialWishes() {
+      renderWishesGrids();
+    }
+
+    // ============================================================
+    // 12. LOGOUT
     // ============================================================
     logoutBtn.addEventListener('click', async () => {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -1695,7 +1987,7 @@
     });
 
     // ============================================================
-    // 12. BOOT
+    // 13. BOOT
     // ============================================================
     (async function init() {
       try {
