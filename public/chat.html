@@ -977,6 +977,37 @@
         <h2 class="wishes-title">Special Event Wishes 🎉</h2>
         <p class="wishes-subtitle">Select an occasion to generate beautiful, culturally relevant wishes</p>
         
+        <!-- Language Selector -->
+        <div style="margin-bottom: 20px;">
+          <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Select Language</label>
+          <select id="languageSelect" style="width:100%;max-width:300px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;"
+            onfocus="this.style.borderColor='#7c5cfc';this.style.boxShadow='0 0 0 4px rgba(124, 92, 252, 0.1)'"
+            onblur="this.style.borderColor='';this.style.boxShadow=''">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="bn">বাংলা (Bengali)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+            <option value="mr">मराठी (Marathi)</option>
+            <option value="ta">தமிழ் (Tamil)</option>
+            <option value="ur">اردو (Urdu)</option>
+            <option value="gu">ગુજરાતી (Gujarati)</option>
+            <option value="kn">ಕನ್ನಡ (Kannada)</option>
+            <option value="ml">മലയാളം (Malayalam)</option>
+            <option value="or">ଓଡ଼ିଆ (Odia)</option>
+            <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+            <option value="as">অসমীয়া (Assamese)</option>
+            <option value="mai">मैथिली (Maithili)</option>
+            <option value="sa">संस्कृतम् (Sanskrit)</option>
+            <option value="ne">नेपाली (Nepali)</option>
+            <option value="sd">سنڌي (Sindhi)</option>
+            <option value="ks">कॉशुर / کٲشُر (Kashmiri)</option>
+            <option value="kok">कोंकणी (Konkani)</option>
+            <option value="mni">মণিপুরী (Manipuri)</option>
+            <option value="bo">བོད་སྐད་ (Bodo)</option>
+            <option value="doi">डोगरी (Dogri)</option>
+          </select>
+        </div>
+        
         <!-- Occasion Categories -->
         <h3 class="category-title">🪔 Festive & Cultural</h3>
         <div id="festive-grid" class="wishes-grid"></div>
@@ -1388,16 +1419,18 @@
       });
     });
 
-    // Parent item toggle (for resume dropdown) - with null check
-    const resumeParentItem = document.getElementById('resumeParentItem');
-    if (resumeParentItem) {
-      resumeParentItem.addEventListener('click', function(e) {
+    // Parent item toggle for all dropdown groups (IG & FB, LinkedIn, YouTube, Resume)
+    document.querySelectorAll('.sidebar-item.parent-item').forEach(parentItem => {
+      parentItem.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        const resumeGroup = document.getElementById('resumeGroup');
-        if (resumeGroup) resumeGroup.classList.toggle('expanded');
+        // Find the closest sidebar-group and toggle expanded class
+        const sidebarGroup = this.closest('.sidebar-group');
+        if (sidebarGroup) {
+          sidebarGroup.classList.toggle('expanded');
+        }
       });
-    }
+    });
 
     function navigateToTab(tab) {
       // Update active state
@@ -1576,13 +1609,48 @@
       // Handle special 'wishes' type (events tab uses grid, not input)
       if (config.type === 'wishes') return;
 
+      // Get selected language for Special Event Wishes
+      const languageSelect = document.getElementById('languageSelect');
+      const selectedLang = languageSelect ? languageSelect.value : 'en';
+      const languageNames = {
+        'en': 'English',
+        'hi': 'Hindi',
+        'bn': 'Bengali',
+        'te': 'Telugu',
+        'mr': 'Marathi',
+        'ta': 'Tamil',
+        'ur': 'Urdu',
+        'gu': 'Gujarati',
+        'kn': 'Kannada',
+        'ml': 'Malayalam',
+        'or': 'Odia',
+        'pa': 'Punjabi',
+        'as': 'Assamese',
+        'mai': 'Maithili',
+        'sa': 'Sanskrit',
+        'ne': 'Nepali',
+        'sd': 'Sindhi',
+        'ks': 'Kashmiri',
+        'kok': 'Konkani',
+        'mni': 'Manipuri',
+        'bo': 'Bodo',
+        'doi': 'Dogri'
+      };
+      const languageName = languageNames[selectedLang] || 'English';
+
       generateBtn.disabled = true;
       generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
       generatorOutput.innerHTML = '';
 
       try {
         const prompt = config.prompt(topic);
-        const systemPrompt = config.systemPrompt || 'You are a helpful content generation assistant.';
+        let systemPrompt = config.systemPrompt || 'You are a helpful content generation assistant.';
+        
+        // Add language instruction to system prompt if language is not English
+        if (selectedLang !== 'en') {
+          systemPrompt = `${systemPrompt} Generate all output in ${languageName} language.`;
+        }
+        
         const isLong = config.type === 'long';
 
         const res = await fetch('/api/me/chat', {
@@ -2109,14 +2177,45 @@
     }
 
     async function generateAIWishes(occasionName) {
+      const languageSelect = document.getElementById('languageSelect');
+      const selectedLang = languageSelect ? languageSelect.value : 'en';
+      
+      // Language name mapping for the prompt
+      const languageNames = {
+        'en': 'English',
+        'hi': 'Hindi',
+        'bn': 'Bengali',
+        'te': 'Telugu',
+        'mr': 'Marathi',
+        'ta': 'Tamil',
+        'ur': 'Urdu',
+        'gu': 'Gujarati',
+        'kn': 'Kannada',
+        'ml': 'Malayalam',
+        'or': 'Odia',
+        'pa': 'Punjabi',
+        'as': 'Assamese',
+        'mai': 'Maithili',
+        'sa': 'Sanskrit',
+        'ne': 'Nepali',
+        'sd': 'Sindhi',
+        'ks': 'Kashmiri',
+        'kok': 'Konkani',
+        'mni': 'Manipuri',
+        'bo': 'Bodo',
+        'doi': 'Dogri'
+      };
+      
+      const languageName = languageNames[selectedLang] || 'English';
+      
       try {
         const res = await fetch('/api/me/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: [
-              { role: 'system', content: 'You are a warm, culturally-aware wishes generator for Indian occasions. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]} with exactly 5 heartfelt wish messages.' },
-              { role: 'user', content: `Generate 5 warm, heartfelt wishes for ${occasionName}. Each wish should be 1-2 sentences, include appropriate emojis, and reflect the cultural significance of this Indian occasion. Vary tones: traditional, modern, poetic, simple, and celebratory. Return ONLY JSON: {"options": ["wish1", "wish2", "wish3", "wish4", "wish5"]}` }
+              { role: 'system', content: `You are a warm, culturally-aware wishes generator for Indian occasions. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]} with exactly 5 heartfelt wish messages. Generate all wishes in ${languageName} language.` },
+              { role: 'user', content: `Generate 5 warm, heartfelt wishes for ${occasionName} in ${languageName} language. Each wish should be 1-2 sentences, include appropriate emojis, and reflect the cultural significance of this Indian occasion. Vary tones: traditional, modern, poetic, simple, and celebratory. Return ONLY JSON: {"options": ["wish1", "wish2", "wish3", "wish4", "wish5"]}` }
             ],
             model: modelSelect.value || MODELS[0],
             stream: false,
