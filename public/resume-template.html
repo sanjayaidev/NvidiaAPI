@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - AI Generated</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .resume-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background-color: #2E8B8B;
+            color: white;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 4px solid white;
+            cursor: pointer;
+        }
+
+        .profile-image:hover {
+            opacity: 0.8;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-content h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .contact-info {
+            font-size: 14px;
+        }
+
+        .contact-info div {
+            margin-bottom: 5px;
+        }
+
+        .contact-info strong {
+            display: inline-block;
+            width: 80px;
+        }
+
+        .section {
+            padding: 25px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            background-color: #2E8B8B;
+            color: white;
+            padding: 8px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-block;
+            border-radius: 3px;
+        }
+
+        .content {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .content[contenteditable="true"]:hover {
+            background-color: #f9f9f9;
+            outline: 2px dashed #2E8B8B;
+            outline-offset: 2px;
+        }
+
+        .content[contenteditable="true"]:focus {
+            background-color: #fff;
+            outline: 2px solid #2E8B8B;
+            outline-offset: 2px;
+            padding: 5px;
+        }
+
+        .job-item, .education-item {
+            margin-bottom: 20px;
+        }
+
+        .job-header, .education-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2E8B8B;
+        }
+
+        .company {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .skill-category {
+            margin-bottom: 10px;
+        }
+
+        .skill-category strong {
+            color: #2E8B8B;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .edit-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .resume-container {
+                box-shadow: none;
+            }
+            .edit-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Header Section -->
+        <div class="header">
+            <img src="https://via.placeholder.com/150" alt="Profile Photo" class="profile-image" id="profileImage" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept="image/*" onchange="updateImage(this)">
+            <div class="header-content">
+                <h1 contenteditable="true">YOUR NAME</h1>
+                <div class="contact-info">
+                    <div contenteditable="true"><strong>Address:</strong> Your Address Here</div>
+                    <div contenteditable="true"><strong>D.O.B.:</strong> DD/MM/YYYY</div>
+                    <div contenteditable="true"><strong>Phone:</strong> Your Phone</div>
+                    <div contenteditable="true"><strong>Email:</strong> your.email@example.com</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="section">
+            <div class="section-title" contenteditable="true">SUMMARY</div>
+            <div class="content" contenteditable="true">
+                Professional summary will be generated by AI based on your experience and career objectives.
+            </div>
+        </div>
+
+        <!-- Work Experience Section -->
+        <div class="section">
+            <div class="section-title" contenteditable="true">WORK EXPERIENCE</div>
+            <div class="content">
+                <div class="job-item">
+                    <div class="job-header">
+                        <span contenteditable="true">Job Title</span>
+                        <span contenteditable="true">Duration</span>
+                    </div>
+                    <div class="company" contenteditable="true">Company Name</div>
+                    <ul contenteditable="true">
+                        <li>Job responsibilities and achievements will be populated here</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education Section -->
+        <div class="section">
+            <div class="section-title" contenteditable="true">EDUCATION</div>
+            <div class="content">
+                <div class="education-item">
+                    <div class="education-header">
+                        <span contenteditable="true">Degree / Certificate</span>
+                        <span contenteditable="true">Year Range</span>
+                    </div>
+                    <div contenteditable="true">
+                        <div>Institution Name</div>
+                        <div>Grade/Percentage</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="section">
+            <div class="section-title" contenteditable="true">SKILLS</div>
+            <div class="content">
+                <div class="skills-grid">
+                    <div class="skill-category" contenteditable="true">
+                        <strong>Key Skills:</strong> Your skills will be listed here
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information Section -->
+        <div class="section">
+            <div class="section-title" contenteditable="true">ADDITIONAL INFORMATION</div>
+            <div class="content">
+                <div class="skill-category" contenteditable="true">
+                    <strong>Languages:</strong> Your languages
+                </div>
+                <div class="skill-category" contenteditable="true">
+                    <strong>Certifications:</strong> Your certifications
+                </div>
+                <div class="skill-category" contenteditable="true">
+                    <strong>Hobbies:</strong> Your hobbies
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="text-align: center; border-bottom: none;">
+            <div class="edit-hint">
+                💡 Click on any text to edit • Click on the photo to replace it • Use Ctrl+P to print/save as PDF
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImage').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Prevent new lines in contenteditable unless Shift+Enter
+        document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
