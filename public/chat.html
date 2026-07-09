@@ -644,7 +644,8 @@
       .copy-wish-btn { font-size: 11px; padding: 6px 12px; }
       
       /* Resume/Email views */
-      .resume-builder-container, .email-writer-container { padding: 10px; }
+      .resume-builder-container, .email-writer-container { padding: 0; }
+      #resume-builder-view { height: calc(100vh - 60px); }
       
       /* Generator input */
       .generator-input-area { flex-direction: column; }
@@ -673,7 +674,7 @@
     }
 
     /* ===== SPECIAL WISHES STYLES ===== */
-    .wishes-container { padding: 24px; max-width: 1400px; margin: 0 auto; overflow-y: auto; }
+    .wishes-container { padding: 24px; max-width: 1400px; margin: 0 auto; overflow-y: auto; scroll-behavior: smooth; }
     .wishes-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; color: #f0f4fe; }
     .wishes-subtitle { color: #8896b0; margin-bottom: 24px; font-size: 15px; }
     .category-title { font-size: 16px; font-weight: 600; color: #cdbfff; margin: 24px 0 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
@@ -984,42 +985,9 @@
         <div id="personal-grid" class="wishes-grid"></div>
       </div>
 
-      <!-- ===== RESUME BUILDER VIEW ===== -->
-      <div id="resume-builder-view" class="resume-builder-container hidden" style="display:flex;flex-direction:column;height:100%;padding:24px;">
-        <div style="max-width:800px;margin:0 auto;width:100%;">
-          <h2 class="wishes-title" style="margin-bottom:8px;">Resume Builder 📄</h2>
-          <p class="wishes-subtitle" style="margin-bottom:24px;">Create professional resumes with AI</p>
-          
-          <div style="display:flex;flex-direction:column;gap:16px;">
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Your Details / Resume Content</label>
-              <textarea id="resumeInput" rows="6" placeholder="Enter your work experience, education, skills, and any other details you want in your resume..." 
-                style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;resize:vertical;"
-                onfocus="this.style.borderColor='#7c5cfc';this.style.boxShadow='0 0 0 4px rgba(124, 92, 252, 0.1)'"
-                onblur="this.style.borderColor='';this.style.boxShadow=''"></textarea>
-            </div>
-            
-            <div>
-              <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Upload Profile Image (Optional)</label>
-              <input type="file" id="resumeImageInput" accept="image/*" 
-                style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;"
-                onchange="previewResumeImage()">
-              <div id="resumeImagePreview" style="margin-top:12px;display:none;">
-                <img id="resumeImagePreviewImg" src="" alt="Profile Preview" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid #7c5cfc;">
-              </div>
-            </div>
-            
-            <button id="generateResumeBtn" 
-              style="background:#7c5cfc;border:none;border-radius:12px;padding:12px 24px;color:white;font-weight:600;font-size:14px;cursor:pointer;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:8px;align-self:flex-start;"
-              onmouseover="this.style.background='#6b4be8'" onmouseout="this.style.background='#7c5cfc'">
-              <i class="fas fa-wand-magic-sparkles"></i> Generate Resume
-            </button>
-          </div>
-        </div>
-        
-        <div id="resumeOutput" style="flex:1;margin-top:24px;display:none;flex-direction:column;gap:20px;overflow-y:auto;">
-          <!-- Generated resume will appear here -->
-        </div>
+      <!-- ===== RESUME BUILDER VIEW (IFRAME) ===== -->
+      <div id="resume-builder-view" class="resume-builder-container hidden" style="height:100%;width:100%;position:relative;">
+        <iframe id="resumeBuilderIframe" src="/resume-builder.html" style="width:100%;height:100%;border:none;border-radius:16px;"></iframe>
       </div>
 
       <!-- ===== EMAIL WRITER VIEW ===== -->
@@ -1390,17 +1358,7 @@
       });
     }
     
-    document.querySelectorAll('.sidebar-group').forEach(group => {
-      const header = group.querySelector('.parent-item');
-      if (header) {
-        header.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          group.classList.toggle('expanded');
-        });
-      }
-    });
-
+    // Remove the sidebar-group forEach that was causing duplicate event listeners
     // Sub-item and regular item click handlers
     document.querySelectorAll('.sub-items .sidebar-item, .sidebar-item:not(.parent-item)').forEach(item => {
       item.addEventListener('click', function(e) {
@@ -1433,7 +1391,9 @@
     // Parent item toggle (for resume dropdown) - with null check
     const resumeParentItem = document.getElementById('resumeParentItem');
     if (resumeParentItem) {
-      resumeParentItem.addEventListener('click', function() {
+      resumeParentItem.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         const resumeGroup = document.getElementById('resumeGroup');
         if (resumeGroup) resumeGroup.classList.toggle('expanded');
       });
@@ -2349,113 +2309,10 @@
     };
 
     // ============================================================
-    // RESUME BUILDER FUNCTIONS
+    // RESUME BUILDER FUNCTIONS (IFRAME MODE)
     // ============================================================
-    let resumeImageData = null;
-    
-    function previewResumeImage() {
-      const fileInput = document.getElementById('resumeImageInput');
-      const previewDiv = document.getElementById('resumeImagePreview');
-      const previewImg = document.getElementById('resumeImagePreviewImg');
-      
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          resumeImageData = e.target.result;
-          previewImg.src = resumeImageData;
-          previewDiv.style.display = 'block';
-        };
-        
-        reader.readAsDataURL(file);
-      }
-    }
-    
-    const generateResumeBtn = document.getElementById('generateResumeBtn');
-    
-    if (generateResumeBtn) {
-      generateResumeBtn.addEventListener('click', async () => {
-        const resumeContent = document.getElementById('resumeInput').value.trim();
-        
-        if (!resumeContent) {
-          alert('Please enter your resume details');
-          return;
-        }
-        
-        const outputSection = document.getElementById('resumeOutput');
-        outputSection.style.display = 'flex';
-        outputSection.innerHTML = '<div style="text-align:center;color:#8896b0;padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:24px;margin-bottom:16px;"></i><br>Generating your professional resume...</div>';
-        
-        try {
-          const res = await fetch('/api/me/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              messages: [
-                { role: 'system', content: 'You are a professional resume writer. Format the output as clean HTML with sections for Summary, Experience, Education, Skills, etc. Use simple inline styles. Do not include markdown code blocks.' },
-                { role: 'user', content: `Create a professional resume based on this information: ${resumeContent}. Format it as clean HTML with proper sections.` }
-              ],
-              model: modelSelect.value || MODELS[0],
-              stream: false,
-              temperature: 0.7,
-              max_tokens: 2048,
-            }),
-          });
-
-          if (!res.ok) throw new Error('Failed to generate resume');
-          
-          const data = await res.json();
-          const rawContent = data.choices?.[0]?.message?.content || data.content || '';
-          
-          // Clean up markdown code blocks if present
-          let htmlContent = rawContent.replace(/```html/g, '').replace(/```/g, '');
-          
-          outputSection.innerHTML = `
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <label style="font-size:13px;font-weight:600;color:#a78bfa;">Generated Resume</label>
-                <button onclick="downloadResume()" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;"
-                  onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
-                  <i class="fas fa-download"></i> <span>Download</span>
-                </button>
-              </div>
-              <div id="resumeContentDisplay" style="background:white;border-radius:12px;padding:24px;color:#1f2937;overflow-x:auto;">
-                ${resumeImageData ? `<div style="text-align:center;margin-bottom:20px;"><img src="${resumeImageData}" alt="Profile" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #7c5cfc;"></div>` : ''}
-                <div style="font-family:Georgia,serif;line-height:1.6;">${htmlContent}</div>
-              </div>
-            </div>
-          `;
-          
-        } catch (e) {
-          console.error('Error generating resume:', e);
-          outputSection.innerHTML = '<div style="text-align:center;color:#ff9b9b;padding:40px;"><i class="fas fa-exclamation-circle" style="font-size:24px;margin-bottom:16px;"></i><br>Error generating resume. Please try again.</div>';
-        }
-      });
-    }
-    
-    window.downloadResume = function() {
-      const contentDiv = document.getElementById('resumeContentDisplay');
-      if (!contentDiv) return;
-      
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Resume</title>
-          <style>
-            body { font-family: Georgia, serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-            img { display: block; margin: 0 auto 20px; border-radius: 50%; }
-          </style>
-        </head>
-        <body>${contentDiv.innerHTML}</body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    };
+    // Resume builder is now loaded via iframe from resume-builder.html
+    // No additional JS needed here as the iframe handles all functionality
 
     // ============================================================
     // 12. LOGOUT
