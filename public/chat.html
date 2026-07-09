@@ -1239,12 +1239,14 @@
     // ============================================================
     
     document.querySelectorAll('.sidebar-group').forEach(group => {
-      const header = group.querySelector('.parent-item');
-      header.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        group.classList.toggle('expanded');
-      });
+      const header = group.querySelector('.parent-item') || group.previousElementSibling;
+      if (header && header.classList.contains('parent-item')) {
+        header.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          group.classList.toggle('expanded');
+        });
+      }
     });
 
     // Sub-item and regular item click handlers
@@ -2089,6 +2091,102 @@
     function initSpecialWishes() {
       renderWishesGrids();
     }
+
+    // ============================================================
+    // EMAIL WRITER FUNCTIONS
+    // ============================================================
+    const generateEmailBtn = document.getElementById('generateEmailBtn');
+    
+    if (generateEmailBtn) {
+      generateEmailBtn.addEventListener('click', async () => {
+        const subjectDesc = document.getElementById('emailSubjectInput').value.trim();
+        const bodyDesc = document.getElementById('emailBodyInput').value.trim();
+        
+        if (!subjectDesc && !bodyDesc) {
+          alert('Please enter a description for the subject or body');
+          return;
+        }
+        
+        const outputSection = document.getElementById('emailOutput');
+        const subjectOutput = document.getElementById('emailSubjectOutput');
+        const bodyOutput = document.getElementById('emailBodyOutput');
+        
+        outputSection.style.display = 'flex';
+        subjectOutput.textContent = 'Generating...';
+        bodyOutput.textContent = 'Generating...';
+        
+        try {
+          const res = await fetch('/api/me/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [
+                { role: 'system', content: 'You are a professional email writer. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"subject": "...", "body": "..."}.' },
+                { role: 'user', content: `Write a professional email. Subject description: "${subjectDesc || 'N/A'}". Body description: "${bodyDesc || 'N/A'}". Return ONLY JSON: {"subject": "generated subject line", "body": "full email body with proper formatting"}` }
+              ],
+              model: modelSelect.value || MODELS[0],
+              stream: false,
+              temperature: 0.7,
+              max_tokens: 1024,
+            }),
+          });
+
+          if (!res.ok) throw new Error('Failed to generate email');
+          
+          const data = await res.json();
+          const rawContent = data.choices?.[0]?.message?.content || data.content || '';
+          let parsed = safeParseJSON(rawContent);
+          
+          // Fallback if JSON parsing fails
+          if (!parsed) {
+            parsed = {
+              subject: subjectDesc ? `Regarding: ${subjectDesc}` : 'Professional Email',
+              body: bodyDesc || 'This is a professionally generated email based on your input.'
+            };
+          }
+          
+          subjectOutput.textContent = parsed.subject || 'No subject generated';
+          bodyOutput.textContent = parsed.body || 'No body generated';
+          
+        } catch (e) {
+          console.error('Error generating email:', e);
+          subjectOutput.textContent = 'Error generating subject';
+          bodyOutput.textContent = 'Error generating body. Please try again.';
+        }
+      });
+    }
+    
+    window.copyEmailSubject = function() {
+      const subjectText = document.getElementById('emailSubjectOutput').textContent;
+      if (subjectText && subjectText !== 'Generating...' && subjectText !== 'Error generating subject') {
+        navigator.clipboard.writeText(subjectText).then(() => {
+          const btn = document.querySelector('.copy-email-btn[onclick="copyEmailSubject()"]');
+          if (btn) {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> <span>Copied!</span>';
+            setTimeout(() => {
+              btn.innerHTML = originalHTML;
+            }, 2000);
+          }
+        });
+      }
+    };
+    
+    window.copyEmailBody = function() {
+      const bodyText = document.getElementById('emailBodyOutput').textContent;
+      if (bodyText && bodyText !== 'Generating...' && bodyText !== 'Error generating body. Please try again.') {
+        navigator.clipboard.writeText(bodyText).then(() => {
+          const btn = document.querySelector('.copy-email-btn[onclick="copyEmailBody()"]');
+          if (btn) {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> <span>Copied!</span>';
+            setTimeout(() => {
+              btn.innerHTML = originalHTML;
+            }, 2000);
+          }
+        });
+      }
+    };
 
     // ============================================================
     // 12. LOGOUT
