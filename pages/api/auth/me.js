@@ -30,5 +30,9 @@ export default async function handler(req) {
     return json({ signedIn: false, error: 'Your trial has expired' }, 403);
   }
   
-  return json({ signedIn: true, email: user?.email || null });
+  return json({ 
+    signedIn: true, 
+    email: user?.email || null,
+    trialExpiresAt: user?.trial_expires_at || null
+  });
 }

@@ -734,7 +734,8 @@
           <div>
             <span class="page-title" id="pageTitle">Chat with AI</span>
             <span class="page-subtitle" id="pageSubtitle">Ask anything</span>
-            <span id="emailLabel" style="display:none;"></span> 
+            <span id="emailLabel" style="display:none;"></span>
+            <span id="trialExpiresLabel" style="display:none; color:#a78bfa; font-size:11px; margin-left:8px;"></span> 
           </div>
         </div>
         <div class="header-right">
@@ -997,6 +998,7 @@
     const emailInput = document.getElementById('emailInput');
     const passwordInput = document.getElementById('passwordInput');
     const emailLabel = document.getElementById('emailLabel');
+    const trialExpiresLabel = document.getElementById('trialExpiresLabel');
     const modelSelect = document.getElementById('modelSelect');
     const usagePill = document.getElementById('usagePill');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -1510,7 +1512,7 @@
           }
           throw new Error(data.error || 'Something went wrong');
         }
-        await enterDashboard(data.email);
+        await enterDashboard(data.email, data.trialExpiresAt);
       } catch (err) {
         showAuthError(err.message);
       } finally {
@@ -1519,8 +1521,22 @@
       }
     });
 
-    async function enterDashboard(email) {
+    async function enterDashboard(email, trialExpiresAt) {
       emailLabel.textContent = email || '';
+      
+      // Display trial expiration date if available
+      if (trialExpiresAt) {
+        const expiresDate = new Date(trialExpiresAt);
+        const formattedDate = expiresDate.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        trialExpiresLabel.textContent = `Trial expires: ${formattedDate}`;
+        trialExpiresLabel.style.display = 'inline';
+      }
+      
       authScreen.style.display = 'none';
       appContainer.classList.add('visible');
       populateModelSelect();
@@ -1682,7 +1698,7 @@
         const res = await fetch('/api/auth/me');
         const data = await res.json();
         if (data.signedIn) {
-          await enterDashboard(data.email);
+          await enterDashboard(data.email, data.trialExpiresAt);
         } else if (data.error) {
           showAuthError(data.error);
         }

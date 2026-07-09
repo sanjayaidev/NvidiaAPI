@@ -101,7 +101,7 @@ export default async function handler(req) {
   const { token, expiresAt } = await createSession(sql, userId, { userAgent, ip });
 
   return json(
-    { ok: true, userId, email },
+    { ok: true, userId, email, trialExpiresAt: trialExpiresAt.toISOString() },
     201,
     { 'Set-Cookie': buildSessionCookieHeader(token, expiresAt) }
   );
