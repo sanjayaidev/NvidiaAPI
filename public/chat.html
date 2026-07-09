@@ -889,15 +889,9 @@
       <!-- Other Tools -->
       <div class="sidebar-section">
         <div class="sidebar-section-label">Other Tools</div>
-        <div class="sidebar-item parent-item" id="resumeParentItem">
+        <div class="sidebar-item" data-tab="resume-builder">
           <i class="fas fa-file-pdf"></i>
-          <span>Resume Making</span>
-          <i class="fas fa-chevron-down chevron"></i>
-        </div>
-        <div class="sidebar-group" id="resumeGroup">
-          <div class="sub-items">
-            <div class="sidebar-item" data-tab="resume-builder"><i class="fas fa-pen"></i> <span>Builder</span></div>
-          </div>
+          <span>Resume Builder</span>
         </div>
         <div class="sidebar-item" data-tab="email">
           <i class="fas fa-envelope"></i>
@@ -1391,7 +1385,7 @@
     
     // Remove the sidebar-group forEach that was causing duplicate event listeners
     // Sub-item and regular item click handlers
-    document.querySelectorAll('.sub-items .sidebar-item, .sidebar-item:not(.parent-item)').forEach(item => {
+    document.querySelectorAll('.sidebar-item').forEach(item => {
       item.addEventListener('click', function(e) {
         e.stopPropagation();
         const tab = this.dataset.tab;
