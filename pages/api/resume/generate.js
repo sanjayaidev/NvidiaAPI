@@ -3,6 +3,7 @@
 
 export const config = {
   runtime: 'edge',
+  maxDuration: 180, // 3 minutes timeout
 };
 
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
@@ -46,7 +47,7 @@ export default async function handler(req) {
     // Build the prompt for AI
     const prompt = buildResumePrompt(body);
 
-    // Call NVIDIA API to generate resume content
+    // Call NVIDIA API to generate resume content using Mistral Large 3
     const aiResponse = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -54,7 +55,7 @@ export default async function handler(req) {
         'Authorization': `Bearer ${NVIDIA_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'meta/llama-3.1-70b-instruct',
+        model: 'mistralai/mistral-large-3',
         messages: [
           {
             role: 'system',
@@ -84,7 +85,7 @@ export default async function handler(req) {
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1500
       })
     });
 
