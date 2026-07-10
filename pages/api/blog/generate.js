@@ -14,8 +14,6 @@ import { getUserId, ensureUser } from '../../../lib/auth';
 import { checkRateLimit } from '../../../lib/ratelimit';
 import { isAllowedModel } from '../../../lib/registry';
 
-export const config = { runtime: 'edge' };
-
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 
 function json(data, status = 200) {
