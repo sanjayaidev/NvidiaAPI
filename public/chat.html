@@ -2628,54 +2628,108 @@ Return your response as a JSON object with this exact structure:
 
         const systemPrompt = format === 'html' ? systemPromptHtml : systemPromptPlain;
 
+        // Use new job-based approach for long-form content to avoid timeout
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+        
         try {
-          const res = await fetch('/api/me/chat', {
+          // Step 1: Create blog generation job
+          const createRes = await fetch('/api/blog/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: `Write a comprehensive SEO-optimized blog article about: "${topic}". ${keywords ? `Target keywords: ${keywords}.` : ''} ${cta ? `Include this CTA: ${cta}.` : ''} Return ONLY valid JSON, no markdown, no commentary.` }
-              ],
+              topic,
+              keywords,
+              cta,
+              format,
               model: modelSelect.value || MODELS[0],
-              stream: false,
-              temperature: 0.7,
-              max_tokens: 4096,
             }),
           });
 
-          if (!res.ok) throw new Error('Failed to generate blog article');
-
-          const data = await res.json();
-          const rawContent = data.choices?.[0]?.message?.content || data.content || '';
-          let parsed = safeParseJSON(rawContent);
-
-          if (!parsed || !parsed.titles || !parsed.content) {
-            parsed = {
-              titles: [`The Ultimate Guide to ${topic}`, `${topic}: Everything You Need to Know`, `Mastering ${topic}: A Complete Guide`],
-              content: rawContent || 'Unable to generate content. Please try again.'
-            };
+          if (!createRes.ok) {
+            const errData = await createRes.json().catch(() => ({}));
+            throw new Error(errData.error || 'Failed to start blog generation');
           }
 
-          // Store both formats
-          blogPlainTextContent = parsed.content;
-          blogHtmlContent = parsed.content;
-          
-          // Display titles
-          title1El.textContent = parsed.titles[0] || 'Title 1';
-          title2El.textContent = parsed.titles[1] || 'Title 2';
-          title3El.textContent = parsed.titles[2] || 'Title 3';
+          const createData = await createRes.json();
+          const jobId = createData.jobId;
+          const estimatedTime = createData.estimatedTime || 30;
 
-          // Display initial content based on selected format
-          currentBlogView = format;
-          updateBlogView();
+          outputSection.style.display = 'flex';
+          title1El.textContent = 'Starting generation...';
+          title2El.textContent = 'Please wait';
+          title3El.textContent = `Est. ${estimatedTime}s`;
+          bodyOutput.textContent = 'Generating outline and sections... This may take a minute.';
+
+          // Step 2: Poll for progress
+          const pollInterval = setInterval(async () => {
+            try {
+              const pollRes = await fetch(`/api/blog/${jobId}`);
+              if (!pollRes.ok) {
+                clearInterval(pollInterval);
+                throw new Error('Polling failed');
+              }
+
+              const pollData = await pollRes.json();
+              
+              // Update progress UI
+              const { status, progress, content, titles, error } = pollData;
+              
+              if (progress && progress.totalSections > 0) {
+                const pct = progress.percentage || 0;
+                const current = progress.currentSection || 'Initializing';
+                bodyOutput.textContent = `Generating: ${current}\nProgress: ${pct}% (${progress.completedSections}/${progress.totalSections} sections)\n\n${content ? content.substring(0, 500) + (content.length > 500 ? '...' : '') : 'Starting...'}`;
+              }
+
+              if (titles && titles.length > 0) {
+                title1El.textContent = titles[0] || 'Title 1';
+                title2El.textContent = titles[1] || 'Title 2';
+                title3El.textContent = titles[2] || 'Title 3';
+              }
+
+              if (status === 'done') {
+                clearInterval(pollInterval);
+                
+                // Store content
+                blogPlainTextContent = content;
+                blogHtmlContent = content;
+                
+                // Final display
+                currentBlogView = format;
+                updateBlogView();
+                
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article';
+                
+              } else if (status === 'failed') {
+                clearInterval(pollInterval);
+                throw new Error(error || 'Generation failed');
+              }
+
+            } catch (pollErr) {
+              clearInterval(pollInterval);
+              throw pollErr;
+            }
+          }, 2000); // Poll every 2 seconds
+
+          // Timeout after 5 minutes
+          setTimeout(() => {
+            if (generateBtn.disabled) {
+              clearInterval(pollInterval);
+              generateBtn.disabled = false;
+              generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article';
+              bodyOutput.textContent = 'Generation timed out. Please try again with a shorter topic or different model.';
+            }
+          }, 300000);
 
         } catch (e) {
           console.error('Error generating blog:', e);
           title1El.textContent = 'Error generating titles';
           title2El.textContent = 'Error generating titles';
           title3El.textContent = 'Error generating titles';
-          bodyOutput.textContent = 'Error generating article. Please try again.';
+          bodyOutput.textContent = `Error: ${e.message}. Please try again.`;
+          generateBtn.disabled = false;
+          generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article';
         }
       });
     }
