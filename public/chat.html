@@ -1078,7 +1078,7 @@
       </div>
 
       <!-- Blog Writing View -->
-      <div id="blog-writing-view" class="blog-writing-container hidden" style="padding:24px;max-width:1200px;margin:0 auto;width:100%;">
+      <div id="blog-writing-view" class="blog-writing-container hidden" style="padding:24px;max-width:1200px;margin:0 auto;width:100%;overflow-y:auto;max-height:calc(92vh - 120px);">
         <h2 class="wishes-title" style="margin-bottom:8px;">Blog Writing ✍️</h2>
         <p class="wishes-subtitle" style="margin-bottom:24px;">Generate SEO-optimized blog articles in Plain Text or HTML format</p>
         
@@ -1118,7 +1118,7 @@
           </button>
         </div>
 
-        <div id="blogOutput" class="blog-output-section" style="display:none;flex-direction:column;gap:20px;">
+        <div id="blogOutput" class="blog-output-section" style="display:none;flex-direction:column;gap:20px;overflow-y:auto;">
           <!-- Titles Section -->
           <div class="blog-result-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1127,27 +1127,27 @@
             <div id="blogTitlesContainer" style="display:flex;flex-direction:column;gap:12px;">
               <!-- Title 1 -->
               <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div id="blogTitle1" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;"></div>
+                <div id="blogTitle1" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;max-width:calc(100% - 100px);word-wrap:break-word;"></div>
                 <button onclick="copyBlogTitle(1)" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;"
+                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;flex-shrink:0;"
                   onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
                   <i class="fas fa-copy"></i> <span>Copy</span>
                 </button>
               </div>
               <!-- Title 2 -->
               <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div id="blogTitle2" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;"></div>
+                <div id="blogTitle2" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;max-width:calc(100% - 100px);word-wrap:break-word;"></div>
                 <button onclick="copyBlogTitle(2)" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;"
+                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;flex-shrink:0;"
                   onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
                   <i class="fas fa-copy"></i> <span>Copy</span>
                 </button>
               </div>
               <!-- Title 3 -->
               <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div id="blogTitle3" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;"></div>
+                <div id="blogTitle3" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;max-width:calc(100% - 100px);word-wrap:break-word;"></div>
                 <button onclick="copyBlogTitle(3)" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;"
+                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;flex-shrink:0;"
                   onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
                   <i class="fas fa-copy"></i> <span>Copy</span>
                 </button>
@@ -1177,7 +1177,7 @@
                 </button>
               </div>
             </div>
-            <div id="blogBodyContainer" style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;min-height:300px;">
+            <div id="blogBodyContainer" style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;min-height:300px;max-height:400px;overflow-y:auto;">
               <div id="blogBodyOutput" class="blog-body-text" style="font-size:15px;color:#eef2f9;line-height:1.7;white-space:pre-wrap;"></div>
             </div>
           </div>
