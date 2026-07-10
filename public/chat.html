@@ -2678,7 +2678,7 @@ Return your response as a JSON object with this exact structure:
               if (progress && progress.totalSections > 0) {
                 const pct = progress.percentage || 0;
                 const current = progress.currentSection || 'Initializing';
-                bodyOutput.textContent = `Generating: ${current}\nProgress: ${pct}% (${progress.completedSections}/${progress.totalSections} sections)\n\n${content ? content.substring(0, 500) + (content.length > 500 ? '...' : '') : 'Starting...'}`;
+                bodyOutput.textContent = `Generating: ${current}\nProgress: ${pct}% (${progress.completedSections}/${progress.totalSections} sections)`;
               }
 
               if (titles && titles.length > 0) {
@@ -2690,9 +2690,22 @@ Return your response as a JSON object with this exact structure:
               if (status === 'done') {
                 clearInterval(pollInterval);
                 
-                // Store content
-                blogPlainTextContent = content;
-                blogHtmlContent = content;
+                // Parse and store content - convert markdown headers to proper format
+                let rawContent = content || '';
+                
+                // Remove markdown-style section headers for clean storage
+                blogPlainTextContent = rawContent.replace(/^##\s+(.*)$/gm, '$1').trim();
+                
+                // Convert to HTML if needed
+                if (format === 'html') {
+                  // Convert markdown headers to HTML
+                  blogHtmlContent = rawContent
+                    .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/^(.+)$/gm, '<p>$1</p>');
+                } else {
+                  blogHtmlContent = blogPlainTextContent;
+                }
                 
                 // Final display
                 currentBlogView = format;

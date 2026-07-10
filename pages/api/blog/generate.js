@@ -57,9 +57,11 @@ async function generateBlogSection(apiKey, model, systemPrompt, userPrompt, sect
   return data.choices?.[0]?.message?.content || '';
 }
 
-export default async function handler(req) {
+export const config = { runtime: 'nodejs' };
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405);
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const sql = getSql();
@@ -70,100 +72,51 @@ export default async function handler(req) {
   try {
     body = await req.json();
   } catch {
-    return json({ error: 'Invalid JSON body' }, 400);
+    return res.status(400).json({ error: 'Invalid JSON body' });
   }
 
   const { topic, keywords = '', cta = '', format = 'plain', model = 'meta/llama-3.1-70b-instruct' } = body || {};
 
   if (!topic || topic.trim().length === 0) {
-    return json({ error: 'Blog topic is required' }, 400);
+    return res.status(400).json({ error: 'Blog topic is required' });
   }
 
   if (!isAllowedModel(model)) {
-    return json({ error: `Model "${model}" is not allowed` }, 403);
+    return res.status(403).json({ error: `Model "${model}" is not allowed` });
   }
 
   // Rate limit check
   const rl = await checkRateLimit(`blog:${model}`);
   if (!rl.ok) {
-    return json(
-      { error: `Rate limit reached. Try again shortly.`, retry_after_seconds: rl.retryAfterSec },
-      429
-    );
+    return res.status(429).json({ 
+      error: `Rate limit reached. Try again shortly.`, 
+      retry_after_seconds: rl.retryAfterSec 
+    });
   }
 
   const apiKey = process.env.NVIDIA_API_KEY;
   if (!apiKey) {
-    return json({ error: 'NVIDIA_API_KEY environment variable is not set' }, 500);
+    return res.status(500).json({ error: 'NVIDIA_API_KEY environment variable is not set' });
   }
 
   const primaryKeyword = keywords.split(',')[0]?.trim() || topic.split(' ')[0];
   
-  // Create outline first (quick operation)
-  const outlineSystemPrompt = `You are an expert content strategist. Create a detailed outline for a comprehensive blog article.
-Return ONLY a JSON array of section objects with this structure:
-[
-  {"section": "Introduction", "prompt": "Write an engaging introduction...", "wordCount": 200},
-  {"section": "Main Point 1", "prompt": "Detailed instructions for this section...", "wordCount": 400},
-  ...
-]
-Include 8-12 sections total. Each section should have clear writing instructions.`;
+  // Create generic sections immediately (don't wait for AI outline)
+  const sections = [
+    { section: 'Introduction', prompt: `Write an engaging introduction about ${topic}`, wordCount: 300 },
+    { section: 'Understanding the Basics', prompt: `Explain the fundamentals of ${topic}`, wordCount: 400 },
+    { section: 'Key Benefits', prompt: `Discuss the main benefits and advantages`, wordCount: 400 },
+    { section: 'Practical Tips', prompt: `Provide actionable tips and strategies`, wordCount: 500 },
+    { section: 'Common Mistakes', prompt: `Highlight common pitfalls to avoid`, wordCount: 300 },
+    { section: 'Advanced Techniques', prompt: `Share advanced insights for experienced readers`, wordCount: 400 },
+    { section: 'Case Studies & Examples', prompt: `Provide real-world examples and case studies`, wordCount: 400 },
+    { section: 'Tools & Resources', prompt: `Recommend useful tools and resources`, wordCount: 300 },
+    { section: 'FAQ', prompt: `Answer frequently asked questions about ${topic}`, wordCount: 300 },
+    { section: 'Conclusion', prompt: `Summarize key points and include CTA: ${cta}`, wordCount: 200 },
+  ];
 
   try {
-    // Step 1: Generate outline
-    const outlineResponse = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: outlineSystemPrompt },
-          { role: 'user', content: `Create a detailed outline for a blog article about: "${topic}". Target keywords: ${keywords}. Include ${cta ? `CTA: ${cta}.` : ''}` }
-        ],
-        temperature: 0.7,
-        max_tokens: 2048,
-        stream: false,
-      }),
-    });
-
-    if (!outlineResponse.ok) {
-      throw new Error('Failed to generate outline');
-    }
-
-    const outlineData = await outlineResponse.json();
-    const outlineRaw = outlineData.choices?.[0]?.message?.content || '';
-    
-    // Parse outline - handle potential markdown code blocks
-    let outlineJson = outlineRaw;
-    const codeBlockMatch = outlineRaw.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      outlineJson = codeBlockMatch[1].trim();
-    }
-    
-    let sections = [];
-    try {
-      sections = JSON.parse(outlineJson);
-      if (!Array.isArray(sections)) {
-        throw new Error('Outline is not an array');
-      }
-    } catch (e) {
-      // Fallback: create generic sections
-      sections = [
-        { section: 'Introduction', prompt: `Write an engaging introduction about ${topic}`, wordCount: 300 },
-        { section: 'Understanding the Basics', prompt: `Explain the fundamentals of ${topic}`, wordCount: 400 },
-        { section: 'Key Benefits', prompt: `Discuss the main benefits and advantages`, wordCount: 400 },
-        { section: 'Practical Tips', prompt: `Provide actionable tips and strategies`, wordCount: 500 },
-        { section: 'Common Mistakes', prompt: `Highlight common pitfalls to avoid`, wordCount: 300 },
-        { section: 'Advanced Techniques', prompt: `Share advanced insights for experienced readers`, wordCount: 400 },
-        { section: 'FAQ', prompt: `Answer frequently asked questions about ${topic}`, wordCount: 300 },
-        { section: 'Conclusion', prompt: `Summarize key points and include CTA: ${cta}`, wordCount: 200 },
-      ];
-    }
-
-    // Create job record
+    // Create job record FIRST - return immediately
     const [job] = await sql`
       insert into jobs (user_id, tool, provider, status, input, output)
       values (${userId}, 'blog', 'nvidia-chat', 'running', ${JSON.stringify({
@@ -175,7 +128,7 @@ Include 8-12 sections total. Each section should have clear writing instructions
         sections,
         primaryKeyword
       })}, ${JSON.stringify({
-        status: 'generating',
+        status: 'queued',
         totalSections: sections.length,
         completedSections: 0,
         content: '',
@@ -184,8 +137,7 @@ Include 8-12 sections total. Each section should have clear writing instructions
       returning id, status, output, created_at
     `;
 
-    // Start background generation (fire-and-forget with waitUntil pattern)
-    // The actual generation will continue via polling
+    // Start background generation (fire-and-forget)
     const generateInBackground = async () => {
       try {
         const systemPromptPlain = `You are an AI optimized for SEO writing. Generate comprehensive, well-researched content.
@@ -219,6 +171,17 @@ Do NOT return full HTML document, just content tags.`;
         let fullContent = '';
         const generatedTitles = [];
         
+        // Update status to 'generating' once we start
+        await sql`
+          update jobs set output = ${JSON.stringify({
+            status: 'generating',
+            totalSections: sections.length,
+            completedSections: 0,
+            content: '',
+            titles: []
+          })} where id = ${job.id}
+        `;
+        
         // Generate each section
         for (let i = 0; i < sections.length; i++) {
           const section = sections[i];
@@ -233,7 +196,12 @@ Do NOT return full HTML document, just content tags.`;
               i
             );
             
-            fullContent += `\n\n## ${section.section}\n\n${sectionContent}`;
+            // Format content based on output format
+            if (format === 'html') {
+              fullContent += `<h2>${section.section}</h2>\n${sectionContent}\n`;
+            } else {
+              fullContent += `\n\n## ${section.section}\n\n${sectionContent}`;
+            }
             
             // Update job progress
             await sql`
@@ -328,14 +296,14 @@ Do NOT return full HTML document, just content tags.`;
     // Don't await - let it run in background
     generateInBackground();
 
-    return json({ 
+    return res.status(201).json({ 
       jobId: job.id, 
       status: job.status,
       estimatedTime: Math.ceil(sections.length * 3) // ~3 seconds per section
-    }, 201);
+    });
 
   } catch (err) {
     console.error('Blog generation setup failed:', err);
-    return json({ error: 'Failed to start blog generation', details: err.message }, 500);
+    return res.status(500).json({ error: 'Failed to start blog generation', details: err.message });
   }
 }
