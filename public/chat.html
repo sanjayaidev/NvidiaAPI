@@ -309,6 +309,28 @@
     .message .msg-text pre code { background: transparent; padding: 0; }
     .message .msg-text ul, .message .msg-text ol { margin: 0.4em 0; padding-left: 1.5em; }
     .message .msg-text blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.4em 0; color: #a78bfa; }
+    
+    /* Blog body text styling for rendered markdown/HTML */
+    .blog-body-text { white-space: normal; }
+    .blog-body-text :first-child { margin-top: 0; }
+    .blog-body-text :last-child { margin-bottom: 0; }
+    .blog-body-text h1, .blog-body-text h2, .blog-body-text h3, .blog-body-text h4 { color: #a78bfa; margin: 1em 0 0.5em 0; font-weight: 600; }
+    .blog-body-text h1 { font-size: 24px; }
+    .blog-body-text h2 { font-size: 20px; }
+    .blog-body-text h3 { font-size: 17px; }
+    .blog-body-text p { margin: 0.6em 0; line-height: 1.7; }
+    .blog-body-text pre { background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; overflow-x: auto; margin: 0.8em 0; }
+    .blog-body-text code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
+    .blog-body-text pre code { background: transparent; padding: 0; }
+    .blog-body-text ul, .blog-body-text ol { margin: 0.6em 0; padding-left: 1.8em; }
+    .blog-body-text li { margin: 0.3em 0; }
+    .blog-body-text blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.6em 0; color: #a78bfa; }
+    .blog-body-text strong { color: #cdbfff; font-weight: 600; }
+    .blog-body-text em { font-style: italic; }
+    .blog-body-text table { width: 100%; border-collapse: collapse; margin: 0.8em 0; }
+    .blog-body-text th, .blog-body-text td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; text-align: left; }
+    .blog-body-text th { background: rgba(124,92,252,0.15); color: #cdbfff; }
+    .blog-body-text img { max-width: 100%; border-radius: 8px; margin: 0.8em 0; }
     @keyframes slideUp { 0% { opacity: 0; transform: translateY(14px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
     .message.user { align-self: flex-end; background: linear-gradient(145deg, #2d3440, #1e232e); border-bottom-right-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
     .message.ai { align-self: flex-start; background: rgba(40, 46, 58, 0.7); border-bottom-left-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
@@ -1105,6 +1127,43 @@
               onblur="this.style.borderColor='';this.style.boxShadow=''">
           </div>
           <div>
+            <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Language</label>
+            <select id="blogLanguageSelect" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;cursor:pointer;">
+              <option value="en" style="background:#1a1f29;color:#eef2f9;">English</option>
+              <option value="hi" style="background:#1a1f29;color:#eef2f9;">हिन्दी (Hindi)</option>
+              <option value="bn" style="background:#1a1f29;color:#eef2f9;">বাংলা (Bengali)</option>
+              <option value="te" style="background:#1a1f29;color:#eef2f9;">తెలుగు (Telugu)</option>
+              <option value="mr" style="background:#1a1f29;color:#eef2f9;">मराठी (Marathi)</option>
+              <option value="ta" style="background:#1a1f29;color:#eef2f9;">தமிழ் (Tamil)</option>
+              <option value="ur" style="background:#1a1f29;color:#eef2f9;">اردو (Urdu)</option>
+              <option value="gu" style="background:#1a1f29;color:#eef2f9;">ગુજરાતી (Gujarati)</option>
+              <option value="kn" style="background:#1a1f29;color:#eef2f9;">ಕನ್ನಡ (Kannada)</option>
+              <option value="ml" style="background:#1a1f29;color:#eef2f9;">മലയാളം (Malayalam)</option>
+              <option value="or" style="background:#1a1f29;color:#eef2f9;">ଓଡ଼ିଆ (Odia)</option>
+              <option value="pa" style="background:#1a1f29;color:#eef2f9;">ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="as" style="background:#1a1f29;color:#eef2f9;">অসমীয়া (Assamese)</option>
+              <option value="mai" style="background:#1a1f29;color:#eef2f9;">मैथिली (Maithili)</option>
+              <option value="sa" style="background:#1a1f29;color:#eef2f9;">संस्कृतम् (Sanskrit)</option>
+              <option value="ne" style="background:#1a1f29;color:#eef2f9;">नेपाली (Nepali)</option>
+              <option value="sd" style="background:#1a1f29;color:#eef2f9;">سنڌي (Sindhi)</option>
+              <option value="ks" style="background:#1a1f29;color:#eef2f9;">کٲشُر (Kashmiri)</option>
+              <option value="kok" style="background:#1a1f29;color:#eef2f9;">कोंकणी (Konkani)</option>
+              <option value="mni" style="background:#1a1f29;color:#eef2f9;">মণিপুরী (Manipuri)</option>
+              <option value="bo" style="background:#1a1f29;color:#eef2f9;">བོད་སྐད་ (Bodo)</option>
+              <option value="doi" style="background:#1a1f29;color:#eef2f9;">डोगरी (Dogri)</option>
+              <option value="es" style="background:#1a1f29;color:#eef2f9;">Español (Spanish)</option>
+              <option value="fr" style="background:#1a1f29;color:#eef2f9;">Français (French)</option>
+              <option value="de" style="background:#1a1f29;color:#eef2f9;">Deutsch (German)</option>
+              <option value="it" style="background:#1a1f29;color:#eef2f9;">Italiano (Italian)</option>
+              <option value="pt" style="background:#1a1f29;color:#eef2f9;">Português (Portuguese)</option>
+              <option value="ru" style="background:#1a1f29;color:#eef2f9;">Русский (Russian)</option>
+              <option value="ja" style="background:#1a1f29;color:#eef2f9;">日本語 (Japanese)</option>
+              <option value="ko" style="background:#1a1f29;color:#eef2f9;">한국어 (Korean)</option>
+              <option value="zh" style="background:#1a1f29;color:#eef2f9;">中文 (Chinese)</option>
+              <option value="ar" style="background:#1a1f29;color:#eef2f9;">العربية (Arabic)</option>
+            </select>
+          </div>
+          <div>
             <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Output Format</label>
             <select id="blogFormatSelect" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;cursor:pointer;">
               <option value="plaintext" style="background:#1a1f29;color:#eef2f9;">Plain Text</option>
@@ -1178,7 +1237,7 @@
               </div>
             </div>
             <div id="blogBodyContainer" style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;min-height:300px;max-height:400px;overflow-y:auto;">
-              <div id="blogBodyOutput" class="blog-body-text" style="font-size:15px;color:#eef2f9;line-height:1.7;white-space:pre-wrap;"></div>
+              <div id="blogBodyOutput" class="blog-body-text" style="font-size:15px;color:#eef2f9;line-height:1.7;"></div>
             </div>
           </div>
         </div>
@@ -2546,6 +2605,7 @@
         const topic = document.getElementById('blogTopicInput').value.trim();
         const keywords = document.getElementById('blogKeywordsInput').value.trim();
         const cta = document.getElementById('blogCTAInput').value.trim();
+        const language = document.getElementById('blogLanguageSelect').value;
         const format = document.getElementById('blogFormatSelect').value;
 
         if (!topic) {
@@ -2567,8 +2627,10 @@
 
         const primaryKeyword = keywords.split(',')[0]?.trim() || topic.split(' ')[0];
         
+        const languageInstruction = language !== 'en' ? `\n\nIMPORTANT: Write the entire article in ${language} language. All content including titles, headings, and body must be in ${language}.` : '';
+        
         const systemPromptPlain = `System Objective:
-You are an AI optimized for SEO writing. Your primary function is to generate a 2000-word article that passes readability scores and targets semantic SEO.
+You are an AI optimized for SEO writing. Your primary function is to generate a 2000-word article that passes readability scores and targets semantic SEO.${languageInstruction}
 
 Hard Rules:
 - Keyword Density: Use the primary keyword "${primaryKeyword}" naturally at a density of 1-2%.
@@ -2597,7 +2659,7 @@ Return your response as a JSON object with this exact structure:
 }`;
 
         const systemPromptHtml = `System Objective:
-You are an AI optimized for SEO writing. Your primary function is to generate a 2000-word article that passes readability scores and targets semantic SEO.
+You are an AI optimized for SEO writing. Your primary function is to generate a 2000-word article that passes readability scores and targets semantic SEO.${languageInstruction}
 
 Hard Rules:
 - Keyword Density: Use the primary keyword "${primaryKeyword}" naturally at a density of 1-2%.
@@ -2642,6 +2704,7 @@ Return your response as a JSON object with this exact structure:
               topic,
               keywords,
               cta,
+              language,
               format,
               model: modelSelect.value || MODELS[0],
             }),
@@ -2760,7 +2823,12 @@ Return your response as a JSON object with this exact structure:
         htmlBtn.style.background = 'rgba(124, 92, 252, 0.2)';
         htmlBtn.style.color = '#cdbfff';
       } else {
-        bodyOutput.textContent = blogPlainTextContent;
+        // Use marked.js to render markdown content as HTML for better readability
+        if (typeof marked !== 'undefined') {
+          bodyOutput.innerHTML = marked.parse(blogPlainTextContent);
+        } else {
+          bodyOutput.innerHTML = blogPlainTextContent.replace(/\n/g, '<br>');
+        }
         plainBtn.style.background = 'rgba(124, 92, 252, 0.2)';
         plainBtn.style.color = '#cdbfff';
         htmlBtn.style.background = 'rgba(255,255,255,0.05)';
