@@ -27,35 +27,46 @@ async function generateBlogSection(apiKey, model, systemPrompt, userPrompt, sect
   const max_tokens = 4096;
   const temperature = 0.7;
   
-  const response = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature,
-      max_tokens,
-      top_p: 1,
-      stream: false,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 55000); // 55s timeout for individual section
   
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`NVIDIA API error: ${response.status} - ${errText}`);
+  try {
+    const response = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature,
+        max_tokens,
+        top_p: 1,
+        stream: false,
+      }),
+      signal: controller.signal,
+    });
+    
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`NVIDIA API error: ${response.status} - ${errText}`);
+    }
+    
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || '';
+  } finally {
+    clearTimeout(timeoutId);
   }
-  
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || '';
 }
 
-export const config = { runtime: 'nodejs' };
+export const config = { 
+  runtime: 'nodejs',
+  maxDuration: 60, // Vercel Pro/Enterprise supports up to 60s
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -73,7 +84,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON body' });
   }
 
-  const { topic, keywords = '', cta = '', format = 'plain', model = 'meta/llama-3.1-70b-instruct' } = body || {};
+  const { topic, keywords = '', cta = '', format = 'plain', model = 'mistralai/mistral-large-3-675b-instruct-2512' } = body || {};
 
   if (!topic || topic.trim().length === 0) {
     return res.status(400).json({ error: 'Blog topic is required' });
