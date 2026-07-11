@@ -73,15 +73,36 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Check Content-Type header
+  const contentType = req.headers['content-type'];
+  if (!contentType || !contentType.includes('application/json')) {
+    return res.status(400).json({ 
+      error: 'Invalid Content-Type', 
+      message: 'Content-Type must be application/json' 
+    });
+  }
+
   const sql = getSql();
   const userId = await getUserId(req);
   await ensureUser(sql, userId);
 
   let body;
   try {
-    body = await req.json();
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON body' });
+    const rawBody = await req.text();
+    if (!rawBody || rawBody.trim().length === 0) {
+      return res.status(400).json({ 
+        error: 'Empty request body', 
+        message: 'Request body cannot be empty' 
+      });
+    }
+    body = JSON.parse(rawBody);
+  } catch (err) {
+    console.error('JSON parse error:', err.message);
+    return res.status(400).json({ 
+      error: 'Invalid JSON body', 
+      message: 'Request body must be valid JSON',
+      details: err.message 
+    });
   }
 
   const { topic, keywords = '', cta = '', format = 'plain', model = 'mistralai/mistral-large-3-675b-instruct-2512' } = body || {};
