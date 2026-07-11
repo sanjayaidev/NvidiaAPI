@@ -310,28 +310,6 @@
     .message .msg-text ul, .message .msg-text ol { margin: 0.4em 0; padding-left: 1.5em; }
     .message .msg-text blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.4em 0; color: #a78bfa; }
     
-    /* Blog body text styling for rendered markdown/HTML */
-    .blog-body-text { white-space: normal; }
-    .blog-body-text :first-child { margin-top: 0; }
-    .blog-body-text :last-child { margin-bottom: 0; }
-    .blog-body-text h1, .blog-body-text h2, .blog-body-text h3, .blog-body-text h4 { color: #a78bfa; margin: 1em 0 0.5em 0; font-weight: 600; }
-    .blog-body-text h1 { font-size: 24px; }
-    .blog-body-text h2 { font-size: 20px; }
-    .blog-body-text h3 { font-size: 17px; }
-    .blog-body-text p { margin: 0.6em 0; line-height: 1.7; }
-    .blog-body-text pre { background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; overflow-x: auto; margin: 0.8em 0; }
-    .blog-body-text code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; }
-    .blog-body-text pre code { background: transparent; padding: 0; }
-    .blog-body-text ul, .blog-body-text ol { margin: 0.6em 0; padding-left: 1.8em; }
-    .blog-body-text li { margin: 0.3em 0; }
-    .blog-body-text blockquote { border-left: 3px solid rgba(167,139,250,0.5); padding-left: 12px; margin: 0.6em 0; color: #a78bfa; }
-    .blog-body-text strong { color: #cdbfff; font-weight: 600; }
-    .blog-body-text em { font-style: italic; }
-    .blog-body-text table { width: 100%; border-collapse: collapse; margin: 0.8em 0; }
-    .blog-body-text th, .blog-body-text td { border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; text-align: left; }
-    .blog-body-text th { background: rgba(124,92,252,0.15); color: #cdbfff; }
-    .blog-body-text img { max-width: 100%; border-radius: 8px; margin: 0.8em 0; }
-    @keyframes slideUp { 0% { opacity: 0; transform: translateY(14px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
     .message.user { align-self: flex-end; background: linear-gradient(145deg, #2d3440, #1e232e); border-bottom-right-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
     .message.ai { align-self: flex-start; background: rgba(40, 46, 58, 0.7); border-bottom-left-radius: 6px; color: #eef4fd; border: 1px solid rgba(255,255,255,0.03); }
     .message.error { align-self: flex-start; background: rgba(255, 90, 90, 0.08); border: 1px solid rgba(255, 90, 90, 0.2); color: #ff9b9b; }
@@ -919,10 +897,6 @@
           <i class="fas fa-envelope"></i>
           <span>Email Writer</span>
         </div>
-        <div class="sidebar-item" data-tab="blog">
-          <i class="fas fa-pen-nib"></i>
-          <span>Blog Writing</span>
-        </div>
         <div class="sidebar-item" data-tab="events">
           <i class="fas fa-gift"></i>
           <span>Special Event Wishes</span>
@@ -1094,150 +1068,6 @@
                 onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
                 <i class="fas fa-copy"></i> <span>Copy</span>
               </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Blog Writing View -->
-      <div id="blog-writing-view" class="blog-writing-container hidden" style="padding:24px;max-width:1200px;margin:0 auto;width:100%;overflow-y:auto;max-height:calc(92vh - 120px);">
-        <h2 class="wishes-title" style="margin-bottom:8px;">Blog Writing ✍️</h2>
-        <p class="wishes-subtitle" style="margin-bottom:24px;">Generate SEO-optimized blog articles in Plain Text or HTML format</p>
-        
-        <div class="blog-input-section" style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;">
-          <div>
-            <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Blog Topic</label>
-            <input type="text" id="blogTopicInput" placeholder="e.g., The Ultimate Guide to Remote Work Productivity" 
-              style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;"
-              onfocus="this.style.borderColor='#7c5cfc';this.style.boxShadow='0 0 0 4px rgba(124, 92, 252, 0.1)'"
-              onblur="this.style.borderColor='';this.style.boxShadow=''">
-          </div>
-          <div>
-            <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Keywords (comma-separated)</label>
-            <input type="text" id="blogKeywordsInput" placeholder="e.g., remote work, productivity tips, work from home, time management" 
-              style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;"
-              onfocus="this.style.borderColor='#7c5cfc';this.style.boxShadow='0 0 0 4px rgba(124, 92, 252, 0.1)'"
-              onblur="this.style.borderColor='';this.style.boxShadow=''">
-          </div>
-          <div>
-            <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Specific CTA (Call to Action)</label>
-            <input type="text" id="blogCTAInput" placeholder="e.g., Subscribe to our newsletter for more tips" 
-              style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;"
-              onfocus="this.style.borderColor='#7c5cfc';this.style.boxShadow='0 0 0 4px rgba(124, 92, 252, 0.1)'"
-              onblur="this.style.borderColor='';this.style.boxShadow=''">
-          </div>
-          <div>
-            <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Language</label>
-            <select id="blogLanguageSelect" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;cursor:pointer;">
-              <option value="en" style="background:#1a1f29;color:#eef2f9;">English</option>
-              <option value="hi" style="background:#1a1f29;color:#eef2f9;">हिन्दी (Hindi)</option>
-              <option value="bn" style="background:#1a1f29;color:#eef2f9;">বাংলা (Bengali)</option>
-              <option value="te" style="background:#1a1f29;color:#eef2f9;">తెలుగు (Telugu)</option>
-              <option value="mr" style="background:#1a1f29;color:#eef2f9;">मराठी (Marathi)</option>
-              <option value="ta" style="background:#1a1f29;color:#eef2f9;">தமிழ் (Tamil)</option>
-              <option value="ur" style="background:#1a1f29;color:#eef2f9;">اردو (Urdu)</option>
-              <option value="gu" style="background:#1a1f29;color:#eef2f9;">ગુજરાતી (Gujarati)</option>
-              <option value="kn" style="background:#1a1f29;color:#eef2f9;">ಕನ್ನಡ (Kannada)</option>
-              <option value="ml" style="background:#1a1f29;color:#eef2f9;">മലയാളം (Malayalam)</option>
-              <option value="or" style="background:#1a1f29;color:#eef2f9;">ଓଡ଼ିଆ (Odia)</option>
-              <option value="pa" style="background:#1a1f29;color:#eef2f9;">ਪੰਜਾਬੀ (Punjabi)</option>
-              <option value="as" style="background:#1a1f29;color:#eef2f9;">অসমীয়া (Assamese)</option>
-              <option value="mai" style="background:#1a1f29;color:#eef2f9;">मैथिली (Maithili)</option>
-              <option value="sa" style="background:#1a1f29;color:#eef2f9;">संस्कृतम् (Sanskrit)</option>
-              <option value="ne" style="background:#1a1f29;color:#eef2f9;">नेपाली (Nepali)</option>
-              <option value="sd" style="background:#1a1f29;color:#eef2f9;">سنڌي (Sindhi)</option>
-              <option value="ks" style="background:#1a1f29;color:#eef2f9;">کٲشُر (Kashmiri)</option>
-              <option value="kok" style="background:#1a1f29;color:#eef2f9;">कोंकणी (Konkani)</option>
-              <option value="mni" style="background:#1a1f29;color:#eef2f9;">মণিপুরী (Manipuri)</option>
-              <option value="bo" style="background:#1a1f29;color:#eef2f9;">བོད་སྐད་ (Bodo)</option>
-              <option value="doi" style="background:#1a1f29;color:#eef2f9;">डोगरी (Dogri)</option>
-              <option value="es" style="background:#1a1f29;color:#eef2f9;">Español (Spanish)</option>
-              <option value="fr" style="background:#1a1f29;color:#eef2f9;">Français (French)</option>
-              <option value="de" style="background:#1a1f29;color:#eef2f9;">Deutsch (German)</option>
-              <option value="it" style="background:#1a1f29;color:#eef2f9;">Italiano (Italian)</option>
-              <option value="pt" style="background:#1a1f29;color:#eef2f9;">Português (Portuguese)</option>
-              <option value="ru" style="background:#1a1f29;color:#eef2f9;">Русский (Russian)</option>
-              <option value="ja" style="background:#1a1f29;color:#eef2f9;">日本語 (Japanese)</option>
-              <option value="ko" style="background:#1a1f29;color:#eef2f9;">한국어 (Korean)</option>
-              <option value="zh" style="background:#1a1f29;color:#eef2f9;">中文 (Chinese)</option>
-              <option value="ar" style="background:#1a1f29;color:#eef2f9;">العربية (Arabic)</option>
-            </select>
-          </div>
-          <div>
-            <label style="display:block;font-size:13px;font-weight:600;color:#eef2f9;margin-bottom:8px;">Output Format</label>
-            <select id="blogFormatSelect" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 16px;color:#eef2f9;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:0.2s;cursor:pointer;">
-              <option value="plaintext" style="background:#1a1f29;color:#eef2f9;">Plain Text</option>
-              <option value="html" style="background:#1a1f29;color:#eef2f9;">HTML Tags</option>
-            </select>
-          </div>
-          <button id="generateBlogBtn" 
-            style="background:#7c5cfc;border:none;border-radius:12px;padding:12px 24px;color:white;font-weight:600;font-size:14px;cursor:pointer;transition:0.2s;display:flex;align-items:center;justify-content:center;gap:8px;align-self:flex-start;"
-            onmouseover="this.style.background='#6b4be8'" onmouseout="this.style.background='#7c5cfc'">
-            <i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article
-          </button>
-        </div>
-
-        <div id="blogOutput" class="blog-output-section" style="display:none;flex-direction:column;gap:20px;overflow-y:auto;">
-          <!-- Titles Section -->
-          <div class="blog-result-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <label style="font-size:13px;font-weight:600;color:#a78bfa;">Suggested Titles (H1)</label>
-            </div>
-            <div id="blogTitlesContainer" style="display:flex;flex-direction:column;gap:12px;">
-              <!-- Title 1 -->
-              <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div id="blogTitle1" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;max-width:calc(100% - 100px);word-wrap:break-word;"></div>
-                <button onclick="copyBlogTitle(1)" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;flex-shrink:0;"
-                  onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
-                  <i class="fas fa-copy"></i> <span>Copy</span>
-                </button>
-              </div>
-              <!-- Title 2 -->
-              <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div id="blogTitle2" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;max-width:calc(100% - 100px);word-wrap:break-word;"></div>
-                <button onclick="copyBlogTitle(2)" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;flex-shrink:0;"
-                  onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
-                  <i class="fas fa-copy"></i> <span>Copy</span>
-                </button>
-              </div>
-              <!-- Title 3 -->
-              <div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-                <div id="blogTitle3" class="blog-title-text" style="flex:1;font-size:15px;color:#eef2f9;line-height:1.5;max-width:calc(100% - 100px);word-wrap:break-word;"></div>
-                <button onclick="copyBlogTitle(3)" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;flex-shrink:0;"
-                  onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
-                  <i class="fas fa-copy"></i> <span>Copy</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Body Content Section -->
-          <div class="blog-result-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-              <label style="font-size:13px;font-weight:600;color:#a78bfa;">Article Body</label>
-              <div style="display:flex;gap:8px;">
-                <button id="viewPlainTextBtn" onclick="switchBlogView('plaintext')" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;"
-                  onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
-                  <i class="fas fa-file-alt"></i> Plain Text
-                </button>
-                <button id="viewHtmlBtn" onclick="switchBlogView('html')" 
-                  style="background:rgba(255,255,255,0.05);border:none;border-radius:8px;padding:8px 16px;color:#8896b0;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;"
-                  onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                  <i class="fas fa-code"></i> HTML
-                </button>
-                <button onclick="copyBlogBody()" 
-                  style="background:rgba(124, 92, 252, 0.2);border:none;border-radius:8px;padding:8px 16px;color:#cdbfff;font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;"
-                  onmouseover="this.style.background='rgba(124, 92, 252, 0.3)'" onmouseout="this.style.background='rgba(124, 92, 252, 0.2)'">
-                  <i class="fas fa-copy"></i> <span>Copy</span>
-                </button>
-              </div>
-            </div>
-            <div id="blogBodyContainer" style="background:rgba(0,0,0,0.2);border-radius:12px;padding:16px;min-height:300px;max-height:400px;overflow-y:auto;">
-              <div id="blogBodyOutput" class="blog-body-text" style="font-size:15px;color:#eef2f9;line-height:1.7;"></div>
             </div>
           </div>
         </div>
@@ -1501,7 +1331,6 @@
     const specialWishesView = document.getElementById('special-wishes-view');
     const resumeBuilderView = document.getElementById('resume-builder-view');
     const emailWriterView = document.getElementById('email-writer-view');
-    const blogWritingView = document.getElementById('blog-writing-view');
 
     // Canva refs
     const canvaBtn = document.getElementById('canvaBtn');
@@ -1611,7 +1440,6 @@
         specialWishesView.classList.add('hidden');
         resumeBuilderView.classList.add('hidden');
         emailWriterView.classList.add('hidden');
-        blogWritingView.classList.add('hidden');
         pageTitle.textContent = 'Chat with AI';
         pageSubtitle.textContent = 'Ask anything';
         backBtn.style.display = 'none';
@@ -1625,7 +1453,6 @@
         specialWishesView.classList.remove('hidden');
         resumeBuilderView.classList.add('hidden');
         emailWriterView.classList.add('hidden');
-        blogWritingView.classList.add('hidden');
         pageTitle.textContent = 'Special Event Wishes';
         pageSubtitle.textContent = 'Culturally relevant wishes for Indian occasions';
         backBtn.style.display = 'flex';
@@ -1640,7 +1467,6 @@
         specialWishesView.classList.add('hidden');
         resumeBuilderView.classList.remove('hidden');
         emailWriterView.classList.add('hidden');
-        blogWritingView.classList.add('hidden');
         pageTitle.textContent = 'Resume Builder';
         pageSubtitle.textContent = 'Create professional resumes with AI';
         backBtn.style.display = 'flex';
@@ -1654,23 +1480,8 @@
         specialWishesView.classList.add('hidden');
         resumeBuilderView.classList.add('hidden');
         emailWriterView.classList.remove('hidden');
-        blogWritingView.classList.add('hidden');
         pageTitle.textContent = 'Email Writer';
         pageSubtitle.textContent = 'Generate professional emails';
-        backBtn.style.display = 'flex';
-        return;
-      }
-
-      // Blog Writing view
-      if (tab === 'blog') {
-        chatInterface.style.display = 'none';
-        generatorInterface.classList.remove('visible');
-        specialWishesView.classList.add('hidden');
-        resumeBuilderView.classList.add('hidden');
-        emailWriterView.classList.add('hidden');
-        blogWritingView.classList.remove('hidden');
-        pageTitle.textContent = 'Blog Writing';
-        pageSubtitle.textContent = 'Generate SEO-optimized blog articles';
         backBtn.style.display = 'flex';
         return;
       }
@@ -1681,7 +1492,6 @@
       specialWishesView.classList.add('hidden');
       resumeBuilderView.classList.add('hidden');
       emailWriterView.classList.add('hidden');
-      blogWritingView.classList.add('hidden');
       backBtn.style.display = 'flex';
       
       const config = GENERATOR_CONFIGS[tab];
@@ -2588,283 +2398,6 @@
               btn.innerHTML = originalHTML;
             }, 2000);
           }
-        });
-      }
-    };
-
-    // ============================================================
-    // BLOG WRITING FUNCTIONS
-    // ============================================================
-    const generateBlogBtn = document.getElementById('generateBlogBtn');
-    let blogPlainTextContent = '';
-    let blogHtmlContent = '';
-    let currentBlogView = 'plaintext';
-
-    if (generateBlogBtn) {
-      generateBlogBtn.addEventListener('click', async () => {
-        const topic = document.getElementById('blogTopicInput').value.trim();
-        const keywords = document.getElementById('blogKeywordsInput').value.trim();
-        const cta = document.getElementById('blogCTAInput').value.trim();
-        const language = document.getElementById('blogLanguageSelect').value;
-        const format = document.getElementById('blogFormatSelect').value;
-
-        if (!topic) {
-          alert('Please enter a blog topic');
-          return;
-        }
-
-        const outputSection = document.getElementById('blogOutput');
-        const title1El = document.getElementById('blogTitle1');
-        const title2El = document.getElementById('blogTitle2');
-        const title3El = document.getElementById('blogTitle3');
-        const bodyOutput = document.getElementById('blogBodyOutput');
-
-        outputSection.style.display = 'flex';
-        title1El.textContent = 'Generating titles...';
-        title2El.textContent = 'Generating titles...';
-        title3El.textContent = 'Generating titles...';
-        bodyOutput.textContent = 'Generating article...';
-
-        const primaryKeyword = keywords.split(',')[0]?.trim() || topic.split(' ')[0];
-        
-        const languageInstruction = language !== 'en' ? `\n\nIMPORTANT: Write the entire article in ${language} language. All content including titles, headings, and body must be in ${language}.` : '';
-        
-        const systemPromptPlain = `System Objective:
-You are an AI optimized for SEO writing. Your primary function is to generate a 2000-word article that passes readability scores and targets semantic SEO.${languageInstruction}
-
-Hard Rules:
-- Keyword Density: Use the primary keyword "${primaryKeyword}" naturally at a density of 1-2%.
-- Snippet Optimization: The first 100 words must answer the user's search query immediately.
-- Internal Linking: Suggest 2-3 internal linking opportunities (anchor text suggestions).
-- Entities: Include at least 5 related entities (synonyms/topics) to help Google understand the context.
-
-Content Structure (Strict Order):
-- Title (H1): Include primary keyword.
-- Intro: Problem -> Agitation -> Solution (PAS Framework).
-- Body: Follow the "Skyscraper Technique" (make it better than existing articles).
-- Comparison Table: If applicable, include a mini-comparison table for products/services.
-- FAQ Section: Include 3-4 questions with concise answers (ideal for Schema Markup).
-- Conclusion: Do not introduce new information here.
-
-Style Guidelines:
-- Tone: Confident, authoritative, helpful.
-- Sentences: Mix of short punchy sentences and medium-length sentences to maintain rhythm.
-- Prohibited: No introductory phrases like "In the ever-evolving world..." or "In conclusion...".
-${cta ? `- CTA: Include this call to action: "${cta}"` : ''}
-
-Return your response as a JSON object with this exact structure:
-{
-  "titles": ["title option 1", "title option 2", "title option 3"],
-  "content": "the full article content in plain text format"
-}`;
-
-        const systemPromptHtml = `System Objective:
-You are an AI optimized for SEO writing. Your primary function is to generate a 2000-word article that passes readability scores and targets semantic SEO.${languageInstruction}
-
-Hard Rules:
-- Keyword Density: Use the primary keyword "${primaryKeyword}" naturally at a density of 1-2%.
-- Snippet Optimization: The first 100 words must answer the user's search query immediately.
-- Internal Linking: Suggest 2-3 internal linking opportunities (anchor text suggestions).
-- Entities: Include at least 5 related entities (synonyms/topics) to help Google understand the context.
-
-Content Structure (Strict Order):
-- Title (H1): Include primary keyword.
-- Intro: Problem -> Agitation -> Solution (PAS Framework).
-- Body: Follow the "Skyscraper Technique" (make it better than existing articles).
-- Comparison Table: If applicable, include a mini-comparison table for products/services.
-- FAQ Section: Include 3-4 questions with concise answers (ideal for Schema Markup).
-- Conclusion: Do not introduce new information here.
-
-Style Guidelines:
-- Tone: Confident, authoritative, helpful.
-- Sentences: Mix of short punchy sentences and medium-length sentences to maintain rhythm.
-- Prohibited: No introductory phrases like "In the ever-evolving world..." or "In conclusion...".
-${cta ? `- CTA: Include this call to action: "${cta}"` : ''}
-
-Return properly structured and hierarchical HTML content using proper tags like h1, h2, h3, h4, p, and <img src="working public image link"> for adding images to the blog. Do NOT return a full HTML file, just the content with proper HTML tags.
-
-Return your response as a JSON object with this exact structure:
-{
-  "titles": ["title option 1", "title option 2", "title option 3"],
-  "content": "the full article content in HTML format with proper tags"
-}`;
-
-        const systemPrompt = format === 'html' ? systemPromptHtml : systemPromptPlain;
-
-        // Use new job-based approach for long-form content to avoid timeout
-        generateBtn.disabled = true;
-        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
-        
-        try {
-          // Step 1: Create blog generation job
-          const createRes = await fetch('/api/blog/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              topic,
-              keywords,
-              cta,
-              language,
-              format,
-              model: modelSelect.value || MODELS[0],
-            }),
-          });
-
-          if (!createRes.ok) {
-            const errData = await createRes.json().catch(() => ({}));
-            throw new Error(errData.error || 'Failed to start blog generation');
-          }
-
-          const createData = await createRes.json();
-          const jobId = createData.jobId;
-          const estimatedTime = createData.estimatedTime || 30;
-
-          outputSection.style.display = 'flex';
-          title1El.textContent = 'Starting generation...';
-          title2El.textContent = 'Please wait';
-          title3El.textContent = `Est. ${estimatedTime}s`;
-          bodyOutput.textContent = 'Generating outline and sections... This may take a minute.';
-
-          // Step 2: Poll for progress
-          const pollInterval = setInterval(async () => {
-            try {
-              const pollRes = await fetch(`/api/blog/${jobId}`);
-              if (!pollRes.ok) {
-                clearInterval(pollInterval);
-                throw new Error('Polling failed');
-              }
-
-              const pollData = await pollRes.json();
-              
-              // Update progress UI
-              const { status, progress, content, titles, error } = pollData;
-              
-              if (progress && progress.totalSections > 0) {
-                const pct = progress.percentage || 0;
-                const current = progress.currentSection || 'Initializing';
-                bodyOutput.textContent = `Generating: ${current}\nProgress: ${pct}% (${progress.completedSections}/${progress.totalSections} sections)`;
-              }
-
-              if (titles && titles.length > 0) {
-                title1El.textContent = titles[0] || 'Title 1';
-                title2El.textContent = titles[1] || 'Title 2';
-                title3El.textContent = titles[2] || 'Title 3';
-              }
-
-              if (status === 'done') {
-                clearInterval(pollInterval);
-                
-                // Parse and store content - convert markdown headers to proper format
-                let rawContent = content || '';
-                
-                // Remove markdown-style section headers for clean storage
-                blogPlainTextContent = rawContent.replace(/^##\s+(.*)$/gm, '$1').trim();
-                
-                // Convert to HTML if needed
-                if (format === 'html') {
-                  // Already in HTML format from the API
-                  blogHtmlContent = rawContent;
-                } else {
-                  // For plain text view, use marked.js to render markdown as HTML for display
-                  blogHtmlContent = typeof marked !== 'undefined' ? marked.parse(rawContent) : rawContent.replace(/\n/g, '<br>');
-                }
-                
-                // Final display
-                currentBlogView = format;
-                updateBlogView();
-                
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article';
-                
-              } else if (status === 'failed') {
-                clearInterval(pollInterval);
-                throw new Error(error || 'Generation failed');
-              }
-
-            } catch (pollErr) {
-              clearInterval(pollInterval);
-              throw pollErr;
-            }
-          }, 2000); // Poll every 2 seconds
-
-          // Timeout after 5 minutes
-          setTimeout(() => {
-            if (generateBtn.disabled) {
-              clearInterval(pollInterval);
-              generateBtn.disabled = false;
-              generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article';
-              bodyOutput.textContent = 'Generation timed out. Please try again with a shorter topic or different model.';
-            }
-          }, 300000);
-
-        } catch (e) {
-          console.error('Error generating blog:', e);
-          title1El.textContent = 'Error generating titles';
-          title2El.textContent = 'Error generating titles';
-          title3El.textContent = 'Error generating titles';
-          bodyOutput.textContent = `Error: ${e.message}. Please try again.`;
-          generateBtn.disabled = false;
-          generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Blog Article';
-        }
-      });
-    }
-
-    function updateBlogView() {
-      const bodyOutput = document.getElementById('blogBodyOutput');
-      const plainBtn = document.getElementById('viewPlainTextBtn');
-      const htmlBtn = document.getElementById('viewHtmlBtn');
-
-      if (currentBlogView === 'html') {
-        bodyOutput.innerHTML = blogHtmlContent;
-        plainBtn.style.background = 'rgba(255,255,255,0.05)';
-        plainBtn.style.color = '#8896b0';
-        htmlBtn.style.background = 'rgba(124, 92, 252, 0.2)';
-        htmlBtn.style.color = '#cdbfff';
-      } else {
-        // Use marked.js to render markdown content as HTML for better readability
-        if (typeof marked !== 'undefined') {
-          bodyOutput.innerHTML = marked.parse(blogPlainTextContent);
-        } else {
-          bodyOutput.innerHTML = blogPlainTextContent.replace(/\n/g, '<br>');
-        }
-        plainBtn.style.background = 'rgba(124, 92, 252, 0.2)';
-        plainBtn.style.color = '#cdbfff';
-        htmlBtn.style.background = 'rgba(255,255,255,0.05)';
-        htmlBtn.style.color = '#8896b0';
-      }
-    }
-
-    window.switchBlogView = function(view) {
-      currentBlogView = view;
-      updateBlogView();
-    };
-
-    window.copyBlogTitle = function(num) {
-      const titleEl = document.getElementById(`blogTitle${num}`);
-      const titleText = titleEl.textContent;
-      if (titleText && !titleText.includes('Generating') && !titleText.includes('Error')) {
-        navigator.clipboard.writeText(titleText).then(() => {
-          const btn = event.currentTarget;
-          const originalHTML = btn.innerHTML;
-          btn.innerHTML = '<i class="fas fa-check"></i> <span>Copied!</span>';
-          setTimeout(() => {
-            btn.innerHTML = originalHTML;
-          }, 2000);
-        });
-      }
-    };
-
-    window.copyBlogBody = function() {
-      const bodyOutput = document.getElementById('blogBodyOutput');
-      const bodyText = currentBlogView === 'html' ? blogHtmlContent : blogPlainTextContent;
-      if (bodyText && !bodyText.includes('Generating') && !bodyText.includes('Error')) {
-        navigator.clipboard.writeText(bodyText).then(() => {
-          const btn = event.currentTarget;
-          const originalHTML = btn.innerHTML;
-          btn.innerHTML = '<i class="fas fa-check"></i> <span>Copied!</span>';
-          setTimeout(() => {
-            btn.innerHTML = originalHTML;
-          }, 2000);
         });
       }
     };
