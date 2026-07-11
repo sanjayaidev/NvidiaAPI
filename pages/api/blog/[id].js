@@ -7,6 +7,7 @@
 
 import { getSql } from '../../../lib/db';
 import { getUserId } from '../../../lib/auth';
+import { advanceBlogJob } from '../../../lib/blogRunner';
 
 export const config = { runtime: 'edge' };
 
@@ -29,7 +30,7 @@ export default async function handler(req) {
   const id = url.pathname.split('/').pop();
 
   // Get job and verify ownership
-  const [job] = await sql`
+  let [job] = await sql`
     select id, user_id, tool, provider, status, input, output, error, created_at
     from jobs where id = ${id}
   `;
@@ -40,6 +41,18 @@ export default async function handler(req) {
 
   if (job.tool !== 'blog') {
     return json({ error: 'Not a blog generation job' }, 400);
+  }
+
+  // Opportunistically drive the job forward by one step (one section,
+  // or the title-generation step) on every poll. This is what actually
+  // makes generation progress — see lib/blogRunner.js for why this
+  // can't safely be a background/fire-and-forget loop.
+  if (job.status !== 'done' && job.status !== 'failed') {
+    try {
+      job = await advanceBlogJob(sql, job);
+    } catch (err) {
+      console.error(`advanceBlogJob failed for ${job.id}:`, err.message);
+    }
   }
 
   // Parse output JSON
