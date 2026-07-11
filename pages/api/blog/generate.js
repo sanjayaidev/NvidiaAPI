@@ -63,23 +63,23 @@ async function generateBlogSection(apiKey, model, systemPrompt, userPrompt, sect
   }
 }
 
-export const config = { 
-  runtime: 'nodejs',
+export const config = {
+  runtime: 'edge',
   maxDuration: 60, // Vercel Pro/Enterprise supports up to 60s
 };
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return json({ error: 'Method not allowed' }, 405);
   }
 
   // Check Content-Type header
-  const contentType = req.headers['content-type'];
+  const contentType = req.headers.get('content-type');
   if (!contentType || !contentType.includes('application/json')) {
-    return res.status(400).json({ 
-      error: 'Invalid Content-Type', 
-      message: 'Content-Type must be application/json' 
-    });
+    return json({
+      error: 'Invalid Content-Type',
+      message: 'Content-Type must be application/json'
+    }, 400);
   }
 
   const sql = getSql();
@@ -91,35 +91,35 @@ export default async function handler(req, res) {
     body = await req.json();
   } catch (err) {
     console.error('JSON parse error:', err.message);
-    return res.status(400).json({ 
-      error: 'Invalid JSON body', 
+    return json({
+      error: 'Invalid JSON body',
       message: 'Request body must be valid JSON',
-      details: err.message 
-    });
+      details: err.message
+    }, 400);
   }
 
   const { topic, keywords = '', cta = '', format = 'plain', model = 'mistralai/mistral-large-3-675b-instruct-2512' } = body || {};
 
   if (!topic || topic.trim().length === 0) {
-    return res.status(400).json({ error: 'Blog topic is required' });
+    return json({ error: 'Blog topic is required' }, 400);
   }
 
   if (!isAllowedModel(model)) {
-    return res.status(403).json({ error: `Model "${model}" is not allowed` });
+    return json({ error: `Model "${model}" is not allowed` }, 403);
   }
 
   // Rate limit check
   const rl = await checkRateLimit(`blog:${model}`);
   if (!rl.ok) {
-    return res.status(429).json({ 
-      error: `Rate limit reached. Try again shortly.`, 
-      retry_after_seconds: rl.retryAfterSec 
-    });
+    return json({
+      error: `Rate limit reached. Try again shortly.`,
+      retry_after_seconds: rl.retryAfterSec
+    }, 429);
   }
 
   const apiKey = process.env.NVIDIA_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'NVIDIA_API_KEY environment variable is not set' });
+    return json({ error: 'NVIDIA_API_KEY environment variable is not set' }, 500);
   }
 
   const primaryKeyword = keywords.split(',')[0]?.trim() || topic.split(' ')[0];
@@ -319,14 +319,14 @@ Do NOT return full HTML document, just content tags.`;
     // Don't await - let it run in background
     generateInBackground();
 
-    return res.status(201).json({ 
-      jobId: job.id, 
+    return json({
+      jobId: job.id,
       status: job.status,
       estimatedTime: Math.ceil(sections.length * 3) // ~3 seconds per section
-    });
+    }, 201);
 
   } catch (err) {
     console.error('Blog generation setup failed:', err);
-    return res.status(500).json({ error: 'Failed to start blog generation', details: err.message });
+    return json({ error: 'Failed to start blog generation', details: err.message }, 500);
   }
 }
