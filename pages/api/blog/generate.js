@@ -13,54 +13,13 @@ import { getSql } from '../../../lib/db';
 import { getUserId, ensureUser } from '../../../lib/auth';
 import { checkRateLimit } from '../../../lib/ratelimit';
 import { isAllowedModel } from '../../../lib/registry';
-
-const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
+import { advanceBlogJob } from '../../../lib/blogRunner';
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
-}
-
-async function generateBlogSection(apiKey, model, systemPrompt, userPrompt, sectionIndex) {
-  const max_tokens = 4096;
-  const temperature = 0.7;
-  
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 55000); // 55s timeout for individual section
-  
-  try {
-    const response = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature,
-        max_tokens,
-        top_p: 1,
-        stream: false,
-      }),
-      signal: controller.signal,
-    });
-    
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`NVIDIA API error: ${response.status} - ${errText}`);
-    }
-    
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || '';
-  } finally {
-    clearTimeout(timeoutId);
-  }
 }
 
 export const config = {
@@ -157,167 +116,23 @@ export default async function handler(req) {
         content: '',
         titles: []
       })})
-      returning id, status, output, created_at
+      returning id, status, input, output, created_at
     `;
 
-    // Start background generation (fire-and-forget)
-    const generateInBackground = async () => {
-      try {
-        const systemPromptPlain = `You are an AI optimized for SEO writing. Generate comprehensive, well-researched content.
-        
-Hard Rules:
-- Keyword Density: Use "${primaryKeyword}" naturally at 1-2% density
-- Snippet Optimization: Answer search queries immediately in first 100 words
-- Include related entities and synonyms for semantic SEO
-- Tone: Confident, authoritative, helpful
-- No filler phrases like "In the ever-evolving world..." or "In conclusion..."
-${cta ? `- Include CTA: "${cta}"` : ''}
-
-Write in plain text format with clear paragraph breaks.`;
-
-        const systemPromptHtml = `You are an AI optimized for SEO writing. Generate comprehensive, well-researched content.
-
-Hard Rules:
-- Keyword Density: Use "${primaryKeyword}" naturally at 1-2% density
-- Snippet Optimization: Answer search queries immediately in first 100 words
-- Include related entities and synonyms for semantic SEO
-- Tone: Confident, authoritative, helpful
-- No filler phrases like "In the ever-evolving world..." or "In conclusion..."
-${cta ? `- Include CTA: "${cta}"` : ''}
-
-Write in HTML format using proper tags: h1, h2, h3, h4, p, ul, ol, li, table, tr, td, th, blockquote, strong, em.
-Include <img src="https://source.unsplash.com/800x600/?${encodeURIComponent(primaryKeyword)}" alt="${primaryKeyword}"> for visual breaks where appropriate.
-Do NOT return full HTML document, just content tags.`;
-
-        const systemPrompt = format === 'html' ? systemPromptHtml : systemPromptPlain;
-        
-        let fullContent = '';
-        const generatedTitles = [];
-        
-        // Update status to 'generating' once we start
-        await sql`
-          update jobs set output = ${JSON.stringify({
-            status: 'generating',
-            totalSections: sections.length,
-            completedSections: 0,
-            content: '',
-            titles: []
-          })} where id = ${job.id}
-        `;
-        
-        // Generate each section
-        for (let i = 0; i < sections.length; i++) {
-          const section = sections[i];
-          const sectionPrompt = `${section.prompt}. Write approximately ${section.wordCount} words. Section title: ${section.section}. Topic: ${topic}. Keywords: ${keywords}.`;
-          
-          try {
-            const sectionContent = await generateBlogSection(
-              apiKey, 
-              model, 
-              systemPrompt, 
-              sectionPrompt,
-              i
-            );
-            
-            // Format content based on output format
-            if (format === 'html') {
-              fullContent += `<h2>${section.section}</h2>\n${sectionContent}\n`;
-            } else {
-              fullContent += `\n\n## ${section.section}\n\n${sectionContent}`;
-            }
-            
-            // Update job progress
-            await sql`
-              update jobs set output = ${JSON.stringify({
-                status: 'generating',
-                totalSections: sections.length,
-                completedSections: i + 1,
-                currentSection: section.section,
-                content: fullContent,
-                titles: generatedTitles
-              })} where id = ${job.id}
-            `;
-            
-            // Small delay to avoid rate limits
-            if (i < sections.length - 1) {
-              await new Promise(resolve => setTimeout(resolve, 500));
-            }
-          } catch (sectionErr) {
-            console.error(`Section ${i} failed:`, sectionErr.message);
-            fullContent += `\n\n## ${section.section}\n\n[Content generation failed for this section]\n\n`;
-          }
-        }
-        
-        // Generate title options
-        const titlePrompt = `Generate 3 compelling, SEO-optimized blog titles for an article about "${topic}". Include the keyword "${primaryKeyword}" naturally. Return ONLY a JSON array of 3 strings.`;
-        
-        try {
-          const titleResponse = await fetch(`${NVIDIA_BASE_URL}/chat/completions`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: [
-                { role: 'system', content: 'Return ONLY a JSON array of exactly 3 title strings.' },
-                { role: 'user', content: titlePrompt }
-              ],
-              temperature: 0.8,
-              max_tokens: 512,
-              stream: false,
-            }),
-          });
-          
-          if (titleResponse.ok) {
-            const titleData = await titleResponse.json();
-            const titleRaw = titleData.choices?.[0]?.message?.content || '';
-            try {
-              const parsedTitles = JSON.parse(titleRaw);
-              if (Array.isArray(parsedTitles) && parsedTitles.length >= 3) {
-                generatedTitles.push(...parsedTitles.slice(0, 3));
-              }
-            } catch {}
-          }
-        } catch {}
-        
-        // Fallback titles
-        if (generatedTitles.length < 3) {
-          while (generatedTitles.length < 3) {
-            generatedTitles.push(`The Ultimate Guide to ${topic}`);
-          }
-        }
-        
-        // Mark job as complete
-        await sql`
-          update jobs set 
-            status = 'done',
-            output = ${JSON.stringify({
-              status: 'complete',
-              totalSections: sections.length,
-              completedSections: sections.length,
-              content: fullContent,
-              titles: generatedTitles.slice(0, 3),
-              format,
-              wordCount: fullContent.split(/\s+/).length
-            })}
-          where id = ${job.id}
-        `;
-        
-      } catch (err) {
-        console.error('Blog generation failed:', err);
-        await sql`
-          update jobs set 
-            status = 'failed',
-            output = ${JSON.stringify({ error: err.message })}
-          where id = ${job.id}
-        `;
-      }
-    };
-    
-    // Don't await - let it run in background
-    generateInBackground();
+    // Best-effort kick: advance the job by one step (one section)
+    // synchronously so the client's very first poll already sees
+    // progress. This mirrors pages/api/jobs/create.js. We deliberately
+    // do NOT fire-and-forget the rest of the sections here — an
+    // unawaited async call has no guarantee of continuing to run once
+    // this response is sent (Edge/Node functions can be frozen right
+    // after the response goes out). Instead, GET /api/blog/:id
+    // advances the job by one more step on every poll, so progress is
+    // driven forward by requests that are actually being awaited.
+    try {
+      await advanceBlogJob(sql, job);
+    } catch (err) {
+      console.error(`advanceBlogJob failed for ${job.id}:`, err.message);
+    }
 
     return json({
       jobId: job.id,
