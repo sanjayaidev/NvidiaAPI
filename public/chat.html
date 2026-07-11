@@ -2762,13 +2762,11 @@ Return your response as a JSON object with this exact structure:
                 
                 // Convert to HTML if needed
                 if (format === 'html') {
-                  // Convert markdown headers to HTML
-                  blogHtmlContent = rawContent
-                    .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
-                    .replace(/\n\n/g, '</p><p>')
-                    .replace(/^(.+)$/gm, '<p>$1</p>');
+                  // Already in HTML format from the API
+                  blogHtmlContent = rawContent;
                 } else {
-                  blogHtmlContent = blogPlainTextContent;
+                  // For plain text view, use marked.js to render markdown as HTML for display
+                  blogHtmlContent = typeof marked !== 'undefined' ? marked.parse(rawContent) : rawContent.replace(/\n/g, '<br>');
                 }
                 
                 // Final display
