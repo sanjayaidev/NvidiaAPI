@@ -88,14 +88,7 @@ export default async function handler(req, res) {
 
   let body;
   try {
-    const rawBody = await req.text();
-    if (!rawBody || rawBody.trim().length === 0) {
-      return res.status(400).json({ 
-        error: 'Empty request body', 
-        message: 'Request body cannot be empty' 
-      });
-    }
-    body = JSON.parse(rawBody);
+    body = await req.json();
   } catch (err) {
     console.error('JSON parse error:', err.message);
     return res.status(400).json({ 
