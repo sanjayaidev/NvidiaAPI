@@ -57,7 +57,7 @@ export default async function handler(req) {
     }, 400);
   }
 
-  const { topic, keywords = '', cta = '', language = 'en', format = 'plain', model = 'mistralai/mistral-large-3-675b-instruct-2512' } = body || {};
+  const { topic, keywords = '', cta = '', format = 'plain', model = 'mistralai/mistral-large-3-675b-instruct-2512' } = body || {};
 
   if (!topic || topic.trim().length === 0) {
     return json({ error: 'Blog topic is required' }, 400);
@@ -85,16 +85,16 @@ export default async function handler(req) {
   
   // Create generic sections immediately (don't wait for AI outline)
   const sections = [
-    { section: 'Introduction', prompt: `Write an engaging introduction about ${topic}. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 300 },
-    { section: 'Understanding the Basics', prompt: `Explain the fundamentals of ${topic}. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 400 },
-    { section: 'Key Benefits', prompt: `Discuss the main benefits and advantages. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 400 },
-    { section: 'Practical Tips', prompt: `Provide actionable tips and strategies. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 500 },
-    { section: 'Common Mistakes', prompt: `Highlight common pitfalls to avoid. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 300 },
-    { section: 'Advanced Techniques', prompt: `Share advanced insights for experienced readers. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 400 },
-    { section: 'Case Studies & Examples', prompt: `Provide real-world examples and case studies. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 400 },
-    { section: 'Tools & Resources', prompt: `Recommend useful tools and resources. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 300 },
-    { section: 'FAQ', prompt: `Answer frequently asked questions about ${topic}. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 300 },
-    { section: 'Conclusion', prompt: `Summarize key points and include CTA: ${cta}. IMPORTANT: Write entirely in ${language} language. Do NOT include the section heading in your response.`, wordCount: 200 },
+    { section: 'Introduction', prompt: `Write an engaging introduction about ${topic}`, wordCount: 300 },
+    { section: 'Understanding the Basics', prompt: `Explain the fundamentals of ${topic}`, wordCount: 400 },
+    { section: 'Key Benefits', prompt: `Discuss the main benefits and advantages`, wordCount: 400 },
+    { section: 'Practical Tips', prompt: `Provide actionable tips and strategies`, wordCount: 500 },
+    { section: 'Common Mistakes', prompt: `Highlight common pitfalls to avoid`, wordCount: 300 },
+    { section: 'Advanced Techniques', prompt: `Share advanced insights for experienced readers`, wordCount: 400 },
+    { section: 'Case Studies & Examples', prompt: `Provide real-world examples and case studies`, wordCount: 400 },
+    { section: 'Tools & Resources', prompt: `Recommend useful tools and resources`, wordCount: 300 },
+    { section: 'FAQ', prompt: `Answer frequently asked questions about ${topic}`, wordCount: 300 },
+    { section: 'Conclusion', prompt: `Summarize key points and include CTA: ${cta}`, wordCount: 200 },
   ];
 
   try {
