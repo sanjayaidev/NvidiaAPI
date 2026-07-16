@@ -27,22 +27,15 @@ const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 // UPDATED ALLOWED_MODELS - Only working models from test results
 // ============================================================
 const ALLOWED_MODELS = [
-  'abacusai/dracarys-llama-3.1-70b-instruct',
-  'deepseek-ai/deepseek-v4-flash',
-  'deepseek-ai/deepseek-v4-pro',
-  'meta/llama-3.1-70b-instruct',
-  'meta/llama-3.1-8b-instruct',
   'meta/llama-3.2-11b-vision-instruct',
-  'meta/llama-3.2-90b-vision-instruct',
   'meta/llama-guard-4-12b',
-  'mistralai/ministral-14b-instruct-2512',
-  'mistralai/mistral-large-3-675b-instruct-2512',
-  'mistralai/mistral-medium-3.5-128b',
   'mistralai/mistral-small-4-119b-2603',
-  'mistralai/mixtral-8x7b-instruct-v0.1',
-  'nvidia/llama-3.1-nemoguard-8b-content-safety'
+  'abacusai/dracarys-llama-3.1-70b-instruct',
+  'meta/llama-3.2-90b-vision-instruct',
+  'meta/llama-3.1-8b-instruct',
+  'deepseek-ai/deepseek-v4-flash',
+  'nvidia/llama-3.1-nemoguard-8b-content-safety',
 ];
-
 // ============================================================
 // MODEL RPM OVERRIDES (per-model rate limits)
 // ============================================================
