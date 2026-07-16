@@ -24,36 +24,62 @@ export const config = {
 const NVIDIA_BASE_URL = 'https://integrate.api.nvidia.com/v1';
 
 // ============================================================
-// UPDATED ALLOWED_MODELS - Only working models from test results
+// ALL AVAILABLE AI MODELS - Comprehensive list with multilingual support
+// Default model: mistralai/mistral-small-4-119b-2603 (excellent multilingual support)
 // ============================================================
 const ALLOWED_MODELS = [
-  'mistralai/mistral-small-4-119b-2603',
-  'meta/llama-3.2-11b-vision-instruct',
-  'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',
-  'nvidia/gliner-pii',
-  'meta/llama-guard-4-12b',
-  'nvidia/ising-calibration-1-35b-a3b',
-  'upstage/solar-10.7b-instruct',
-  'nvidia/nemotron-3-nano-30b-a3b',
-  'google/gemma-2-2b-it',
-  'mistralai/mixtral-8x7b-instruct-v0.1',
-  'nvidia/nemotron-3.5-content-safety',
-  'nvidia/nemotron-3-super-120b-a12b',
-  'nvidia/llama-3.1-nemotron-nano-8b-v1',
-  'meta/llama-3.1-70b-instruct',
   'abacusai/dracarys-llama-3.1-70b-instruct',
-  'google/gemma-3n-e4b-it',
-  'nvidia/nemotron-nano-12b-v2-vl',
-  'meta/llama-3.2-90b-vision-instruct',
-  'nvidia/llama-3.3-nemotron-super-49b-v1',
-  'google/gemma-3n-e2b-it',
-  'nvidia/nemotron-3-ultra-550b-a55b',
   'deepseek-ai/deepseek-v4-flash',
-  'meta/llama-3.2-3b-instruct',
+  'deepseek-ai/deepseek-v4-pro',
+  'google/gemma-2-2b-it',
+  'google/gemma-3n-e2b-it',
+  'google/gemma-3n-e4b-it',
+  'meta/llama-3.1-70b-instruct',
   'meta/llama-3.1-8b-instruct',
+  'meta/llama-3.2-11b-vision-instruct',
   'meta/llama-3.2-1b-instruct',
+  'meta/llama-3.2-3b-instruct',
+  'meta/llama-3.2-90b-vision-instruct',
+  'meta/llama-3.3-70b-instruct',
+  'meta/llama-4-maverick-17b-128e-instruct',
+  'meta/llama-guard-4-12b',
+  'mistralai/ministral-14b-instruct-2512',
+  'mistralai/mistral-large-3-675b-instruct-2512',
   'mistralai/mistral-medium-3.5-128b',
+  'mistralai/mistral-small-4-119b-2603',
+  'mistralai/mixtral-8x7b-instruct-v0.1',
+  'moonshotai/kimi-k2.6',
+  'nvidia/ising-calibration-1-35b-a3b',
+  'nvidia/llama-3.1-nemoguard-8b-content-safety',
+  'nvidia/llama-3.1-nemoguard-8b-topic-control',
+  'nvidia/llama-3.1-nemotron-nano-8b-v1',
+  'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',
+  'nvidia/llama-3.3-nemotron-super-49b-v1',
+  'nvidia/nemotron-3-nano-30b-a3b',
+  'nvidia/nemotron-3-super-120b-a12b',
+  'nvidia/nemotron-3-ultra-550b-a55b',
+  'nvidia/nemotron-3.5-content-safety',
+  'nvidia/nemotron-nano-12b-v2-vl',
+  'upstage/solar-10.7b-instruct',
 ];
+
+// Models with excellent multilingual/regional language support (Indian languages + others)
+const MULTILINGUAL_MODELS = new Set([
+  'mistralai/mistral-small-4-119b-2603',
+  'mistralai/mistral-large-3-675b-instruct-2512',
+  'mistralai/mistral-medium-3.5-128b',
+  'mistralai/mixtral-8x7b-instruct-v0.1',
+  'deepseek-ai/deepseek-v4-flash',
+  'deepseek-ai/deepseek-v4-pro',
+  'meta/llama-3.3-70b-instruct',
+  'meta/llama-3.1-70b-instruct',
+  'google/gemma-2-2b-it',
+  'google/gemma-3n-e2b-it',
+  'google/gemma-3n-e4b-it',
+]);
+
+// Default model - Mistral Small 4 has excellent multilingual support
+const DEFAULT_MODEL = 'mistralai/mistral-small-4-119b-2603';
 // ============================================================
 // MODEL RPM OVERRIDES (per-model rate limits)
 // ============================================================
@@ -158,6 +184,8 @@ async function listModels(apiKey) {
     models: ALLOWED_MODELS, 
     by_provider: byProvider,
     vision_models: Array.from(VISION_MODELS),
+    multilingual_models: Array.from(MULTILINGUAL_MODELS),
+    default_model: DEFAULT_MODEL,
     total: ALLOWED_MODELS.length
   };
 }
@@ -229,7 +257,7 @@ export default async function handler(req) {
 
   const {
     messages,
-    model = 'meta/llama-3.1-70b-instruct',
+    model = DEFAULT_MODEL,
     stream = false,
     temperature = 0.7,
     max_tokens = 2048,

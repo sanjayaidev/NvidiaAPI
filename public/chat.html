@@ -1131,24 +1131,26 @@
   <script>
   (function() {
     // ============================================================
-    // 1. MODEL LIST (updated - Kimi removed)
+    // 1. MODEL LIST - All available models from API
+    // Default model: mistralai/mistral-small-4-119b-2603 (excellent multilingual support)
     // ============================================================
-    const MODELS = [
-  'mistralai/mistral-large-3-675b-instruct-2512',
-  'abacusai/dracarys-llama-3.1-70b-instruct',
-  'deepseek-ai/deepseek-v4-flash',
-  'deepseek-ai/deepseek-v4-pro',
-  'meta/llama-3.1-70b-instruct',
-  'meta/llama-3.1-8b-instruct',
-  'meta/llama-3.2-11b-vision-instruct',
-  'meta/llama-3.2-90b-vision-instruct',
-  'meta/llama-guard-4-12b',
-  'mistralai/ministral-14b-instruct-2512',
-  'mistralai/mistral-medium-3.5-128b',
-  'mistralai/mistral-small-4-119b-2603',
-  'mistralai/mixtral-8x7b-instruct-v0.1',
-  'nvidia/llama-3.1-nemoguard-8b-content-safety',
-];
+    const DEFAULT_MODEL = 'mistralai/mistral-small-4-119b-2603';
+    let MODELS = [];
+    
+    // Models with excellent multilingual/regional language support
+    const MULTILINGUAL_MODELS = new Set([
+      'mistralai/mistral-small-4-119b-2603',
+      'mistralai/mistral-large-3-675b-instruct-2512',
+      'mistralai/mistral-medium-3.5-128b',
+      'mistralai/mixtral-8x7b-instruct-v0.1',
+      'deepseek-ai/deepseek-v4-flash',
+      'deepseek-ai/deepseek-v4-pro',
+      'meta/llama-3.3-70b-instruct',
+      'meta/llama-3.1-70b-instruct',
+      'google/gemma-2-2b-it',
+      'google/gemma-3n-e2b-it',
+      'google/gemma-3n-e4b-it',
+    ]);
 
     const MODELS_WITH_ATTACHMENTS = new Set([
       'meta/llama-3.2-11b-vision-instruct',
@@ -1647,6 +1649,13 @@
         
         const isLong = config.type === 'long';
 
+        // Use multilingual model if language is not English
+        let selectedModel = modelSelect.value || DEFAULT_MODEL;
+        if (selectedLang !== 'en' && !MULTILINGUAL_MODELS.has(selectedModel)) {
+          // Switch to a multilingual model for regional languages
+          selectedModel = DEFAULT_MODEL;
+        }
+
         const res = await fetch('/api/me/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1655,7 +1664,7 @@
               { role: 'system', content: systemPrompt },
               { role: 'user', content: prompt }
             ],
-            model: modelSelect.value || MODELS[0],
+            model: selectedModel,
             stream: false,
             temperature: 0.7,
             max_tokens: isLong ? 4096 : 1024,
@@ -1736,12 +1745,60 @@
     // ============================================================
     // 7. CHAT FUNCTIONS (from original app.html)
     // ============================================================
+    async function loadModelsFromAPI() {
+      try {
+        const res = await fetch('/api/chat?list=models');
+        if (!res.ok) throw new Error('Failed to load models');
+        const data = await res.json();
+        MODELS = data.models || [];
+        
+        // Populate model select with default model first
+        modelSelect.innerHTML = '';
+        
+        // Add default model first
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = DEFAULT_MODEL;
+        defaultOpt.textContent = `${DEFAULT_MODEL} (Default - Multilingual)`;
+        defaultOpt.selected = true;
+        modelSelect.appendChild(defaultOpt);
+        
+        // Add multilingual models next
+        if (data.multilingual_models) {
+          data.multilingual_models.forEach((id) => {
+            if (id !== DEFAULT_MODEL) {
+              const opt = document.createElement('option');
+              opt.value = id;
+              opt.textContent = `${id} (Multilingual)`;
+              modelSelect.appendChild(opt);
+            }
+          });
+        }
+        
+        // Add remaining models
+        MODELS.forEach((id) => {
+          if (id !== DEFAULT_MODEL && (!data.multilingual_models || !MULTILINGUAL_MODELS.has(id))) {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = id;
+            modelSelect.appendChild(opt);
+          }
+        });
+        
+        updateAttachmentButtonVisibility();
+      } catch (err) {
+        console.error('Failed to load models from API:', err);
+        // Fallback to static list
+        MODELS = [DEFAULT_MODEL, ...Array.from(MULTILINGUAL_MODELS)];
+        populateModelSelect();
+      }
+    }
+
     function populateModelSelect() {
       modelSelect.innerHTML = '';
       MODELS.forEach((id, index) => {
         const opt = document.createElement('option');
         opt.value = id;
-        opt.textContent = id;
+        opt.textContent = id + (id === DEFAULT_MODEL ? ' (Default)' : '');
         if (index === 0) opt.selected = true;
         modelSelect.appendChild(opt);
       });
@@ -1974,7 +2031,7 @@
       
       authScreen.style.display = 'none';
       appContainer.classList.add('visible');
-      populateModelSelect();
+      await loadModelsFromAPI();
       renderCanvaStatus();
       await loadOrCreateThread();
     }
@@ -2203,6 +2260,12 @@
       
       const languageName = languageNames[selectedLang] || 'English';
       
+      // Use multilingual model for regional languages
+      let selectedModel = modelSelect.value || DEFAULT_MODEL;
+      if (selectedLang !== 'en' && !MULTILINGUAL_MODELS.has(selectedModel)) {
+        selectedModel = DEFAULT_MODEL;
+      }
+      
       try {
         const res = await fetch('/api/me/chat', {
           method: 'POST',
@@ -2212,7 +2275,7 @@
               { role: 'system', content: `You are a warm, culturally-aware wishes generator for Indian occasions. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"options": ["...", "...", "...", "...", "..."]} with exactly 5 heartfelt wish messages. Generate all wishes in ${languageName} language.` },
               { role: 'user', content: `Generate 5 warm, heartfelt wishes for ${occasionName} in ${languageName} language. Each wish should be 1-2 sentences, include appropriate emojis, and reflect the cultural significance of this Indian occasion. Vary tones: traditional, modern, poetic, simple, and celebratory. Return ONLY JSON: {"options": ["wish1", "wish2", "wish3", "wish4", "wish5"]}` }
             ],
-            model: modelSelect.value || MODELS[0],
+            model: selectedModel,
             stream: false,
             temperature: 0.8,
             max_tokens: 1024,
@@ -2330,6 +2393,14 @@
         bodyOutput.textContent = 'Generating...';
         
         try {
+          // Use multilingual model if language is not English
+          let selectedModel = modelSelect.value || DEFAULT_MODEL;
+          const languageSelect = document.getElementById('languageSelect');
+          const selectedLang = languageSelect ? languageSelect.value : 'en';
+          if (selectedLang !== 'en' && !MULTILINGUAL_MODELS.has(selectedModel)) {
+            selectedModel = DEFAULT_MODEL;
+          }
+          
           const res = await fetch('/api/me/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2338,7 +2409,7 @@
                 { role: 'system', content: 'You are a professional email writer. Respond with ONLY valid JSON, no markdown, no commentary. Shape: {"subject": "...", "body": "..."}.' },
                 { role: 'user', content: `Write a professional email. Subject description: "${subjectDesc || 'N/A'}". Body description: "${bodyDesc || 'N/A'}". Return ONLY JSON: {"subject": "generated subject line", "body": "full email body with proper formatting"}` }
               ],
-              model: modelSelect.value || MODELS[0],
+              model: selectedModel,
               stream: false,
               temperature: 0.7,
               max_tokens: 1024,
